@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<style>
+	#register-table {
+		width: 450px;
+		tr {
+			height: 55px;
+			border-bottom: 1px solid lightgray;
+		}
+		thead {
+			tr {
+				height: 120px !important;
+				font-weight: bold;
+				font-size: 40px;
+			}
+		}
+	}
+	.table-title {
+		border: 1px;
+		border-radius: 10px;
+		color: #8d8d8d;
+		padding: 10px;
+	}
+	.swal2-input {
+		height: 30px !important;
+		margin: 0;
+	}
+	#fileVO {
+		height: 32px !important;
+		padding: 2px 0 0 2px;
+	}
+	.heading-td {
+		width: 20% !important;
+		text-align: left !important;
+		font-size: 15px;
+		font-weight: bold;
+	}
+	.input-auto-size td {
+		input {
+			width: 90%;
+			font-size: 15px;
+		}
+		#product-input2, #product-input3 {
+			width: 44%;
+			float: left;
+			margin-left: 18px;
+		}
+		.code-validation-result, .company-validation-result {
+			width: 44%;
+			float: right;
+			margin-right: 18px;
+		}
+	}
+	#zipcode {
+		width: 50% !important;
+		float: left;
+		margin-left: 5% !important;
+	}
+	#daumaddress {
+		width: 38% !important;
+		margin-right: 3% !important;
+		background-color: lightgray;
+		font-weight: bold;
+		text-align: center;
+	}
+	.swal2-actions {
+		margin: 0.75em 0 0 0 !important;
+	}
+	
+</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+<script>
+
+function addcompany() {
+	Swal.fire({
+		html: `
+			<table id="register-table" class="input-auto-size">
+	  			<thead>
+	  				<tr>
+	  					<td colspan="2" style="text-align:left"> <div class="table-title"><i class="fa-solid fa-building-circle-check"></i> &nbsp; 회사 정보 등록</div> <td>
+	  				</tr>
+	  			</thead>
+	  			<tbody>
+	  				<tr>
+	  					<td class="heading-td"> 회사명 </td>
+	  					<td> <input id="company-input1" class="swal2-input" placeholder="회사명"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 사업자번호 </td>
+	  					<td> <input id="company-input2" class="swal2-input" placeholder="사업자번호"> </td>
+	  				</tr>	  					
+	  				<tr>
+	  					<td class="heading-td"> 대표자명 </td>
+	  					<td> <input id="company-input3" class="swal2-input" placeholder="대표자명"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 연락처 </td>
+	  					<td> <input id="company-input4" class="swal2-input" placeholder="연락처"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 이메일 </td>
+	  					<td> <input id="company-input5" class="swal2-input" placeholder="이메일"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 회사 주소 </td>
+	  					<td> 
+	  						<input style="margin: 0.75em 0 0 0;" id="zipcode" class="swal2-input" size="10" readonly placeholder="우편번호" >
+		  					<input style="margin: 0.75em 0 0 0;" class="swal2-input" id="daumaddress" type="button" value="우편번호 검색" onclick="execDaumPostcode()">
+				            <input style="margin: 0.5em 0 0 0;" id="address1" class="swal2-input" type="text" readonly placeholder="도로명 주소"/>
+				            <input style="margin: 0.5em 0 0.75em 0;" id="address2" class="swal2-input" type="text" placeholder="상세주소 입력"/>
+				            <input type="hidden" id="address_content" name="address_content">
+	  					</td>
+	  				</tr>
+	  			</tbody>
+	  		</table>
+	    `,
+	    showCancelButton: true,
+	    confirmButtonColor: "#2BC783",
+	    cancelButtonColor: "#d33",
+	    confirmButtonText: "Submit",
+	    cancelButtonText: "Cancel",
+	    allowOutsideClick: false,
+	    focusConfirm: false,
+	    preConfirm: () => {
+          var zipcode = document.getElementById("zipcode").value;
+          var address1 = document.getElementById("address1").value;
+          var address2 = document.getElementById("address2").value;
+          var addressString = null;
+		    	
+          if (!address2) {
+            addressString = "(" + zipcode + ") " + address1;
+          } else {
+            addressString = "(" + zipcode + ") " + address1 + " (" + address2 + ")";
+          }
+	        
+	      const name = document.getElementById("company-input1").value;
+	      const busnum = document.getElementById("company-input2").value;
+	      const ceo = document.getElementById("company-input3").value;
+	      const phone = document.getElementById("company-input4").value;
+	      const email = document.getElementById("company-input5").value;
+	      const address = addressString;
+	      if (!name || !busnum || !ceo || !phone || !email || !zipcode) {
+	        Swal.showValidationMessage("모든 입력란을 채워주세요!");
+	        return false;
+	      }
+	      return { 
+	    	 company_name: name, 
+	    	 company_busnum: busnum, 
+	    	 company_ceo: ceo, 
+	    	 company_phone: phone, 
+	    	 company_email: email, 
+	    	 company_address: address
+	      };
+	    }
+	  }).then((result) => {
+	    if (result.isConfirmed) {
+	      fetch('/addCompany', {
+	        method: 'POST',
+	        headers: {
+	          'Content-Type': 'application/json',
+	        },
+	        body: JSON.stringify(result.value),
+	      })
+	        .then(response => {
+	          if (response.ok) {
+	            Swal.fire("성공", "회사 정보가 성공적으로 추가되었습니다.", "success");
+	          } else {
+	            Swal.fire("실패", "회사 정보를 추가하지 못했습니다.", "error");
+	          }
+	        })
+	        .catch(error => {
+	          console.error('Error:', error);
+	          Swal.fire("오류", "요청 중 오류가 발생했습니다.", "error");
+	        });
+	    }
+	  });
+	}
+	
+/*
+카카오 우편번호 검색 가이드 페이지 :  https://postcode.map.daum.net/guide
+getElementById() : html 에서 매개변수로 받은 id 값이 있는 요소를 반환.
+*/
+function execDaumPostcode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var fullAddr = ''; // 최종 주소 변수
+            var extraAddr = ''; // 조합형 주소 변수
+
+            // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+            if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                fullAddr = data.roadAddress;
+            }
+            else { // 사용자가 지번 주소를 선택했을 경우(J)
+                fullAddr = data.jibunAddress;
+            }
+
+            // 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+            if(data.userSelectedType === 'R'){
+                //법정동명이 있을 경우 추가한다.
+                if(data.bname !== ''){
+                    extraAddr += data.bname;
+                }
+                // 건물명이 있을 경우 추가한다.
+                if(data.buildingName !== ''){
+                    extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                // 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+                fullAddr += (extraAddr !== '' ? ' ('+ extraAddr +')' : '');
+            }
+
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.querySelector('input[id=zipcode]').value = data.zonecode; //5자리 새우편번호 사용
+            document.querySelector('input[id=address1]').value = fullAddr;
+            	
+            // 커서를 상세주소 필드로 이동한다.
+            document.querySelector('input[id=address2]').focus();
+        }
+    }).open();
+}
+
+
+
+
+</script>
+
+
+
+<script>
+
+
+
+</script>
+
+
+
+
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Export Datatable start -->
+				
+				<div>
+					<button class="btn btn-primary m-2" onclick="addcompany()">회사 정보 등록</button>
+				</div>
+				
+
+				
+   
+				        
+				<!-- Export Datatable End -->
+			</div>
+			
+			
+			
+			
+			
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>

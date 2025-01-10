@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>품질 관리</title>
+<style>
+
+</style>
+
+
+
+
+<script>
+
+
+</script>
+
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+	
+
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+			
+			<!-- 상단 카드  -->
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>품질 관리</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">QC 검사</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Export Datatable start -->
+				
+				<div class="card-box mb-30">
+				
+					<div class="pd-20">
+						<h4 class="text-blue h4">데이터 출력</h4>
+					</div>
+
+					<div class="pb-20">
+
+						<table
+							class="table hover multiple-select-row data-table-export nowrap">
+							<thead>
+								<tr>
+									<!-- 사용할 수 있는 th class="table-plus datatable-nosort" -->
+									<th>검사 번호</th>
+									<th>등록일</th>
+									<th>검사 종류</th>
+									<th>검사 품목</th>
+									<th>담당자</th>
+									<th>검사 완료일</th>
+									<th>상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="qc,stat: ${qcList}">
+									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">
+									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
+									    <td><th:block th:text="${qc.qc_regdate}"></th:block></td>
+										<td><th:block th:text="${qc.qc_type}"></th:block></td>
+										<td><th:block th:text="${qc.items}"></th:block></td>
+										<td><th:block th:text="${qc.member}"></th:block></td>
+										<td><th:block th:text="${qc.qu_date}"></th:block></td>
+										<td><th:block th:text="${qc.qc_stat}"></th:block></td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+				</div>
+		<!-- Export Datatable End -->
+				
+			</div>
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>
