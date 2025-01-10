@@ -73,7 +73,13 @@ public interface ProjectDAO {
 	// 나현
 	// QC
 	
+	// qc 전체 리스트
 	List<QcVO> getQcList();
 	
+	// qc 1건 정보
+	QcVO getOneQc(int qc_num);
 	
+	// qc 1건 질문-응답 정보 (질문 번호, 질문 내용, 
+	List<QcVO> getOneQcDetail(int qc_num);
+
 }

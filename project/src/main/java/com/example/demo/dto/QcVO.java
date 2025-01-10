@@ -21,4 +21,18 @@ public class QcVO {
 	private int qc_item_num;	// 검사 대상 (원자재, 상품)
 	private int qc_quan;	// 검사 수량
 	private int qc_stat;	// 검사 상태 (진행중, 완료)
+	
+	// QcDetailVO
+	private int qcd_num;	// qc 상세 번호
+// 	private int qc_num;		// qc 번호 (중복)
+//	private String qcq_num;	// 질문 번호
+	private int qc_fail_quan;	// 불량 건수
+	
+	// QcQuestVO
+//	private String qc_type;	// 검사 종류 (중복)
+	private int qcq_num;	// 질문 번호
+//	private String qcquest;	// 질문 내용 (중복)
+	
+	private String product_name; // 상품명 (추가함)
+	
 }

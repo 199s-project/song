@@ -79,10 +79,10 @@
 										<td><th:block th:text="${qc.qc_date}"></th:block></td>
 										<td>
 										<th:block th:if="${qc.qc_stat}==0">
-										<span class="btn btn-primary btn-sm">검사 전</span>
+										<span class="badge badge-primary">검사 전</span>
 										</th:block>
 										<th:block th:if="${qc.qc_stat}==1">
-										<span class="btn btn-outline-secondary btn-sm" disabled>검사 완료</span>
+										<span class="badge badge-secondary">검사 완료</span>
 										</th:block>		
 										<!-- <td><th:block th:text="${qc.qc_stat}"></th:block></td> -->
 									</tr>

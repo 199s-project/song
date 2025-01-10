@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Alias("QcQuestVO")
 public class QcQuestVO {
-	private String qc_type;	
-	private int qcq_num;
-	private String qcquest;
+	private String qc_type;	// 검사 종류
+	private int qcq_num;	// 질문 번호
+	private String qcquest;	// 질문 내용
 }

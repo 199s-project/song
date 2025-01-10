@@ -291,8 +291,26 @@ public class ProjectService {
 // 나현
 // QC
 
+	// QC 전체 리스트 입력	
 	public List<QcVO> getQcList() {
 		return projectDAO.getQcList();
+	}
+	
+	// QC 1건 정보
+	public ModelAndView getOneQc(int qc_num) {
+		log.info("getOneQcDetail - ProjectService");
+		mv = new ModelAndView();
+		QcVO qc = projectDAO.getOneQc(qc_num);
+		mv.addObject("qc", qc);
+		return mv;
+	}
+	
+	// QC 1건 질문 - 응답 정보
+	public ModelAndView getOneQcDetail(int qc_num) {
+		mv = new ModelAndView();
+		List<QcVO> qcDetail = projectDAO.getOneQcDetail(qc_num);
+		mv.addObject("qcDetail", qcDetail);
+		return mv;
 	}
 
 }

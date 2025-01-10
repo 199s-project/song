@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @Alias("QcDetailVO")
 public class QcDetailVO {
-	private int qcd_num;
-	private int qc_num;
-	private int qcquest;
-	private int qc_fail_quan;
+	private int qcd_num;	// qc 상세 번호
+	private int qc_num;		// qc 번호
+	private String qcq_num;	// 질문 번호
+	private int qc_fail_quan;	// 불량 건수
 }

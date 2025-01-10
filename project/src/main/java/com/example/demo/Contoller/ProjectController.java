@@ -327,7 +327,6 @@ public class ProjectController {
         return "qc";
     }
    
-    
     // 품질 관리 유형 등록 페이지 이동
     @GetMapping("qcTypeReg")
     public String qcTypeReg() {
@@ -337,8 +336,17 @@ public class ProjectController {
     
     // 품질 관리 상세 페이지로 이동
     @GetMapping("qcDetail")
-    public String qcDetail() {
-        return "qcDetail";
+    public ModelAndView qcDetail(@RequestParam("qc_num") int qc_num) {
+  
+    	log.info("qcDetail 이동");
+    	log.info("qc_num = "+qc_num);
+    	
+    	mv = new ModelAndView();
+    	mv = projectService.getOneQc(qc_num);
+    	
+    	mv.setViewName("qcDetail");
+    	
+        return mv;
     }
 	
 }
