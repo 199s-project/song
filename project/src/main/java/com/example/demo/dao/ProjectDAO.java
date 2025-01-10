@@ -11,6 +11,7 @@ import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
 import com.example.demo.dto.ProductVO;
+import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 
@@ -69,7 +70,10 @@ public interface ProjectDAO {
 	int insertQuotationDetail(QuotationDetailVO quotationDetailVO);
 	
 	
+	// 나현
+	// QC
 	
+	List<QcVO> getQcList();
 	
 	
 }

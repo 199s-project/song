@@ -25,6 +25,7 @@ import com.example.demo.dto.CompanyVO;
 import com.example.demo.dto.FileVO;
 import com.example.demo.dto.OrderformVO;
 import com.example.demo.dto.ProductVO;
+import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationVO;
 import com.example.demo.service.ProjectService;
 
@@ -319,11 +320,13 @@ public class ProjectController {
     // 품질 관리 리스트 페이지로 이동
     
     @GetMapping("qc")
-    public String qc() {
+    public String qc(Model model) {
+    	List<QcVO> QcList = projectService.getQcList();
+    	model.addAttribute("QcList", QcList);
     	log.info("qc 이동");
         return "qc";
     }
-    
+   
     
     // 품질 관리 유형 등록 페이지 이동
     @GetMapping("qcTypeReg")
@@ -337,8 +340,5 @@ public class ProjectController {
     public String qcDetail() {
         return "qcDetail";
     }
-    
-    
-
 	
 }

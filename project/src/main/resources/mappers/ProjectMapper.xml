@@ -190,9 +190,11 @@
 
 
 <!-- 나현 -->
-<!-- 품질 관리 유형 등록 -->
-<insert id="insertQcType" parameterType="QCTypeVO">
-	insert into qc_type (qctype_num, qctype_name)
-	values ("", #{qctype_name})
-</insert>
+<!-- 품질 관리 리스트 전체 select -->
+<select id="getQcList" resultType="qcVO">
+	select *
+	from qc
+	order by qc_num desc
+</select>
+
 </mapper>

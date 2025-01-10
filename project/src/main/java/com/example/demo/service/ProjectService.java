@@ -17,6 +17,7 @@ import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
 import com.example.demo.dto.ProductVO;
+import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -287,9 +288,11 @@ public class ProjectService {
 
 
 
+// 나현
+// QC
 
-
-
- 
+	public List<QcVO> getQcList() {
+		return projectDAO.getQcList();
+	}
 
 }

@@ -69,15 +69,22 @@
 								</tr>
 							</thead>
 							<tbody>
-								<th:block th:each="qc,stat: ${qcList}">
+								<th:block th:each="qc,stat: ${QcList}">
 									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">
 									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
-									    <td><th:block th:text="${qc.qc_regdate}"></th:block></td>
+									    <td><th:block th:text="${qc.qc_reg}"></th:block></td>
 										<td><th:block th:text="${qc.qc_type}"></th:block></td>
-										<td><th:block th:text="${qc.items}"></th:block></td>
-										<td><th:block th:text="${qc.member}"></th:block></td>
-										<td><th:block th:text="${qc.qu_date}"></th:block></td>
-										<td><th:block th:text="${qc.qc_stat}"></th:block></td>
+										<td><th:block th:text="${qc.qc_item_num}"></th:block></td>
+										<td><th:block th:text="${qc.qc_tester}"></th:block></td>
+										<td><th:block th:text="${qc.qc_date}"></th:block></td>
+										<td>
+										<th:block th:if="${qc.qc_stat}==0">
+										<span class="btn btn-primary btn-sm">검사 전</span>
+										</th:block>
+										<th:block th:if="${qc.qc_stat}==1">
+										<span class="btn btn-outline-secondary btn-sm" disabled>검사 완료</span>
+										</th:block>		
+										<!-- <td><th:block th:text="${qc.qc_stat}"></th:block></td> -->
 									</tr>
 								</th:block>
 							</tbody>
