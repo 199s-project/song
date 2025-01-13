@@ -3,6 +3,45 @@
 <head>
 <title>품질 검사 내역</title>
 
+<script th:inline="javascript">
+function quanChange(event) {
+    const inputElement = event.target;
+    const failQuantity = parseInt(inputElement.value, 10) || 0; // 입력값이 없으면 0 처리
+    const totalFailElement = document.getElementById("totalQuan"); // 총 부적격 수량 필드
+    const totalFailDisplay = document.getElementById("totalFailDisplay"); // 부적격 수량 표시 필드
+    const failRateDisplay = document.getElementById("failRateDisplay"); // 부적격률 표시 필드
+    const totalPassDisplay = document.getElementById("totalPassDisplay"); // 적격 수량 표시 필드
+    const qcQuantity = parseInt(document.querySelector("[th\\:text='${qc.qc_quan}']").innerText, 10) || 0; // 검사 수량
+
+    // 모든 부적격 수량 합계 계산
+    const failInputs = document.querySelectorAll("input[id^='quantity']");
+    let totalFail = 0;
+    failInputs.forEach(input => {
+        totalFail += parseInt(input.value, 10) || 0;
+    });
+
+    // 검사 수량 초과 여부 확인
+    if (totalFail > qcQuantity) {
+        alert("부적격 수량의 총합이 검사 수량을 초과할 수 없습니다.");
+        inputElement.value = Math.max(0, failQuantity - (totalFail - qcQuantity)); // 초과된 값을 조정
+        return quanChange(event); // 재귀 호출로 값을 다시 계산
+    }
+
+    // 총 부적격 수량 업데이트
+    totalFailElement.value = totalFail;
+    totalFailDisplay.value = totalFail;
+
+    // 부적격률 계산 및 업데이트
+    const failRate = ((totalFail / qcQuantity) * 100).toFixed(2);
+    failRateDisplay.value = failRate;
+
+    // 적격 수량 계산 및 업데이트
+    const totalPass = qcQuantity - totalFail;
+    totalPassDisplay.value = totalPass;
+}
+</script>
+
+
 </head>
 <body>
 	<div th:replace="~{/include/header}"></div>
@@ -78,13 +117,13 @@
 						</tr>
 						<tr>
 							<th>부적격 수량</th>
-							<td><span th:text="${totalFail}"></span></td>
+							<td><input type="number" id="totalFailDisplay" th:value="${totalFail}" readonly></td>
 							<th>부적격률</th>
-							<td><span th:text="${#numbers.formatDecimal(failRate,1,2)}"></span>%</td>						
+							<td><input type="number" id="failRateDisplay" th:value="${#numbers.formatDecimal(failRate,1,2)}" readonly></td>						
 						</tr>
 						<tr>
 							<th>적격 수량</th>
-							<td><span th:text="${totalPass}"></span></td>
+							<td><input type="number" id="totalPassDisplay" th:value="${totalPass}" readonly></td>
 							<td></td>
 							<td></td>						
 						</tr>
@@ -102,7 +141,7 @@
 						<tr>
 							<td th:text="${qcq.qcquest}"></td>
 							<td>
-								<input type="number" th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}" />
+								<input type="number" id="quantity${stat.index}" name="quantity${stat.index}" min=0 th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}" onchange=quanChange(event) />
 							</td>
 						</tr>
 						</th:block>
@@ -110,18 +149,14 @@
 						<tfoot>
 						<tr>
 							<th>총 부적격 수량</th>
-							<th><span th:text="${totalFail}"></span></th>
+							<th>
+							<input type="number" id="totalQuan" name="totalQuan" th:value="${totalFail}" readonly>
+							</th>
 						</tr>
 						</tfoot>
 						</table>
-						<th:block th:if="${qc.qc_stat}==0">
-						<input type="button" value="수정" class="btn btn-secondary m-2 rowbtn">
-						<button type="submit" value="제출" class="btn btn-primary m-2 rowbtn">제출</button>
-						</th:block>
-						<th:block th:unless="${qc.qc_stat}==0">
-						<input type="button" value="수정" class="btn btn-secondary m-2 rowbtn" disabled>
-						<button type="submit" value="제출" class="btn btn-primary m-2 rowbtn" disabled>제출</button>
-						</th:block>
+						<input type="button" value="저장" class="btn btn-success m-2 rowbtn">
+						<button type="submit" value="저장 및 제출" class="btn btn-primary m-2 rowbtn">제출</button>
 					</div>					
 				</div>
 		<!-- Export Datatable End -->
