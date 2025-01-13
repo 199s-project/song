@@ -98,11 +98,11 @@ function addproduct() {
 					</tr>
 					<tr>
 						<td class="heading-td"> 제품코드 </td>
-						<td> <input id="product-input2" class="swal2-input" placeholder="제품코드" oninput="productCodeValidation()"> <input id="code-validation-result" class="swal2-input code-validation-result" readonly placeholder="중복여부"></td>
+						<td> <input id="product-input2" class="swal2-input" placeholder="제품코드" oninput="product_codeValidation()"> <input id="code-validation-result" class="swal2-input code-validation-result" readonly placeholder="중복여부"></td>
 					</tr>            
 					<tr>
 						<td class="heading-td"> 제조업체 </td>
-						<td> <input id="product-input3" class="swal2-input" placeholder="제조업체" oninput="companyNameValidation()"> <input id="company-validation-result" class="swal2-input company-validation-result" readonly placeholder="검색결과"> </td>
+						<td> <input id="product-input3" class="swal2-input" placeholder="제조업체" oninput="product_companyNameCheck()"> <input id="company-validation-result" class="swal2-input company-validation-result" readonly placeholder="검색결과"> </td>
 					</tr>
 					<tr>
 						<td class="heading-td"> 카테고리 </td>
@@ -219,7 +219,7 @@ function addproduct() {
 
 <script>
 
-function productCodeValidation() {
+function product_codeValidation() {
 	var product_code = $("#product-input2").val();
 	if (!product_code) {
 		$('.code-validation-result').attr('value', '');
@@ -245,7 +245,7 @@ function productCodeValidation() {
 	}
 }
 
-function companyNameValidation() {
+function product_companyNameCheck() {
 	var company_name = $("#product-input3").val();
 	if (!company_name) {
 		$('.company-validation-result').attr('value', '');	

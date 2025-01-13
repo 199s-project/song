@@ -10,8 +10,11 @@ import com.example.demo.dto.FileVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
-import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.QcVO;
+import com.example.demo.dto.PlandetailVO;
+import com.example.demo.dto.ProductVO;
+import com.example.demo.dto.ProductionPlanVO;
+
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 
@@ -81,5 +84,45 @@ public interface ProjectDAO {
 	
 	// qc 1건 질문-응답 정보 (질문 번호, 질문 내용, 
 	List<QcVO> getOneQcDetail(int qc_num);
+
+
+	List<ProductionPlanVO> getProductionPlanList();
+
+
+	int insertPlandetail(List<PlandetailVO> list);
+
+
+	int insertProduction(ProductionPlanVO productionPlanVO);
+
+	int getfindLastProductionNumber();
+	
+
+	// ------------------------------------------------------
+	
+	int companyNameValidation(String company_name);
+	
+	int companyCodeValidation(String company_code);
+	
+	List<ProductVO> productList();
+	
+	int fileAmount(int product_num);
+	
+	FileVO findFirstImage(int product_num);
+	
+	ProductVO getProductDetail(int product_num);
+	
+	List<FileVO> getProductImages(int product_num);
+
+// new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	
+	QuotationVO getQuotationByQuotnum(int quot_num);
+	
+	CompanyVO getCompanyByCompanynum(int company_num);
+	
+	List<QuotationDetailVO> getQuotationDetailListByQuotnum(int quot_num);
+	
+	OrderformVO getOrderformByOrderformnum(int orderform_num);
+	
+	List<OrderformDetailVO> getOrderformDetailListByOrderformnum(int orderform_num);
 
 }

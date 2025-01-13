@@ -43,12 +43,12 @@
 			width: 90%;
 			font-size: 15px;
 		}
-		#product-input2, #product-input3 {
+		#product-input2, #product-input3, #company-input1, #company-input2 {
 			width: 44%;
 			float: left;
 			margin-left: 18px;
 		}
-		.code-validation-result, .company-validation-result {
+		.code-validation-result, .company-validation-result, .company-name-validation-result, .company-code-validation-result {
 			width: 44%;
 			float: right;
 			margin-right: 18px;
@@ -89,11 +89,11 @@ function addcompany() {
 	  			<tbody>
 	  				<tr>
 	  					<td class="heading-td"> 회사명 </td>
-	  					<td> <input id="company-input1" class="swal2-input" placeholder="회사명"> </td>
+	  					<td> <input id="company-input1" class="swal2-input" placeholder="회사명" oninput="company_nameValidation()"> <input id="company-name-validation-result" class="swal2-input company-name-validation-result" readonly placeholder="중복여부"> </td>
 	  				</tr>
 	  				<tr>
 	  					<td class="heading-td"> 사업자번호 </td>
-	  					<td> <input id="company-input2" class="swal2-input" placeholder="사업자번호"> </td>
+	  					<td> <input id="company-input2" class="swal2-input" placeholder="사업자번호" oninput="company_codeValidation()"> <input id="company-code-validation-result" class="swal2-input company-code-validation-result" readonly placeholder="중복여부"> </td>
 	  				</tr>	  					
 	  				<tr>
 	  					<td class="heading-td"> 대표자명 </td>
@@ -120,7 +120,7 @@ function addcompany() {
 	  			</tbody>
 	  		</table>
 	    `,
-	    showCancelButton: true,
+		showCancelButton: true,
 	    confirmButtonColor: "#2BC783",
 	    cancelButtonColor: "#d33",
 	    confirmButtonText: "Submit",
@@ -128,59 +128,70 @@ function addcompany() {
 	    allowOutsideClick: false,
 	    focusConfirm: false,
 	    preConfirm: () => {
-          var zipcode = document.getElementById("zipcode").value;
-          var address1 = document.getElementById("address1").value;
-          var address2 = document.getElementById("address2").value;
-          var addressString = null;
+			var zipcode = document.getElementById("zipcode").value;
+			var address1 = document.getElementById("address1").value;
+			var address2 = document.getElementById("address2").value;
+			var addressString = null;
 		    	
-          if (!address2) {
-            addressString = "(" + zipcode + ") " + address1;
-          } else {
-            addressString = "(" + zipcode + ") " + address1 + " (" + address2 + ")";
-          }
+			if (!address2) {
+				addressString = "(" + zipcode + ") " + address1;
+			} else {
+				addressString = "(" + zipcode + ") " + address1 + " (" + address2 + ")";
+			}
 	        
-	      const name = document.getElementById("company-input1").value;
-	      const busnum = document.getElementById("company-input2").value;
-	      const ceo = document.getElementById("company-input3").value;
-	      const phone = document.getElementById("company-input4").value;
-	      const email = document.getElementById("company-input5").value;
-	      const address = addressString;
-	      if (!name || !busnum || !ceo || !phone || !email || !zipcode) {
-	        Swal.showValidationMessage("모든 입력란을 채워주세요!");
-	        return false;
-	      }
-	      return { 
-	    	 company_name: name, 
-	    	 company_busnum: busnum, 
-	    	 company_ceo: ceo, 
-	    	 company_phone: phone, 
-	    	 company_email: email, 
-	    	 company_address: address
-	      };
+			const name = document.getElementById("company-name-validation-result").value;
+			const busnum = document.getElementById("company-code-validation-result").value;
+			const ceo = document.getElementById("company-input3").value;
+			const phone = document.getElementById("company-input4").value;
+			const email = document.getElementById("company-input5").value;
+			const address = addressString;
+			const val1 = document.getElementById("company-name-validation-result").value;
+			const val2 = document.getElementById("company-code-validation-result").value;
+	      
+			if (!name || !busnum || !ceo || !phone || !email || !zipcode) {
+				Swal.showValidationMessage("모든 입력란을 채워주세요!");
+				return false;
+			}
+			if (val1 == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 회사명입니다!");
+				return false;
+			}
+			if (val2 == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 등록번호입니다!");
+				return false;
+			}
+			return { 
+				company_name: name, 
+				company_busnum: busnum, 
+				company_ceo: ceo, 
+				company_phone: phone, 
+				company_email: email, 
+				company_address: address
+			};
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			fetch('/addCompany', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(result.value),
+			})
+			.then(response => {
+				if (response.ok) {
+					Swal.fire("성공", "회사 정보가 성공적으로 추가되었습니다.", "success");
+				} else {
+					Swal.fire("실패", "회사 정보를 추가하지 못했습니다.", "error");
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire("오류", "요청 중 오류가 발생했습니다.", "error");
+			});
 	    }
-	  }).then((result) => {
-	    if (result.isConfirmed) {
-	      fetch('/addCompany', {
-	        method: 'POST',
-	        headers: {
-	          'Content-Type': 'application/json',
-	        },
-	        body: JSON.stringify(result.value),
-	      })
-	        .then(response => {
-	          if (response.ok) {
-	            Swal.fire("성공", "회사 정보가 성공적으로 추가되었습니다.", "success");
-	          } else {
-	            Swal.fire("실패", "회사 정보를 추가하지 못했습니다.", "error");
-	          }
-	        })
-	        .catch(error => {
-	          console.error('Error:', error);
-	          Swal.fire("오류", "요청 중 오류가 발생했습니다.", "error");
-	        });
-	    }
-	  });
-	}
+	});
+}
 	
 /*
 카카오 우편번호 검색 가이드 페이지 :  https://postcode.map.daum.net/guide
@@ -238,19 +249,63 @@ function execDaumPostcode() {
 <script>
 
 
+function company_nameValidation() {
+	var company_name = $("#company-input1").val();
+	if (!company_name) {
+		$('.company-name-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/companyNameValidation",
+			data: {company_name : company_name},
+			success: function(cnt) {
+				if (cnt > 0) {
+					$('.company-name-validation-result').attr('value', '사용불가');
+					$('.company-name-validation-result').css({
+						"color" : "red",
+					});
+				} else {
+					$('.company-name-validation-result').attr('value', '사용가능');
+					$('.company-name-validation-result').css({
+						"color" : "green",
+					});
+				}
+			}
+		});
+	}
+}
 
+function company_codeValidation() {
+	var company_code = $("#company-input2").val();
+	if (!company_code) {
+		$('.company-code-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/companyCodeValidation",
+			data: {company_code : company_code},
+			success: function(cnt) {
+				if (cnt > 0) {
+					$('.company-code-validation-result').attr('value', '사용불가');
+					$('.company-code-validation-result').css({
+						"color" : "red",
+					});
+				} else {
+					$('.company-code-validation-result').attr('value', '사용가능');
+					$('.company-code-validation-result').css({
+						"color" : "green",
+					});
+				}
+			}
+		});
+	}
+}
 </script>
-
-
-
-
-
 
 </head>
 <body>
 	<div th:replace="~{/include/header}"></div>
 	<div class="mobile-menu-overlay"></div>
-
 	<div class="main-container">
 		<div class="pd-ltr-20 xs-pd-20-10">
 			<div class="min-height-200px">

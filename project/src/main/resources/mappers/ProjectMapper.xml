@@ -74,8 +74,6 @@
 	    GROUP BY 
 	        orderform.orderform_num;
 	</select> 
-	
-	
 	<!-- 물품 판매 리스트 -->
 	<select id="quotationList" resultType="QuotationVO">
 	   SELECT 
@@ -110,10 +108,9 @@
 	           orderform.orderform_num;
 	</select>
 	
-	
-	
-
-	
+	<select id="getProductionPlanList" resultType="ProductionPlanVO">
+	select * from productionplan;
+	</select>
 	
 	<select id="getCompanyList" resultType="CompanyVO">
 		select *
@@ -218,6 +215,93 @@
 	WHERE q.qc_num = #{qc_num};
 
 </select>
+	
+
+	
+	<insert id="insertProduction" parameterType="ProductionPlanVO">
+	insert into productionplan (pd_writedate,pd_writer,pd_dept,pd_startdate,pd_enddate,pd_name,pd_content)
+	values (now(),#{pd_writer},#{pd_dept},#{pd_startdate},#{pd_enddate},#{pd_name},#{pd_content})
+	</insert>
+	
+	<select id="getfindLastProductionNumber" resultType="int">
+	select pd_num from productionplan order by pd_num desc limit 1;
+	</select>
+	
+	
+	
+	<insert id="insertPlandetail" parameterType="PlandetailVO">
+		insert into plandetail (pd_num,plandetail_name,plandetail_amount)
+		values
+	 <foreach collection="list" item="planVO" separator=",">
+	 (#{planVO.pd_num},#{planVO.plandetail_name},#{planVO.plandetail_amount})
+	 </foreach>
+	</insert> 
+
+
+
+
+	<!-- ========================================================================== -->
+
+	<select id="companyNameValidation" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from company where company_name = #{company_name}
+	</select>
+	
+	<select id="companyCodeValidation" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from company where company_busnum = #{company_code}
+	</select>
+	
+	<select id="productList" resultType="ProductVO">
+		select *, 0 as file_amount, 'file_name' as file_name, 'file_path' as file_path from product
+	</select>
+	
+	<select id="fileAmount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from file where file_pk = #{product_num}
+	</select>	
+	
+	<select id="findFirstImage" parameterType="java.lang.Integer" resultType="FileVO">
+		select * from file where file_pk = #{product_num} order by file_num desc limit 1
+	</select>
+	
+	<select id="getProductDetail" parameterType="java.lang.Integer" resultType="ProductVO"> 
+		select * from product where product_num = #{product_num} 
+	</select>
+
+	<select id="getProductImages" parameterType="java.lang.Integer" resultType="FileVO"> 
+		select * from file where file_pk = #{product_num} order by file_num desc
+	</select>
+
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+
+	<select id="getQuotationByQuotnum" parameterType="int">
+		select *
+		from quotation
+		where quot_num = #{quot_num}
+	</select>
+	
+	<select id="getCompanyByCompanynum" parameterType="int">
+		select *
+		from company
+		where company_num = #{company_num}
+	</select>
+	
+	<select id="getQuotationDetailListByQuotnum" parameterType="int">
+		select *
+		from quotationdetail
+		where quot_num = #{quot_num}
+	</select>
+	
+	<select id="getOrderformByOrderformnum" parameterType="int">
+		select *
+		from orderform
+		where orderform_num = #{orderform_num}
+	</select>
+	
+	<select id="getOrderformDetailListByOrderformnum" parameterType="int">
+		select *
+		from orderformdetail
+		where orderform_num = #{orderform_num}
+
+	</select>
 
 
 </mapper>

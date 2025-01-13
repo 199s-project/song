@@ -136,7 +136,7 @@ window.addEventListener('DOMContentLoaded', function onload() {
 				<div class="card-box mb-30">
 				<div style="padding: 70px;">
 				<div style="border: 1px solid black; width: 1200px; padding: 60px 120px; margin: 0 auto;">
-				    <div class="title2" style="padding: 30px 0 40px 0; font-size: 40px;">물품 판매 계약서</div>
+				    <div class="title2" style="padding: 30px 0 40px 0; font-size: 40px;">물품 구매 계약서</div>
 				    <table class="input-auto-size">
 				        <tr>
 				            <td class="heading-section" width="15%">계약 번호</td>
@@ -175,12 +175,12 @@ window.addEventListener('DOMContentLoaded', function onload() {
 					        <th class="heading-section" width="10%">수량(ea)</th>
 					        <th class="heading-section" width="20%">금액(원)</th>
 					    </tr>
-					    <tr th:each="quotationDetailVO : ${quotationDetailListVO}">
-					        <td class="rownum" style="text-align: right; padding-right: 15px;"><th:block th:text="${quotationDetailVOStat.count}"></th:block></td>
-					        <td><th:block th:text="${quotationDetailVO.product_num}"></th:block></td>
+					    <tr th:each="orderformDetailVO : ${orderformDetailListVO}">
+					        <td class="rownum" style="text-align: right; padding-right: 15px;"><th:block th:text="${orderformDetailVOStat.count}"></th:block></td>
+					        <td><th:block th:text="${orderformDetailVO.product_num}"></th:block></td>
 					        <td class="unit_price"><span id="unit_price" onload="onload()"></span></td>
-					        <td class="quantity"><th:block id="quantity" name="quantity" th:text="${quotationDetailVO.quotdetail_amount}"></th:block></td>
-					        <td class="total_price"><th:block id="total_price" name="total_price" th:text="${quotationDetailVO.quotdetail_price}"></th:block></td>
+					        <td class="quantity"><th:block id="quantity" name="quantity" th:text="${orderformDetailVO.orderdetail_amount}"></th:block></td>
+					        <td class="total_price"><th:block id="total_price" name="total_price" th:text="${orderformDetailVO.orderdetail_price}"></th:block></td>
 					    </tr>
 					    <!-- Add more rows as needed -->
 					</table>
@@ -188,13 +188,13 @@ window.addEventListener('DOMContentLoaded', function onload() {
 					<table class="input-auto-size">
 					    <tr>
 					        <td class="heading-section" width="15%">계약일</td>
-					        <td><th:block th:text="${quotationVO.quot_enddate}"></th:block></td>
+					        <td><th:block th:text="${orderformVO.orderform_endDate}"></th:block></td>
 					        <td class="heading-section" width="15%">계약 금액</td>
 					        <td class="payment"><span id="payment"></span></td>
 					    </tr>
 					    <tr>
 					        <td class="heading-section">계약 이행일</td>
-					        <td><th:block th:text="${quotationVO.quot_startdate}"></th:block></td>
+					        <td><th:block th:text="${orderformVO.orderform_startDate}"></th:block></td>
 					        <td class="heading-section">계약 보증금</td>
 					        <td class="contract_deposit"><span id="contract_deposit"></span></td>
 					    </tr>
@@ -204,7 +204,7 @@ window.addEventListener('DOMContentLoaded', function onload() {
 					    </tr>
 					    <tr height="300px">
 					        <td class="heading-section">비고</td>
-					        <td colspan="3"><th:block th:text="${quotationVO.quot_content}"></th:block></td>
+					        <td colspan="3"><th:block th:text="${orderformVO.orderform_content}"></th:block></td>
 					    </tr>
 					</table>				
 				</div>

@@ -16,8 +16,10 @@ import com.example.demo.dto.FileVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
-import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.QcVO;
+import com.example.demo.dto.PlandetailVO;
+import com.example.demo.dto.ProductVO;
+import com.example.demo.dto.ProductionPlanVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -286,8 +288,6 @@ public class ProjectService {
 		return projectDAO.getProductByProductName(product_name);
 	}
 
-
-
 // 나현
 // QC
 
@@ -313,4 +313,143 @@ public class ProjectService {
 		return mv;
 	}
 
+	public List<ProductionPlanVO> getProductionPlanList() {
+		// TODO Auto-generated method stub
+		log.info("getProductionPlanList()");
+		return projectDAO.getProductionPlanList();
+	}
+	
+	public int setproductionForm(List<PlandetailVO> list) {
+		// TODO Auto-generated method stub
+		return projectDAO.insertPlandetail(list);
+	}
+
+	public int insertProduction(ProductionPlanVO productionPlanVO) {
+		// TODO Auto-generated method stub
+		return projectDAO.insertProduction(productionPlanVO);
+	}
+
+	public int getfindLastProductionNumber() {
+		// TODO Auto-generated method stub
+		return projectDAO.getfindLastProductionNumber();
+	}
+
+	// -----------------------------------------------------------------------------
+
+	public int companyNameValidation(String company_name) {
+		return projectDAO.companyNameValidation(company_name);
+	}
+	public int companyCodeValidation(String company_code) {
+		return projectDAO.companyCodeValidation(company_code);
+	}
+
+	public List<ProductVO> productList() {
+		return projectDAO.productList();
+	}
+	
+	
+	public int fileAmount(int product_num) {
+		return projectDAO.fileAmount(product_num);
+	}
+	
+	public FileVO findFirstImage(int product_num) {
+		return projectDAO.findFirstImage(product_num);
+	}
+	
+	public ProductVO getProductDetail (int product_num) {
+		return projectDAO.getProductDetail(product_num);
+	}
+
+	public List<FileVO> getProductImages(int product_num) {
+		return projectDAO.getProductImages(product_num);
+	}
+	
+
+
+// ---------------new 작업공간 ----------------------------
+	
+	public ModelAndView getQuotationDetail(
+			@RequestParam("quot_num") int quot_num
+			) {
+		
+		QuotationVO quotationVO = new QuotationVO();
+		quotationVO = projectDAO.getQuotationByQuotnum(quot_num);
+		List<QuotationDetailVO> quotationDetailListVO = projectDAO.getQuotationDetailListByQuotnum(quot_num);
+		
+		CompanyVO company1VO = projectDAO.getCompanyByCompanynum(quotationVO.getCompany_num());
+		CompanyVO company2VO = projectDAO.getCompanyByCompanynum(quotationVO.getCompany_num2());
+		
+		String code = updateQuotationCode(quotationVO);
+		
+		
+		mv = new ModelAndView();
+		mv.addObject("code", code);
+		mv.addObject("quotationDetailListVO", quotationDetailListVO);
+		mv.addObject("company1VO", company1VO);
+		mv.addObject("company2VO", company2VO);
+		mv.addObject("quotationVO", quotationVO);
+		mv.setViewName("quotationDetail");
+		return mv;
+	}
+	
+	public ModelAndView getOrderformDetail(
+			@RequestParam("orderform_num") int orderform_num
+			) {
+		OrderformVO orderformVO = new OrderformVO();
+		orderformVO = projectDAO.getOrderformByOrderformnum(orderform_num);
+		List<OrderformDetailVO> orderformDetailListVO = projectDAO.getOrderformDetailListByOrderformnum(orderform_num);
+		
+		CompanyVO company1VO = projectDAO.getCompanyByCompanynum(orderformVO.getCompany_num());
+		CompanyVO company2VO = projectDAO.getCompanyByCompanynum(orderformVO.getCompany_num2());
+		
+		String code = updateOrderformCode(orderformVO);
+		
+		mv = new ModelAndView();
+		mv.addObject("code", code);
+		mv.addObject("orderformDetailListVO", orderformDetailListVO);
+		mv.addObject("company1VO", company1VO);
+		mv.addObject("company2VO", company2VO);
+		mv.addObject("orderformVO", orderformVO);
+		mv.setViewName("orderformDetail");
+		return mv;
+	}
+
+	public String updateQuotationCode(QuotationVO quotationVO) {
+		String code1 = quotationVO.getQuot_regdate().substring(0,10).replaceAll("-", "");
+		String code2 = Integer.toString(quotationVO.getCompany_num());
+		String code3 = Integer.toString(quotationVO.getCompany_num2());
+		String code4 = Integer.toString(quotationVO.getQuot_num());
+		
+		String code = code1 + code2 + code3 + code4;
+		
+		return code;
+	}
+	
+	public String updateOrderformCode(OrderformVO orderformVO) {
+		String code1 = orderformVO.getOrderform_regdate().substring(0,10).replaceAll("-", "");
+		String code2 = Integer.toString(orderformVO.getCompany_num());
+		String code3 = Integer.toString(orderformVO.getCompany_num2());
+		String code4 = Integer.toString(orderformVO.getOrderform_num());
+		
+		String code = code1 + code2 + code3 + code4;
+		
+		return code;
+	}
+	
+	public ModelAndView getAllFormDetail(
+			@RequestParam("this_num") String this_num
+			) {
+		mv = new ModelAndView();
+		if (this_num.contains("quot")) {
+			int quot_num = Integer.parseInt(this_num.replaceAll("quot", ""));
+			mv.addObject("quot_num", quot_num);
+			mv.setViewName("getQuotationDetail");
+			return mv;
+		}
+		
+		
+		
+		return mv;
+	}
+ 
 }

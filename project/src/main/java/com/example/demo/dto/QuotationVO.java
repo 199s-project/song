@@ -20,7 +20,7 @@ public class QuotationVO {
 	private String quot_enddate;
 	
 	
-	//quotaion detail vo
+//quotaion detail vo
 	private int quotdetail_num;
 	private int product_num;
 	private int quotdetail_amount;

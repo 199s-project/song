@@ -25,7 +25,9 @@ th {
 tr:hover {
     background-color: #f9f9f9; /* 마우스 오버 효과 */
 }
-
+.hidden_row {
+	display:none;
+}
 </style>
 
 
@@ -85,7 +87,8 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 						<table
 							class="table hover multiple-select-row data-table-export nowrap">
 							<thead>
-								<tr>
+								<tr>	
+									<th class="hidden_row"></th>
 									<th class="table-plus datatable-nosort">계약서 번호</th>
 									<th>계약서 종류</th>
 									<th>계약서 이름</th>
@@ -99,9 +102,10 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 							<tbody>
 								<th:block th:each="a,stat: ${AllFormList}">
 									<tr>
+										<td class="hidden_row"></td>
 									    <td><th:block th:text="${stat.size-stat.index}"></th:block></td> 
 									    <td><th:block th:text="${a.this_num.startsWith('quot') ? '물품 판매 계약서' : (a.this_num.startsWith('order') ? '물품 구매 계약서' : '')}"></th:block></td>
-										<td><a th:href="@{/AllForm/detail(id=${a.this_num})}"><th:block th:text="${a.quot_name}"></th:block></a></td>
+										<td><a th:href="@{getAllFormDetail(this_num=${a.this_num})}"><th:block th:text="${a.quot_name}"></th:block></a></td>
 										<td><th:block th:text="${a.company_num}"></th:block></td>
 										<td><th:block th:text="${a.company_num2}"></th:block></td>
 										<td><th:block th:text="${a.quot_startdate}"></th:block></td>
