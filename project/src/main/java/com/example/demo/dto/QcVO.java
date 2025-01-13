@@ -1,7 +1,8 @@
 package com.example.demo.dto;
 
-import org.apache.ibatis.type.Alias;
+import java.util.List;
 
+import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,8 +32,10 @@ public class QcVO {
 	// QcQuestVO
 //	private String qc_type;	// 검사 종류 (중복)
 	private int qcq_num;	// 질문 번호
-//	private String qcquest;	// 질문 내용 (중복)
+	private String qcquest;	// 질문 내용 (중복)
 	
 	private String product_name; // 상품명 (추가함)
+	
+	private List<QcVO> QcVoList;
 	
 }

@@ -73,18 +73,22 @@ public interface ProjectDAO {
 	int insertQuotationDetail(QuotationDetailVO quotationDetailVO);
 	
 	
-	// 나현
+	// 나현. 시작.
 	// QC
 	
 	// qc 전체 리스트
 	List<QcVO> getQcList();
 	
-	// qc 1건 정보
+	// qc 1건 기본 정보
 	QcVO getOneQc(int qc_num);
 	
-	// qc 1건 질문-응답 정보 (질문 번호, 질문 내용, 
+	// qc 1건 질문-응답 정보 (질문 번호, 질문 내용, 부적격 수량)
 	List<QcVO> getOneQcDetail(int qc_num);
-
+	
+	// qc 1건 총 부적격 수량
+	int getTotalFail(int qc_num);
+	
+	// 나현. 끝.
 
 	List<ProductionPlanVO> getProductionPlanList();
 

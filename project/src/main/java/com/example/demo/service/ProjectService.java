@@ -288,7 +288,7 @@ public class ProjectService {
 		return projectDAO.getProductByProductName(product_name);
 	}
 
-// 나현
+// 나현. 시작.
 // QC
 
 	// QC 전체 리스트 입력	
@@ -297,22 +297,30 @@ public class ProjectService {
 	}
 	
 	// QC 1건 정보
-	public ModelAndView getOneQc(int qc_num) {
-		log.info("getOneQcDetail - ProjectService");
-		mv = new ModelAndView();
-		QcVO qc = projectDAO.getOneQc(qc_num);
-		mv.addObject("qc", qc);
-		return mv;
+	public QcVO getOneQc(int qc_num) {
+		log.info("getOneQc - Service");
+		return projectDAO.getOneQc(qc_num);
 	}
 	
+//	// QC 1건 질문 - 응답 정보
+//	public List<QcVO> getOneQcDetail(int qc_num) {
+//		log.info("getOneQccc - Service");
+//		return projectDAO.getOneQcDetail(qc_num);
+//	}
+	
 	// QC 1건 질문 - 응답 정보
-	public ModelAndView getOneQcDetail(int qc_num) {
-		mv = new ModelAndView();
-		List<QcVO> qcDetail = projectDAO.getOneQcDetail(qc_num);
-		mv.addObject("qcDetail", qcDetail);
-		return mv;
+	public List<QcVO> getOneQcDetail(int qc_num) {
+		log.info("getOneQcDetail - Service");
+		return projectDAO.getOneQcDetail(qc_num);
 	}
 
+	// QC 총 부적격 수량
+	public int getTotalFail(int qc_num) {
+		return projectDAO.getTotalFail(qc_num);
+	}
+	
+// 나현. 끝.
+	
 	public List<ProductionPlanVO> getProductionPlanList() {
 		// TODO Auto-generated method stub
 		log.info("getProductionPlanList()");

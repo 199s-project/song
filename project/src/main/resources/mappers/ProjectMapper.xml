@@ -186,7 +186,8 @@
 
 
 
-<!-- 나현 -->
+<!-- 나현. 시작. -->
+
 <!-- 품질 관리 리스트 전체 select -->
 <select id="getQcList" resultType="QcVO">
 	select *
@@ -196,27 +197,40 @@
 
 <!-- QC 1건 정보 -->
 
-	<select id="getOneQc" parameterType="java.lang.Integer" resultType="QcVO">
+<select id="getOneQc" parameterType="java.lang.Integer" resultType="QcVO">
 	
 	SELECT qc.*, product_name
 	FROM qc
     LEFT JOIN product p ON p.product_num = qc.qc_item_num
 	WHERE qc.qc_num = #{qc_num};
-	</select>
+	
+</select>
 
 <!-- QC 1건 질문-응답 정보 (질문 번호, 질문 내용, 부적격 수량) -->
 
 <select id="getOneQcDetail" parameterType="java.lang.Integer" resultType="QcVO">
 
-	SELECT qq.qcq_num, qq.QCQUEST, qd.qc_fail_quan
+	SELECT qq.qcq_num, qq.qcquest, qd.qc_fail_quan
 	FROM qc q
 	LEFT JOIN qc_quest qq ON q.qc_type = qq.qc_type
-	LEFT JOIN qc_detail qd ON qq.qcq_num = qd.qcq_num
+	LEFT JOIN qc_detail qd ON qq.qcq_num = qd.qcq_num and q.qc_num = qd.qc_num
 	WHERE q.qc_num = #{qc_num};
 
 </select>
-	
 
+<!-- QC 1건 부적격 수량 -->
+
+<select id="getTotalFail" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+
+	SELECT COALESCE(SUM(qd.qc_fail_quan), 0)
+	FROM qc q
+	LEFT JOIN qc_quest qq ON q.qc_type = qq.qc_type
+	LEFT JOIN qc_detail qd ON qq.qcq_num = qd.qcq_num AND qd.qc_num = q.qc_num
+	WHERE q.qc_num= #{qc_num};
+
+</select>
+
+<!-- 나현. 끝. -->
 	
 	<insert id="insertProduction" parameterType="ProductionPlanVO">
 	insert into productionplan (pd_writedate,pd_writer,pd_dept,pd_startdate,pd_enddate,pd_name,pd_content)

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>품질 검사 내역</title>
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+	
+
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+			
+				<!-- 상단 카드. 시작.  -->
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>품질 검사 내역</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">QC 검사 내역</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+				<!-- 상단 카드. 끝. -->
+				
+				<!-- Export Datatable start -->				
+				<div class="card-box mb-30">
+					<div class="p-5">
+						<table class="table table-bordered">
+						<tr>
+							<th>QC 번호</th>
+							<td><th:block th:text="${qc.qc_num}"></th:block></td>
+							<th>관련 계약서</th>
+							<td>					
+								<th:block th:if="${qc.qc_type}=='order'">
+								<span class="badge badge-success">원자재 계약서</span>					
+								</th:block>
+							
+								<th:block th:if="${qc.qc_type}=='plan'">
+								<span class="badge badge-warning">생산품 견적서</span>
+								</th:block>
+								&nbsp; <th:block th:text="${qc.paper_num}"></th:block>
+							</td>
+						</tr>
+						<tr>
+							<th>검사 요청일</th>
+							<td><th:block th:text="${qc.qc_reg}"></th:block></td>
+							<th>검사 대상</th>
+							<td><th:block th:text="|${qc.product_name} (아이템 번호: ${qc.qc_item_num})|"></th:block></td>						
+						</tr>
+						<tr>
+							<th>검사 완료일</th>
+							<td><th:block th:text="${qc.qc_date}"></th:block></td>
+							<th>검사자</th>
+							<td><th:block th:text="${qc.qc_tester}"></th:block></td>						
+						</tr>
+						<tr>
+							<th>검사 수량</th>
+							<td><th:block th:text="${qc.qc_quan}"></th:block></td>
+							<th>검사 상태</th>
+							<td>
+							<th:block th:if="${qc.qc_stat}==0">
+							<span class="badge badge-primary">검사 전</span>
+							</th:block>
+							<th:block th:if="${qc.qc_stat}==1">
+							<span class="badge badge-secondary">검사 완료</span>
+							</th:block>								
+							</td>						
+						</tr>
+						<tr>
+							<th>부적격 수량</th>
+							<td><span th:text="${totalFail}"></span></td>
+							<th>부적격률</th>
+							<td><span th:text="${#numbers.formatDecimal(failRate,1,2)}"></span>%</td>						
+						</tr>
+						<tr>
+							<th>적격 수량</th>
+							<td><span th:text="${totalPass}"></span></td>
+							<td></td>
+							<td></td>						
+						</tr>
+						</table>
+						
+						<table class="table table-bordered">
+						<thead>
+						<tr>
+							<th>QC 문항</th>
+							<th>부적격 수량</th>
+						</tr>
+						</thead>
+						<tbody>
+						<th:block th:each="qcq, stat: ${QcDetailList}">
+						<tr>
+							<td th:text="${qcq.qcquest}"></td>
+							<td>
+								<span th:if="${qcq.qc_fail_quan == null}">0</span>
+								<span th:unless="${qcq.qc_fail_quan == null}" th:text="${qcq.qc_fail_quan}"></span>
+							</td>
+						</tr>
+						</th:block>
+						</tbody>
+						<tfoot>
+						<tr>
+							<th>총 부적격 수량</th>
+							<th><span th:text="${totalFail}"></span></th>
+						</tr>
+						</tfoot>
+						</table>
+						<th:block th:if="${qc.qc_stat}==0">
+						<input type="button" value="수정" class="btn btn-secondary m-2 rowbtn">
+						<button type="submit" value="제출" class="btn btn-primary m-2 rowbtn">제출</button>
+						</th:block>
+						<th:block th:unless="${qc.qc_stat}==0">
+						<input type="button" value="수정" class="btn btn-secondary m-2 rowbtn" disabled>
+						<button type="submit" value="제출" class="btn btn-primary m-2 rowbtn" disabled>제출</button>
+						</th:block>
+					</div>					
+				</div>
+		<!-- Export Datatable End -->
+				
+			</div>
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>

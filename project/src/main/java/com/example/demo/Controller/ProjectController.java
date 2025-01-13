@@ -437,8 +437,9 @@ public class ProjectController {
     	
     }
     
- // 박나현 ------------------------------
-    // 품질 관리 리스트 페이지로 이동
+
+// 박나현 시작. ------------------------------
+    // QC 리스트 페이지로 이동
     
     @GetMapping("qc")
     public String qc(Model model) {
@@ -447,31 +448,42 @@ public class ProjectController {
     	log.info("qc 이동");
         return "qc";
     }
-   
-    // 품질 관리 유형 등록 페이지 이동
+
+    
+    // QC 상세 페이지로 이동
+    @GetMapping("qcDetail")
+    public String qcDetail(@RequestParam("qc_num") int qc_num, Model model) {
+  
+    	log.info("qcDetail 이동");
+    	log.info("qc_num = "+qc_num);
+
+    	QcVO qc = projectService.getOneQc(qc_num); 	   
+    	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
+    	int totalQC = qc.getQc_quan();
+    	int totalFail = projectService.getTotalFail(qc_num);
+    	int totalPass = totalQC - totalFail;
+    	double failRate = (double)totalFail/totalQC*100;
+    	
+    	model.addAttribute("qc", qc);
+    	model.addAttribute("QcDetailList", QcDetailList);
+    	model.addAttribute("totalQC", totalQC);
+    	model.addAttribute("totalFail", totalFail);
+    	model.addAttribute("totalPass", totalPass);
+    	model.addAttribute("failRate", failRate);
+    	
+        return "qcDetail";
+    }
+
+
+    
+    // QC 유형 등록 페이지 이동
     @GetMapping("qcTypeReg")
     public String qcTypeReg() {
     	log.info("qcTypeReg 이동");
         return "qcTypeReg";
     }
-    
-    // 품질 관리 상세 페이지로 이동
-    @GetMapping("qcDetail")
-    public ModelAndView qcDetail(@RequestParam("qc_num") int qc_num) {
-  
-    	log.info("qcDetail 이동");
-    	log.info("qc_num = "+qc_num);
-    	
-    	mv = new ModelAndView();
-    	mv = projectService.getOneQc(qc_num);
-    	
-    	mv.setViewName("qcDetail");
-    	
-        return mv;
-    }
-    
-    
 
+// 박나현. 끝. ------------------------------
 
 	
 }
