@@ -168,9 +168,6 @@ public class ProjectController {
 	@Value("${org.zerock.upload.path}")
 	private String uploadPath;
 	
-
-	
-
 	// 파일 업로드
     @PostMapping(value = "imageUpload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> imageUpload(@RequestParam(value="fileVO") MultipartFile[] files) {
@@ -192,7 +189,6 @@ public class ProjectController {
         		FileVO VO = new FileVO();
   			
         		VO.setFile_name(uploadName);
-
         		VO.setFile_path("images/" + uploadName);
 
         		VO.setFile_subject("product");
@@ -218,9 +214,6 @@ public class ProjectController {
 	    int cnt = projectService.productCodeCheck(product_code);
 	    return cnt;
 	}
-    
-    
-    
     
     // 제품 등록 시 입력한 것과 가장 일치하는 협력사 이름을 찾는 과정
     @ResponseBody
@@ -323,12 +316,6 @@ public class ProjectController {
        return ResponseEntity.ok(product);
     }
     
-
-    
-    
-    
-    
-    
     // ----------------------------------------------------------------------------------------
     
     // 협력사 정보 등록 시 협력사 이름 중복 확인
@@ -401,6 +388,70 @@ public class ProjectController {
         }
     }
     
+    @ResponseBody
+    @GetMapping("/getCompanyNameList")
+    public String[] getCompanyNameList(Model model) {
+    	log.info("controller access");
+    	List<CompanyVO> companyList = projectService.getCompanyList();
+    	
+    	String[] companyNameList = new String[companyList.size()];
+    	int cnt = 0;
+    	for (CompanyVO company : companyList) {
+    		companyNameList[cnt] = company.getCompany_name();
+    		cnt++;
+    	}
+    	model.addAttribute("companyNameList",companyNameList);
+    	
+        return companyNameList;
+    }
+	
+    
+    @ResponseBody
+    @GetMapping("/getProductNameList")
+    public String[] getProductNameList(Model model) {
+    	log.info("controller access");
+    	List<ProductVO> productList = projectService.getProductList();
+    	
+    	String[] productNameList = new String[productList.size()];
+    	int cnt = 0;
+    	for (ProductVO product : productList) {
+    		productNameList[cnt] = product.getProduct_name();
+    		cnt++;
+    	}
+    	model.addAttribute("productNameList",productNameList);
+    	
+        return productNameList;
+    }
+ 
+    // 협력사 목록 화면 이동
+    @GetMapping("company")
+    public String company(Model model) {
+ 	   
+ 	   List<CompanyVO> list = projectService.getCompanyList();
+ 	   
+// 	   for (CompanyVO company : list) {
+// 		   company.setCompany_address(simpleAddress(company.getCompany_address()));
+// 	   }
+ 	   
+        model.addAttribute("companyList", list);
+ 	   return "company";
+    }
+    
+    public static String simpleAddress(String address) {
+    	if (address.length() < 8) {
+    		return "-";
+    	}
+        String trimmedAddress = address.substring(8);
+        String[] words = trimmedAddress.split(" ");
+
+        if (words.length >= 2) {
+            return words[0] + " " + words[1];
+        }
+        return "-";
+    }
+    
+    
+    
 
 // -------------------------new 작업공간 -------------------------
     
@@ -437,8 +488,7 @@ public class ProjectController {
     	
     }
     
-
-// 박나현 시작. ------------------------------
+ // 박나현 시작. ------------------------------
     // QC 리스트 페이지로 이동
     
     @GetMapping("qc")
@@ -511,6 +561,5 @@ public class ProjectController {
 
 
 // 박나현. 끝. ------------------------------
-
-	
+    
 }

@@ -216,7 +216,7 @@ public class ProjectService {
     	mv.addObject("products", products);
     	mv.addObject("productsJson", productsJson);
     	mv.addObject("companies", companies);
-    	mv.setViewName("quotationregister");
+    	mv.setViewName("quotationRegister");
     	return mv;
     }
     
@@ -288,39 +288,33 @@ public class ProjectService {
 		return projectDAO.getProductByProductName(product_name);
 	}
 
-// 나현. 시작.
-// QC
+	// 나현. 시작.
+	// QC
 
-	// QC 전체 리스트 입력	
-	public List<QcVO> getQcList() {
-		return projectDAO.getQcList();
-	}
-	
-	// QC 1건 정보
-	public QcVO getOneQc(int qc_num) {
-		log.info("getOneQc - Service");
-		return projectDAO.getOneQc(qc_num);
-	}
-	
-//	// QC 1건 질문 - 응답 정보
-//	public List<QcVO> getOneQcDetail(int qc_num) {
-//		log.info("getOneQccc - Service");
-//		return projectDAO.getOneQcDetail(qc_num);
-//	}
-	
-	// QC 1건 질문 - 응답 정보
-	public List<QcVO> getOneQcDetail(int qc_num) {
-		log.info("getOneQcDetail - Service");
-		return projectDAO.getOneQcDetail(qc_num);
-	}
+		// QC 전체 리스트 입력	
+		public List<QcVO> getQcList() {
+			return projectDAO.getQcList();
+		}
+		
+		// QC 1건 정보
+		public QcVO getOneQc(int qc_num) {
+			log.info("getOneQc - Service");
+			return projectDAO.getOneQc(qc_num);
+		}
+		
+		// QC 1건 질문 - 응답 정보
+		public List<QcVO> getOneQcDetail(int qc_num) {
+			log.info("getOneQcDetail - Service");
+			return projectDAO.getOneQcDetail(qc_num);
+		}
 
-	// QC 총 부적격 수량
-	public int getTotalFail(int qc_num) {
-		return projectDAO.getTotalFail(qc_num);
-	}
-	
-// 나현. 끝.
-	
+		// QC 총 부적격 수량
+		public int getTotalFail(int qc_num) {
+			return projectDAO.getTotalFail(qc_num);
+		}
+		
+	// 나현. 끝.
+
 	public List<ProductionPlanVO> getProductionPlanList() {
 		// TODO Auto-generated method stub
 		log.info("getProductionPlanList()");
@@ -370,6 +364,14 @@ public class ProjectService {
 
 	public List<FileVO> getProductImages(int product_num) {
 		return projectDAO.getProductImages(product_num);
+	}
+	
+	public List<CompanyVO> getCompanyList() {
+		return projectDAO.getCompanyList();
+	}
+	
+	public List<ProductVO> getProductList() {
+		return projectDAO.getProductList();
 	}
 	
 
