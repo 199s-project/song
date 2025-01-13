@@ -110,18 +110,13 @@
 						</tbody>
 						<tfoot>
 						<tr>
-							<th>총 부적격 수량</th>
+							<th>총 부적격 수량222</th>
 							<th><span th:text="${totalFail}"></span></th>
 						</tr>
 						</tfoot>
 						</table>
 						<th:block th:if="${qc.qc_stat}==0">
-						<input type="button" value="수정" class="btn btn-secondary m-2 rowbtn">
-						<button type="submit" value="제출" class="btn btn-primary m-2 rowbtn">제출</button>
-						</th:block>
-						<th:block th:unless="${qc.qc_stat}==0">
-						<input type="button" value="수정" class="btn btn-secondary m-2 rowbtn" disabled>
-						<button type="submit" value="제출" class="btn btn-primary m-2 rowbtn" disabled>제출</button>
+						<button class="btn btn-primary m-2 rowbtn" th:onclick="'location.href=\'/qcTest?qc_num=' + ${qc.qc_num} + '\''"> 작성/수정</button>
 						</th:block>
 					</div>					
 				</div>

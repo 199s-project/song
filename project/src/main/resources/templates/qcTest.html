@@ -31,7 +31,7 @@
 					</div>
 				</div>
 				<!-- 상단 카드. 끝. -->
-				
+			
 				<!-- Export Datatable start -->				
 				<div class="card-box mb-30">
 					<div class="p-5">
@@ -102,8 +102,7 @@
 						<tr>
 							<td th:text="${qcq.qcquest}"></td>
 							<td>
-								<span th:if="${qcq.qc_fail_quan == null}">0</span>
-								<span th:unless="${qcq.qc_fail_quan == null}" th:text="${qcq.qc_fail_quan}"></span>
+								<input type="number" th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}" />
 							</td>
 						</tr>
 						</th:block>

@@ -465,6 +465,7 @@ public class ProjectController {
     	double failRate = (double)totalFail/totalQC*100;
     	
     	model.addAttribute("qc", qc);
+    	model.addAttribute("qc_num", qc_num);
     	model.addAttribute("QcDetailList", QcDetailList);
     	model.addAttribute("totalQC", totalQC);
     	model.addAttribute("totalFail", totalFail);
@@ -475,6 +476,30 @@ public class ProjectController {
     }
 
 
+    // QC 유형 등록 페이지 이동
+    @GetMapping("qcTest")
+    public String qcTest(@RequestParam("qc_num") int qc_num, Model model) {
+    	log.info("qcTest 이동");
+    	log.info("qc_num = "+qc_num);
+
+    	QcVO qc = projectService.getOneQc(qc_num); 	   
+    	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
+    	int totalQC = qc.getQc_quan();
+    	int totalFail = projectService.getTotalFail(qc_num);
+    	int totalPass = totalQC - totalFail;
+    	double failRate = (double)totalFail/totalQC*100;
+    	
+    	model.addAttribute("qc", qc);
+    	model.addAttribute("qc_num", qc_num);
+    	model.addAttribute("QcDetailList", QcDetailList);
+    	model.addAttribute("totalQC", totalQC);
+    	model.addAttribute("totalFail", totalFail);
+    	model.addAttribute("totalPass", totalPass);
+    	model.addAttribute("failRate", failRate);
+        return "qcTest";
+    }
+    
+    
     
     // QC 유형 등록 페이지 이동
     @GetMapping("qcTypeReg")
@@ -482,6 +507,8 @@ public class ProjectController {
     	log.info("qcTypeReg 이동");
         return "qcTypeReg";
     }
+    
+
 
 // 박나현. 끝. ------------------------------
 
