@@ -73,7 +73,6 @@
 </style>
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
 <script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
 <script>
 
@@ -83,7 +82,7 @@ function addcompany() {
 			<table id="register-table" class="input-auto-size">
 	  			<thead>
 	  				<tr>
-	  					<td colspan="2" style="text-align:left"> <div class="table-title"><i class="fa-solid fa-building-circle-check"></i> &nbsp; 회사 정보 등록</div> <td>
+	  					<td colspan="2" style="text-align:left"> <div class="table-title"><i class="fa-solid fa-building-circle-check"></i> &nbsp; 회사 정보 등록</div> </td>
 	  				</tr>
 	  			</thead>
 	  			<tbody>
@@ -248,7 +247,6 @@ function execDaumPostcode() {
 
 <script>
 
-
 function company_nameValidation() {
 	var company_name = $("#company-input1").val();
 	if (!company_name) {
@@ -300,12 +298,19 @@ function company_codeValidation() {
 		});
 	}
 }
+
 </script>
+
+
+
+
+
 
 </head>
 <body>
 	<div th:replace="~{/include/header}"></div>
 	<div class="mobile-menu-overlay"></div>
+
 	<div class="main-container">
 		<div class="pd-ltr-20 xs-pd-20-10">
 			<div class="min-height-200px">
