@@ -3,42 +3,59 @@
 <head>
 <title>품질 검사 내역</title>
 
-<script th:inline="javascript">
-function quanChange(event) {
-    const inputElement = event.target;
-    const failQuantity = parseInt(inputElement.value, 10) || 0; // 입력값이 없으면 0 처리
-    const totalFailElement = document.getElementById("totalQuan"); // 총 부적격 수량 필드
-    const totalFailDisplay = document.getElementById("totalFailDisplay"); // 부적격 수량 표시 필드
-    const failRateDisplay = document.getElementById("failRateDisplay"); // 부적격률 표시 필드
-    const totalPassDisplay = document.getElementById("totalPassDisplay"); // 적격 수량 표시 필드
-    const qcQuantity = parseInt(document.querySelector("[th\\:text='${qc.qc_quan}']").innerText, 10) || 0; // 검사 수량
+<script type="text/javascript">
+    function quanChange() {
+        var totalFail = 0; // 총 부적격 수량
+        var qcQuantity = parseInt($('#qcQuan').text()) || 0; // 검사 수량
 
-    // 모든 부적격 수량 합계 계산
-    const failInputs = document.querySelectorAll("input[id^='quantity']");
-    let totalFail = 0;
-    failInputs.forEach(input => {
-        totalFail += parseInt(input.value, 10) || 0;
-    });
+        // 각 필드 확인 및 초과 처리
+        $('.quantity').each(function () {
+            var $this = $(this);
+            var value = parseInt($this.val()) || 0;
 
-    // 검사 수량 초과 여부 확인
-    if (totalFail > qcQuantity) {
-        alert("부적격 수량의 총합이 검사 수량을 초과할 수 없습니다.");
-        inputElement.value = Math.max(0, failQuantity - (totalFail - qcQuantity)); // 초과된 값을 조정
-        return quanChange(event); // 재귀 호출로 값을 다시 계산
+            // 개별 값이 검사 수량 초과 시 초기화
+            if (value > qcQuantity) {
+                alert("부적격 수량은 검사 수량을 초과할 수 없습니다.");
+                $this.val(0); // 값을 0으로 초기화
+                value = 0; // 계산에 반영
+            }
+
+            // 총 부적격 수량 초과 시 초기화
+            if (totalFail + value > qcQuantity) {
+                alert("총 부적격 수량이 검사 수량을 초과할 수 없습니다.");
+                $this.val(0); // 값을 0으로 초기화
+                value = 0; // 계산에 반영
+            }
+
+            totalFail += value; // 총 부적격 수량 계산
+        });
+
+        // 계산 결과 반영
+        updateResults(totalFail, qcQuantity);
     }
 
-    // 총 부적격 수량 업데이트
-    totalFailElement.value = totalFail;
-    totalFailDisplay.value = totalFail;
+    function updateResults(totalFail, qcQuantity) {
+        // 총 부적격 수량 업데이트 : 첫 번째 테이블
+        $('#totalFail').val(totalFail);
 
-    // 부적격률 계산 및 업데이트
-    const failRate = ((totalFail / qcQuantity) * 100).toFixed(2);
-    failRateDisplay.value = failRate;
+        // 총 부적격 수량 업데이트 : 두 번째 테이블
+        $('#totalQuan').val(totalFail);
 
-    // 적격 수량 계산 및 업데이트
-    const totalPass = qcQuantity - totalFail;
-    totalPassDisplay.value = totalPass;
-}
+        // 적격 수량 = 검사 수량 - 총 부적격 수량
+        var totalPass = qcQuantity - totalFail;
+        $('#totalPass').val(totalPass);
+
+        // 부적격률 계산 및 업데이트
+        var failRate = qcQuantity > 0 ? ((totalFail / qcQuantity) * 100).toFixed(2) : 0;
+        $('#failRate').val(failRate + '%');
+    }
+
+    $(document).ready(function () {
+        // onchange 이벤트 바인딩
+        $(document).on('input', '.quantity', function () {
+            quanChange();
+        });
+    });
 </script>
 
 
@@ -104,7 +121,7 @@ function quanChange(event) {
 						</tr>
 						<tr>
 							<th>검사 수량</th>
-							<td><th:block th:text="${qc.qc_quan}"></th:block></td>
+							<td id="qcQuan"><th:block th:text="${qc.qc_quan}"></th:block></td>
 							<th>검사 상태</th>
 							<td>
 							<th:block th:if="${qc.qc_stat}==0">
@@ -116,14 +133,14 @@ function quanChange(event) {
 							</td>						
 						</tr>
 						<tr>
-							<th>부적격 수량</th>
-							<td><input type="number" id="totalFailDisplay" th:value="${totalFail}" readonly></td>
+							<th>총 부적격 수량</th>
+							<td><input type="text" id="totalFail" name="totalFail" th:value="${totalFail}" readonly></td>
 							<th>부적격률</th>
-							<td><input type="number" id="failRateDisplay" th:value="${#numbers.formatDecimal(failRate,1,2)}" readonly></td>						
+							<td><input type="text" id="failRate" name="failRate" th:value="${#numbers.formatDecimal(failRate,1,2)}+'%'" readonly></td>						
 						</tr>
 						<tr>
-							<th>적격 수량</th>
-							<td><input type="number" id="totalPassDisplay" th:value="${totalPass}" readonly></td>
+							<th>총 적격 수량</th>
+							<td><input type="text" id="totalPass" name="totalPass" th:value="${totalPass}" readonly></td>
 							<td></td>
 							<td></td>						
 						</tr>
@@ -141,7 +158,14 @@ function quanChange(event) {
 						<tr>
 							<td th:text="${qcq.qcquest}"></td>
 							<td>
-								<input type="number" id="quantity${stat.index}" name="quantity${stat.index}" min=0 th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}" onchange=quanChange(event) />
+								<input
+									type="number"
+									class="quantity"
+									id="quantity${stat.index}"
+									name="quantity${stat.index}"
+									th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}"
+									min=0
+									oninput="quanChange()"/>
 							</td>
 						</tr>
 						</th:block>
@@ -150,7 +174,12 @@ function quanChange(event) {
 						<tr>
 							<th>총 부적격 수량</th>
 							<th>
-							<input type="number" id="totalQuan" name="totalQuan" th:value="${totalFail}" readonly>
+							<input
+								type="text"
+								id="totalQuan"
+								name="totalQuan"
+								th:value="${totalFail}"
+								readonly>
 							</th>
 						</tr>
 						</tfoot>
@@ -162,7 +191,6 @@ function quanChange(event) {
 		<!-- Export Datatable End -->
 				
 			</div>
-			
 			<div class="footer-wrap pd-20 mb-20 card-box">
 				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
 			</div>
