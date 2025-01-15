@@ -313,6 +313,11 @@ public class ProjectService {
 			return projectDAO.getTotalFail(qc_num);
 		}
 		
+		// QC Detail 업데이트
+		public int updateupdateQcDetail(QcVO qcVO) {
+			return projectDAO.updateQcDetail(qcVO);
+		}
+		
 	// 나현. 끝.
 
 	public List<ProductionPlanVO> getProductionPlanList() {

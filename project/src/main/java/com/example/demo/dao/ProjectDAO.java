@@ -76,17 +76,20 @@ public interface ProjectDAO {
 	// 나현. 시작.
 	// QC
 	
-	// qc 전체 리스트
+	// QC 전체 리스트
 	List<QcVO> getQcList();
 	
-	// qc 1건 기본 정보
+	// QC 1건 기본 정보
 	QcVO getOneQc(int qc_num);
 	
-	// qc 1건 질문-응답 정보 (질문 번호, 질문 내용, 부적격 수량)
+	// QC 1건 질문-응답 정보 (질문 번호, 질문 내용, 부적격 수량)
 	List<QcVO> getOneQcDetail(int qc_num);
 	
-	// qc 1건 총 부적격 수량
+	// QC 1건 총 부적격 수량
 	int getTotalFail(int qc_num);
+	
+	// QC Detail 업데이트
+	int updateQcDetail(QcVO qcVO);
 	
 	// 나현. 끝.
 

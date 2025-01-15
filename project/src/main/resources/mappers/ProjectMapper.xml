@@ -230,6 +230,18 @@
 
 </select>
 
+<!-- QC 저장 버튼 -->
+
+<update id="updateQcDetail" parameterType="QcVO">
+
+	UPDATE qc_detail
+	SET
+	qc_fail_quan = #{qc_fail_quan}
+	WHERE qc_num = #{qc_num} and qcq_num = #{qcq_num};
+	
+</update>
+
+
 <!-- 나현. 끝. -->
 	
 

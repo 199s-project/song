@@ -489,8 +489,8 @@ public class ProjectController {
     }
     
  // 박나현 시작. ------------------------------
-    // QC 리스트 페이지로 이동
     
+    // QC 리스트 페이지로 이동
     @GetMapping("qc")
     public String qc(Model model) {
     	List<QcVO> QcList = projectService.getQcList();
@@ -499,7 +499,6 @@ public class ProjectController {
         return "qc";
     }
 
-    
     // QC 상세 페이지로 이동
     @GetMapping("qcDetail")
     public String qcDetail(@RequestParam("qc_num") int qc_num, Model model) {
@@ -548,8 +547,6 @@ public class ProjectController {
     	model.addAttribute("failRate", failRate);
         return "qcTest";
     }
-    
-    
     
     // QC 유형 등록 페이지 이동
     @GetMapping("qcTypeReg")
