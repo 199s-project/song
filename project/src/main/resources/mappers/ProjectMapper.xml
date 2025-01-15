@@ -190,53 +190,50 @@
 
 <!-- 품질 관리 리스트 전체 select -->
 <select id="getQcList" resultType="QcVO">
-	select *
-	from qc
-	order by qc_num desc
+	SELECT *
+	FROM qc
+	ORDER BY qc_num DESC
 </select>
 
-<!-- QC 1건 정보 -->
-
-<select id="getOrderQc" parameterType="java.lang.Integer" resultType="QcVO">
-	
-	SELECT qc.*, material_name
+<!-- QC 1건 정보 가져오기 -->
+<select id="getOneQc" parameterType="java.lang.Integer" resultType="QcVO">
+	SELECT *
 	FROM qc
-    LEFT JOIN material m ON m.material = qc.qc_item_num
 	WHERE qc.qc_num = #{qc_num};
-	
 </select>
 
-<select id="getPlanQc" parameterType="java.lang.Integer" resultType="QcVO">
-	
-	SELECT qc.*, product_name
+<!-- 원자재 이름 가져오기 -->
+<select id="getQcMName" parameterType="java.lang.Integer" resultType="String">
+	SELECT material_name
 	FROM qc
-    LEFT JOIN product p ON p.product_num = qc.qc_item_num
-	WHERE qc.qc_num = #{qc_num};
-	
+	LEFT JOIN material m ON m.material_num = qc.qc_item_num
+	WHERE qc.qc_num = #{qc_num}
+</select>
+
+<!-- 제품 이름 가져오기 -->
+<select id="getQcPName" parameterType="java.lang.Integer" resultType="String">
+	SELECT product_name
+	FROM qc
+	LEFT JOIN product p ON p.product_num = qc.qc_item_num
+	WHERE qc.qc_num = #{qc_num}
 </select>
 
 <!-- QC 1건 질문-응답 정보 (질문 번호, 질문 내용, 부적격 수량) -->
-
 <select id="getOneQcDetail" parameterType="java.lang.Integer" resultType="QcVO">
-
 	SELECT qq.qcq_num, qq.qcquest, qd.qc_fail_quan
 	FROM qc q
 	LEFT JOIN qc_quest qq ON q.qc_type = qq.qc_type
 	LEFT JOIN qc_detail qd ON qq.qcq_num = qd.qcq_num and q.qc_num = qd.qc_num
 	WHERE q.qc_num = #{qc_num};
-
 </select>
 
 <!-- QC 1건 부적격 수량 -->
-
 <select id="getTotalFail" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-
 	SELECT COALESCE(SUM(qd.qc_fail_quan), 0)
 	FROM qc q
 	LEFT JOIN qc_quest qq ON q.qc_type = qq.qc_type
 	LEFT JOIN qc_detail qd ON qq.qcq_num = qd.qcq_num AND qd.qc_num = q.qc_num
 	WHERE q.qc_num= #{qc_num};
-
 </select>
 
 <!-- QC 저장 버튼 -->

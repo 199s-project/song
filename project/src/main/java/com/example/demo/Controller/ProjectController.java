@@ -501,29 +501,43 @@ public class ProjectController {
 
     // QC 상세 페이지로 이동
     @GetMapping("qcDetail")
-    public String qcDetail(@RequestParam("qc_num") int qc_num,
-				    		@RequestParam("qc_type") String qc_type,
-				    		Model model) {
+    public String qcDetail(@RequestParam("qc_num") int qc_num, Model model) {
   
     	log.info("qcDetail 이동");
     	log.info("qc_num = "+qc_num);
-    	log.info("qc_type = "+qc_type);
     	
+    	QcVO qc = projectService.getOneQc(qc_num);
+  
+    	// 타입 저장, 이름 담아줄 변수 생성
+    	String qctype = qc.getQc_type(); // 타입을 게또    	
+    	String item_name = null; // name은 qc에 들어가지 않고 직접 뿌려줍니다
     	
-//    	QcVO qc = projectService.getOneQc(qc_num); 	   
-//    	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
-//    	int totalQC = qc.getQc_quan();
-//    	int totalFail = projectService.getTotalFail(qc_num);
-//    	int totalPass = totalQC - totalFail;
-//    	double failRate = (double)totalFail/totalQC*100;
-//    	
-//    	model.addAttribute("qc", qc);
-//    	model.addAttribute("qc_num", qc_num);
-//    	model.addAttribute("QcDetailList", QcDetailList);
-//    	model.addAttribute("totalQC", totalQC);
-//    	model.addAttribute("totalFail", totalFail);
-//    	model.addAttribute("totalPass", totalPass);
-//    	model.addAttribute("failRate", failRate);
+    	// 타입 조건문 ==> 이름 찾아옴
+    	if ("order".equals(qctype)) {
+    		item_name = projectService.getQcMName(qc_num);	
+    		log.info("order로 넘어왔음, item_name == " + item_name);
+    	} else if ("plan".equals(qctype)) {
+    		item_name = projectService.getQcPName(qc_num);
+    		log.info("plan로 넘어왔음, item_name == " + item_name);
+    	} else {
+    		log.info("통과했슈");
+    	}
+    	
+    	// 상세 내역 불러오기
+    	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
+    	int totalQC = qc.getQc_quan();
+    	int totalFail = projectService.getTotalFail(qc_num);
+    	int totalPass = totalQC - totalFail;
+    	double failRate = (double)totalFail/totalQC*100;
+    	
+    	model.addAttribute("qc", qc);
+    	model.addAttribute("item_name", item_name);
+    	model.addAttribute("qc_num", qc_num);
+    	model.addAttribute("QcDetailList", QcDetailList);
+    	model.addAttribute("totalQC", totalQC);
+    	model.addAttribute("totalFail", totalFail);
+    	model.addAttribute("totalPass", totalPass);
+    	model.addAttribute("failRate", failRate);
     	
         return "qcDetail";
     }
@@ -532,10 +546,28 @@ public class ProjectController {
     // QC 수정 페이지 이동
     @GetMapping("qcTest")
     public String qcTest(@RequestParam("qc_num") int qc_num, Model model) {
+    	
     	log.info("qcTest 이동");
     	log.info("qc_num = "+qc_num);
 
-    	QcVO qc = projectService.getOrderQc(qc_num); 	   
+    	QcVO qc = projectService.getOneQc(qc_num);
+    	  
+    	// 타입 저장, 이름 담아줄 변수 생성
+    	String qctype = qc.getQc_type(); // 타입을 게또    	
+    	String item_name = null; // name은 qc에 들어가지 않고 직접 뿌려줍니다
+    	
+    	// 타입 조건문 ==> 이름 찾아옴
+    	if ("order".equals(qctype)) {
+    		item_name = projectService.getQcMName(qc_num);	
+    		log.info("order로 넘어왔음, item_name == " + item_name);
+    	} else if ("plan".equals(qctype)) {
+    		item_name = projectService.getQcPName(qc_num);
+    		log.info("plan로 넘어왔음, item_name == " + item_name);
+    	} else {
+    		log.info("통과했슈");
+    	}
+    	
+    	// 상세 내역 불러오기
     	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
     	int totalQC = qc.getQc_quan();
     	int totalFail = projectService.getTotalFail(qc_num);
@@ -543,12 +575,14 @@ public class ProjectController {
     	double failRate = (double)totalFail/totalQC*100;
     	
     	model.addAttribute("qc", qc);
+    	model.addAttribute("item_name", item_name);
     	model.addAttribute("qc_num", qc_num);
     	model.addAttribute("QcDetailList", QcDetailList);
     	model.addAttribute("totalQC", totalQC);
     	model.addAttribute("totalFail", totalFail);
     	model.addAttribute("totalPass", totalPass);
     	model.addAttribute("failRate", failRate);
+    	
         return "qcTest";
     }
     

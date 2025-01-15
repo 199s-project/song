@@ -2,19 +2,6 @@
 <html>
 <head>
 <title>품질 관리 test 22</title>
-<style>
-
-</style>
-
-
-
-
-<script>
-
-
-</script>
-
-
 
 </head>
 <body>
@@ -70,7 +57,7 @@
 							</thead>
 							<tbody>
 								<th:block th:each="qc,stat: ${QcList}">									
-									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} +'&qc_type=' + ${qc.qc_type} + '\';'">
+									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">
 									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
 									    <td><th:block th:text="${qc.qc_reg}"></th:block></td>
 										<td><th:block th:text="${qc.qc_type}"></th:block></td>

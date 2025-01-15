@@ -34,7 +34,7 @@ public class QcVO {
 	private int qcq_num;	// 질문 번호
 	private String qcquest;	// 질문 내용 (중복)
 	
-	private String product_name; // 상품명 (추가함)
+	private String item_name; // 상품명 (추가함)
 	
 	private List<QcVO> QcVoList;
 	

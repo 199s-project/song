@@ -297,15 +297,21 @@ public class ProjectService {
 		}
 		
 		// QC 1건 정보
-		public QcVO getOrderQc(int qc_num) {
+		public QcVO getOneQc(int qc_num) {
 			log.info("getOneQc - Service");
-			return projectDAO.getOrderQc(qc_num);
+			return projectDAO.getOneQc(qc_num);
 		}
 		
-		// QC 1건 정보
-		public QcVO getPlanQc(int qc_num) {
-			log.info("getOneQc - Service");
-			return projectDAO.getPlanQc(qc_num);
+		// QC 원자재 이름
+		public String getQcMName(int qc_num) {
+			log.info("getQcMName - Service");
+			return projectDAO.getQcMName(qc_num);
+		}
+		
+		// QC 제품 일므
+		public String getQcPName(int qc_num) {
+			log.info("getQcPName - Service");
+			return projectDAO.getQcPName(qc_num);
 		}
 		
 		// QC 1건 질문 - 응답 정보
