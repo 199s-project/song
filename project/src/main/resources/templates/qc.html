@@ -66,10 +66,13 @@
 										<td><th:block th:text="${qc.qc_date}"></th:block></td>
 										<td>
 										<th:block th:if="${qc.qc_stat}==0">
-										<span class="badge badge-primary">검사 전</span>
+										<span class="badge badge-warning">검사 전</span>
 										</th:block>
 										<th:block th:if="${qc.qc_stat}==1">
-										<span class="badge badge-secondary">검사 완료</span>
+										<span class="badge badge-primary">작성 중</span>
+										</th:block>
+										<th:block th:if="${qc.qc_stat}==2">
+										<span class="badge badge-light">검사 완료</span>
 										</th:block>		
 										<!-- <td><th:block th:text="${qc.qc_stat}"></th:block></td> -->
 									</tr>

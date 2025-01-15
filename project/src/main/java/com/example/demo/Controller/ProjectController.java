@@ -25,6 +25,7 @@ import com.example.demo.dto.CompanyVO;
 import com.example.demo.dto.FileVO;
 import com.example.demo.dto.OrderformVO;
 import com.example.demo.dto.ProductVO;
+import com.example.demo.dto.QcDetailVO;
 import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationVO;
 import com.example.demo.service.ProjectService;
@@ -587,27 +588,44 @@ public class ProjectController {
     }
     
     // QC 수정 저장
-    @PostMapping("qcTest")
-    public String qcTest(@RequestParam("qcNum") int qcNum,
-                         @RequestParam("quantities") List<Integer> quantities,
-                         @RequestParam("qcqNums") List<Integer> qcqNums,
-                         Model model) {
+//    @PostMapping("qcTest")
+//    public String qcTest(@RequestParam("qcNum") int qcNum,
+//                         @RequestParam("quantities") List<Integer> quantities,
+//                         @RequestParam("qcqNums") List<Integer> qcqNums,
+//                         Model model) {
+//        try {
+//            // 각 QC Detail 업데이트
+//            for (int i = 0; i < qcqNums.size(); i++) {
+//                QcVO qcVO = new QcVO();
+//                qcVO.setQc_num(qcNum);
+//                qcVO.setQcq_num(qcqNums.get(i));
+//                qcVO.setQc_fail_quan(quantities.get(i));
+//                projectService.updateQcDetail(qcVO);
+//            }
+//            model.addAttribute("message", "QC 검사 결과가 성공적으로 저장되었습니다.");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            model.addAttribute("message", "QC 검사 결과 저장 중 오류가 발생했습니다.");
+//        }
+//
+//        return "qcDetail"; // 결과 화면 반환
+//    }
+    
+    
+    @PostMapping("/updateQcDetail")
+    @ResponseBody
+    public ResponseEntity<String> updateQcDetail(@RequestBody List<QcVO> qcDetails) {
         try {
-            // 각 QC Detail 업데이트
-            for (int i = 0; i < qcqNums.size(); i++) {
-                QcVO qcVO = new QcVO();
-                qcVO.setQc_num(qcNum);
-                qcVO.setQcq_num(qcqNums.get(i));
-                qcVO.setQc_fail_quan(quantities.get(i));
-                projectService.updateupdateQcDetail(qcVO);
+            for (QcVO detail : qcDetails) {
+                log.info("QC 문항 번호: " + detail.getQcq_num());
+                log.info("부적격 수량: " + detail.getQc_fail_quan());
+                projectService.updateQcDetail(detail);
             }
-            model.addAttribute("message", "QC 검사 결과가 성공적으로 저장되었습니다.");
+            return ResponseEntity.ok("Success");
         } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("message", "QC 검사 결과 저장 중 오류가 발생했습니다.");
+        	log.error("Error 발생 : ", e); // 에러 로그
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
         }
-
-        return "qcDetail"; // 결과 화면 반환
     }
     
     // QC 유형 등록 페이지 이동

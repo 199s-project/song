@@ -236,7 +236,7 @@
 	WHERE q.qc_num= #{qc_num};
 </select>
 
-<!-- QC 저장 버튼 -->
+<!-- QC 저장 버튼, 수량 저장 -->
 
 <update id="updateQcDetail" parameterType="QcVO">
 
@@ -247,7 +247,15 @@
 	
 </update>
 
+<!-- QC 저장 버튼, 상태 저장 -->
 
+<update id="updateQcStat" parameterType="QcVO">
+
+	UPDATE qc
+	SET
+	qc_date = now(), qc_stat=
+	WHERE
+</update>
 <!-- 나현. 끝. -->
 	
 

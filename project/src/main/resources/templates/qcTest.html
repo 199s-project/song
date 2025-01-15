@@ -3,6 +3,8 @@
 <head>
 <title>품질 검사 내역</title>
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- 부적격 수량 검수 -->
 <script type="text/javascript">
   function quanChange() {
     var totalFail = 0; // 총 부적격 수량
@@ -75,7 +77,58 @@
   });
 </script>
 
+<!-- 데이터 저장 ajax -->
+<script type="text/javascript">
 
+function saveData() {
+	const rows = document.querySelectorAll('#qcDetailTable tbody tr');
+	console.log('Rows:', rows); // tbody 안에 <tr>이 존재하는지 확인
+
+	// 배열을 map으로 순회하며 필요한 데이터 추출
+	const data = Array.from(rows).map(row => {
+	    const questnumElement = row.querySelector('.questrownum');
+	    const quantityElement = row.querySelector('.quantity');
+	    const qcnumElement = document.querySelector('.qcNum');
+	    
+	    
+	    
+	    // 요소가 null일 경우를 대비해 조건문으로 값 확인
+	   /*  if (!qcquestElement || !quantityElement) {
+	        console.error('qcquest or quantity element is missing in row:', row);
+	        return; // 빈 값을 반환하거나 종료
+	    } */
+	    
+	    console.log('QuestNum:', questnumElement.textContent); // .qcquest 요소 확인
+	    console.log('Quantity:', quantityElement.value); // .quantity 요소 확인
+		console.log('QcNum: ', qcnumElement.value); // qc Num 확인
+	    return {
+			qc_num: qcnumElement.value,
+	        qcq_num: questnumElement.textContent,
+	        qc_fail_quan: quantityElement.value
+	    };
+	}).filter(item => item !== undefined); // null이나 undefined 값 제외
+
+	console.log(data); // 데이터 확인
+
+	fetch('/updateQcDetail', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(data)
+	})
+	.then(response => {
+		if (response.ok) {
+			alert('저장 성공');
+			location.reload();
+		} else {
+			alert('저장 실패');
+		}
+	})
+	.catch(error => console.error('Error: ', error));
+}
+
+</script>
 
 </head>
 <body>
@@ -114,7 +167,7 @@
 						<tr>
 							<th>QC 번호</th>
 							<td>
-							<input class="form-control col-md-6" type="text" id="qcNum" name="qcNum" th:value="${qc.qc_num}" readonly>
+							<input class="form-control col-md-6 qcNum" type="text" id="qcNum" name="qcNum" th:value="${qc.qc_num}" readonly>
 							</td>
 							<th>관련 계약서</th>
 							<td>					
@@ -177,9 +230,10 @@
 						</tr>
 						</table>
 						
-						<table class="table table-bordered">
+						<table class="table table-bordered" id="qcDetailTable">
 						<thead>
 						<tr>
+							<th>번호</th>
 							<th>QC 문항</th>
 							<th>부적격 수량</th>
 						</tr>
@@ -187,16 +241,17 @@
 						<tbody>
 						<th:block th:each="qcq, stat: ${QcDetailList}">
 						<tr>
-							<td th:text="${qcq.qcquest}"></td>
+							<td class="questrownum" th:text="${stat.count}"></td>
+							<td class="qcquest" th:text="${qcq.qcquest}"></td>
 							<td>
 								<input
-									type="number"
-									class="form-control col-md-6 quantity"
-									id="quantity${stat.index}"
-									name="quantity${stat.index}"
-									th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}"
-									min=0
-									oninput="quanChange()"/>
+								    type="number"
+								    class="form-control col-md-6 quantity"
+								    th:id="'quantity' + ${stat.index}"
+								    th:name="'quantity' + ${stat.index}"
+								    th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}"
+								    min="0"
+								    oninput="quanChange()" />
 							</td>
 						</tr>
 						</th:block>
@@ -216,8 +271,8 @@
 						</tr>
 						</tfoot>
 						</table>
-						<input type="button" value="저장" class="btn btn-success m-2 rowbtn">
-						<button type="submit" value="저장 및 제출" class="btn btn-primary m-2 rowbtn">제출</button>
+						<button type="button" class="btn btn-success m-2 rowbtn" onclick="saveData()">저장</button>
+						<button type="submit" class="btn btn-primary m-2 rowbtn">저장 및 제출</button>
 						</form>
 					</div>					
 				</div>

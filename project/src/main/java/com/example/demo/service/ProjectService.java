@@ -308,7 +308,7 @@ public class ProjectService {
 			return projectDAO.getQcMName(qc_num);
 		}
 		
-		// QC 제품 일므
+		// QC 제품 이름
 		public String getQcPName(int qc_num) {
 			log.info("getQcPName - Service");
 			return projectDAO.getQcPName(qc_num);
@@ -326,8 +326,8 @@ public class ProjectService {
 		}
 		
 		// QC Detail 업데이트
-		public int updateupdateQcDetail(QcVO qcVO) {
-			return projectDAO.updateQcDetail(qcVO);
+		public int updateQcDetail(QcVO qcDetails) {
+			return projectDAO.updateQcDetail(qcDetails);
 		}
 		
 	// 나현. 끝.
