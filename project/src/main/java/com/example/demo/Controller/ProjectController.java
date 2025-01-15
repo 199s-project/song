@@ -501,37 +501,41 @@ public class ProjectController {
 
     // QC 상세 페이지로 이동
     @GetMapping("qcDetail")
-    public String qcDetail(@RequestParam("qc_num") int qc_num, Model model) {
+    public String qcDetail(@RequestParam("qc_num") int qc_num,
+				    		@RequestParam("qc_type") String qc_type,
+				    		Model model) {
   
     	log.info("qcDetail 이동");
     	log.info("qc_num = "+qc_num);
-
-    	QcVO qc = projectService.getOneQc(qc_num); 	   
-    	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
-    	int totalQC = qc.getQc_quan();
-    	int totalFail = projectService.getTotalFail(qc_num);
-    	int totalPass = totalQC - totalFail;
-    	double failRate = (double)totalFail/totalQC*100;
+    	log.info("qc_type = "+qc_type);
     	
-    	model.addAttribute("qc", qc);
-    	model.addAttribute("qc_num", qc_num);
-    	model.addAttribute("QcDetailList", QcDetailList);
-    	model.addAttribute("totalQC", totalQC);
-    	model.addAttribute("totalFail", totalFail);
-    	model.addAttribute("totalPass", totalPass);
-    	model.addAttribute("failRate", failRate);
+    	
+//    	QcVO qc = projectService.getOneQc(qc_num); 	   
+//    	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
+//    	int totalQC = qc.getQc_quan();
+//    	int totalFail = projectService.getTotalFail(qc_num);
+//    	int totalPass = totalQC - totalFail;
+//    	double failRate = (double)totalFail/totalQC*100;
+//    	
+//    	model.addAttribute("qc", qc);
+//    	model.addAttribute("qc_num", qc_num);
+//    	model.addAttribute("QcDetailList", QcDetailList);
+//    	model.addAttribute("totalQC", totalQC);
+//    	model.addAttribute("totalFail", totalFail);
+//    	model.addAttribute("totalPass", totalPass);
+//    	model.addAttribute("failRate", failRate);
     	
         return "qcDetail";
     }
 
 
-    // QC 유형 등록 페이지 이동
+    // QC 수정 페이지 이동
     @GetMapping("qcTest")
     public String qcTest(@RequestParam("qc_num") int qc_num, Model model) {
     	log.info("qcTest 이동");
     	log.info("qc_num = "+qc_num);
 
-    	QcVO qc = projectService.getOneQc(qc_num); 	   
+    	QcVO qc = projectService.getOrderQc(qc_num); 	   
     	List<QcVO> QcDetailList = projectService.getOneQcDetail(qc_num);
     	int totalQC = qc.getQc_quan();
     	int totalFail = projectService.getTotalFail(qc_num);
@@ -546,6 +550,30 @@ public class ProjectController {
     	model.addAttribute("totalPass", totalPass);
     	model.addAttribute("failRate", failRate);
         return "qcTest";
+    }
+    
+    // QC 수정 저장
+    @PostMapping("qcTest")
+    public String qcTest(@RequestParam("qcNum") int qcNum,
+                         @RequestParam("quantities") List<Integer> quantities,
+                         @RequestParam("qcqNums") List<Integer> qcqNums,
+                         Model model) {
+        try {
+            // 각 QC Detail 업데이트
+            for (int i = 0; i < qcqNums.size(); i++) {
+                QcVO qcVO = new QcVO();
+                qcVO.setQc_num(qcNum);
+                qcVO.setQcq_num(qcqNums.get(i));
+                qcVO.setQc_fail_quan(quantities.get(i));
+                projectService.updateupdateQcDetail(qcVO);
+            }
+            model.addAttribute("message", "QC 검사 결과가 성공적으로 저장되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("message", "QC 검사 결과 저장 중 오류가 발생했습니다.");
+        }
+
+        return "qcDetail"; // 결과 화면 반환
     }
     
     // QC 유형 등록 페이지 이동

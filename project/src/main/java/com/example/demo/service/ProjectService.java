@@ -297,9 +297,15 @@ public class ProjectService {
 		}
 		
 		// QC 1건 정보
-		public QcVO getOneQc(int qc_num) {
+		public QcVO getOrderQc(int qc_num) {
 			log.info("getOneQc - Service");
-			return projectDAO.getOneQc(qc_num);
+			return projectDAO.getOrderQc(qc_num);
+		}
+		
+		// QC 1건 정보
+		public QcVO getPlanQc(int qc_num) {
+			log.info("getOneQc - Service");
+			return projectDAO.getPlanQc(qc_num);
 		}
 		
 		// QC 1건 질문 - 응답 정보

@@ -80,7 +80,10 @@ public interface ProjectDAO {
 	List<QcVO> getQcList();
 	
 	// QC 1건 기본 정보
-	QcVO getOneQc(int qc_num);
+	QcVO getOrderQc(int qc_num);
+	
+	// QC 1건 기본 정보
+		QcVO getPlanQc(int qc_num);
 	
 	// QC 1건 질문-응답 정보 (질문 번호, 질문 내용, 부적격 수량)
 	List<QcVO> getOneQcDetail(int qc_num);

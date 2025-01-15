@@ -197,7 +197,16 @@
 
 <!-- QC 1건 정보 -->
 
-<select id="getOneQc" parameterType="java.lang.Integer" resultType="QcVO">
+<select id="getOrderQc" parameterType="java.lang.Integer" resultType="QcVO">
+	
+	SELECT qc.*, material_name
+	FROM qc
+    LEFT JOIN material m ON m.material = qc.qc_item_num
+	WHERE qc.qc_num = #{qc_num};
+	
+</select>
+
+<select id="getPlanQc" parameterType="java.lang.Integer" resultType="QcVO">
 	
 	SELECT qc.*, product_name
 	FROM qc
