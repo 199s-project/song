@@ -9,9 +9,10 @@ import lombok.Setter;
 @Setter
 @Alias("InventoryVO")
 public class InventoryVO {
-	private int inventory_num;
-	private String inventory_name;
-	private int inventory_price;
-	private int inventory_amount;
-	private int inventory_regdate;
+	private int inven_num;
+	private String inven_name;
+	private int inven_type;
+	private int inven_item_num;
+	private int inven_amount;
+	private int inven_price;
 }
