@@ -90,14 +90,6 @@ function saveData() {
 	    const quantityElement = row.querySelector('.quantity');
 	    const qcnumElement = document.querySelector('.qcNum');
 	    
-	    
-	    
-	    // 요소가 null일 경우를 대비해 조건문으로 값 확인
-	   /*  if (!qcquestElement || !quantityElement) {
-	        console.error('qcquest or quantity element is missing in row:', row);
-	        return; // 빈 값을 반환하거나 종료
-	    } */
-	    
 	    console.log('QuestNum:', questnumElement.textContent); // .qcquest 요소 확인
 	    console.log('Quantity:', quantityElement.value); // .quantity 요소 확인
 		console.log('QcNum: ', qcnumElement.value); // qc Num 확인
@@ -108,7 +100,7 @@ function saveData() {
 	    };
 	}).filter(item => item !== undefined); // null이나 undefined 값 제외
 
-	console.log(data); // 데이터 확인
+	console.log('data : ', data); // 데이터 확인
 
 	fetch('/updateQcDetail', {
 		method: 'POST',
@@ -119,10 +111,10 @@ function saveData() {
 	})
 	.then(response => {
 		if (response.ok) {
-			alert('저장 성공');
+			alert('정상적으로 저장했습니다.');
 			location.reload();
 		} else {
-			alert('저장 실패');
+			alert('저장에 실패했습니다.');
 		}
 	})
 	.catch(error => console.error('Error: ', error));
@@ -209,10 +201,13 @@ function saveData() {
 							<th>검사 상태</th>
 							<td>
 							<th:block th:if="${qc.qc_stat}==0">
-							<span class="badge badge-primary">검사 전</span>
+							<span class="badge badge-warning">검사 전</span>
 							</th:block>
 							<th:block th:if="${qc.qc_stat}==1">
-							<span class="badge badge-secondary">검사 완료</span>
+							<span class="badge badge-primary">작성 중</span>
+							</th:block>
+							<th:block th:if="${qc.qc_stat}==2">
+							<span class="badge badge-light">검사 완료</span>
 							</th:block>								
 							</td>						
 						</tr>
@@ -258,6 +253,7 @@ function saveData() {
 						</tbody>
 						<tfoot>
 						<tr>
+							<td></td>
 							<th>총 부적격 수량</th>
 							<th>
 							<input
@@ -271,8 +267,15 @@ function saveData() {
 						</tr>
 						</tfoot>
 						</table>
+						<div class="d-flex justify-content-between">
+						<div>
+						<button type="button" class="btn btn-secondary m-2 rowbtn" th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">뒤로가기</button>
+						</div>
+						<div>
 						<button type="button" class="btn btn-success m-2 rowbtn" onclick="saveData()">저장</button>
 						<button type="submit" class="btn btn-primary m-2 rowbtn">저장 및 제출</button>
+						</div>
+						</div>
 						</form>
 					</div>					
 				</div>

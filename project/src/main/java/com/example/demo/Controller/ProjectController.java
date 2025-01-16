@@ -614,12 +614,25 @@ public class ProjectController {
     
     @PostMapping("/updateQcDetail")
     @ResponseBody
-    public ResponseEntity<String> updateQcDetail(@RequestBody List<QcVO> qcDetails) {
+    public ResponseEntity<String> updateQcDetail(@RequestBody List<QcDetailVO> qcDetails) {
         try {
-            for (QcVO detail : qcDetails) {
+            for (QcDetailVO detail : qcDetails) {
                 log.info("QC 문항 번호: " + detail.getQcq_num());
                 log.info("부적격 수량: " + detail.getQc_fail_quan());
-                projectService.updateQcDetail(detail);
+                
+                int isQcDetail = projectService.isQcDetail(detail); // 값 존재하는지 확인
+                
+                log.info("검사 돌렸슈 :: " + isQcDetail);
+                
+                if (isQcDetail == 0) {
+                	log.info("Detail 추가 : qc_num : " + detail.getQc_num() + " : qcq_num : " + detail.getQcq_num() + " : qc_fail_quan : " + detail.getQc_fail_quan());
+                	projectService.insertQcDetail(detail);
+                	
+                } else if (isQcDetail == 1) {
+                	log.info("Detail 업데이트 : qc_num : " + detail.getQc_num() + " : qcq_num : " + detail.getQcq_num() + " : qc_fail_quan : " + detail.getQc_fail_quan());
+                    projectService.updateQcDetail(detail);
+                }
+                projectService.updateQcStat1(detail.getQc_num());
             }
             return ResponseEntity.ok("Success");
         } catch (Exception e) {

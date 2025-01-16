@@ -14,7 +14,7 @@ import com.example.demo.dto.QcVO;
 import com.example.demo.dto.PlandetailVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionPlanVO;
-
+import com.example.demo.dto.QcDetailVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 
@@ -94,8 +94,20 @@ public interface ProjectDAO {
 	// QC 1건 총 부적격 수량
 	int getTotalFail(int qc_num);
 	
-	// QC Detail 업데이트
-	int updateQcDetail(QcVO qcVO);
+	// QC Detail 기존 값 존재 확인
+	int isQcDetail(QcDetailVO detail);
+	
+	// (기존 값 없음) QC Detail 추가
+	int insertQcDetail(QcDetailVO detail);
+	
+	// (기존 값 있음) QC Detail 업데이트
+	int updateQcDetail(QcDetailVO detail);
+	
+	// QC 저장 버튼, 상태 : 검사중 (1)
+	int updateQcStat1(int qc_num);
+	
+	// QC 제출 버튼, 상태 : 검사 완료 (2)
+	int updateQcStat2(int qc_num);
 	
 	// 나현. 끝.
 

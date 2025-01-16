@@ -16,10 +16,11 @@ import com.example.demo.dto.FileVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
-import com.example.demo.dto.QcVO;
 import com.example.demo.dto.PlandetailVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionPlanVO;
+import com.example.demo.dto.QcDetailVO;
+import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -291,7 +292,7 @@ public class ProjectService {
 	// 나현. 시작.
 	// QC
 
-		// QC 전체 리스트 입력	
+		// QC 전체 리스트
 		public List<QcVO> getQcList() {
 			return projectDAO.getQcList();
 		}
@@ -325,9 +326,29 @@ public class ProjectService {
 			return projectDAO.getTotalFail(qc_num);
 		}
 		
-		// QC Detail 업데이트
-		public int updateQcDetail(QcVO qcDetails) {
+		// Qc Detail 기존 값 존재 확인
+		public int isQcDetail(QcDetailVO qcDetail) {
+			return projectDAO.isQcDetail(qcDetail);
+		}
+		
+		// (기존 값 없음) QC Detail 추가
+		public int insertQcDetail(QcDetailVO qcDetails) {
+			return projectDAO.insertQcDetail(qcDetails);
+		}
+		
+		// (기존 값 있음) QC Detail 업데이트
+		public int updateQcDetail(QcDetailVO qcDetails) {
 			return projectDAO.updateQcDetail(qcDetails);
+		}
+		
+		// QC 저장 버튼, 상태 : 검사중 (1)
+		public int updateQcStat1(int qc_num) {
+			return projectDAO.updateQcStat1(qc_num);
+		}
+		
+		// QC 제출 버튼, 상태 : 검사 완료 (2)
+		public int updateQcStat2(int qc_num) {
+			return projectDAO.updateQcStat2(qc_num);
 		}
 		
 	// 나현. 끝.

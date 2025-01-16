@@ -118,9 +118,12 @@
 						</tr>
 						</tfoot>
 						</table>
-						<th:block th:if="${qc.qc_stat}==0">
-						<button class="btn btn-primary m-2 rowbtn" th:onclick="'location.href=\'/qcTest?qc_num=' + ${qc.qc_num} + '\''"> 작성/수정</button>
+						<div class="d-flex justify-content-between">
+						<button class="btn btn-secondary m-2 rowbtn" onclick="location.href='/qc' ">목록으로</button>
+						<th:block th:unless="${qc.qc_stat}==2">
+						<button class="btn btn-primary m-2 rowbtn" th:onclick="'location.href=\'/qcTest?qc_num=' + ${qc.qc_num} + '\''">수정</button>
 						</th:block>
+						</div>
 					</div>					
 				</div>
 		<!-- Export Datatable End -->
