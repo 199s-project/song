@@ -255,7 +255,7 @@
 		UPDATE qc_detail
 		SET
 		qc_fail_quan = #{qc_fail_quan}
-		WHERE qc_num = #{qc_num} and qcq_num = #{qcq_num};
+		WHERE qc_num = #{qc_num} AND qcq_num = #{qcq_num};
 	</update>
 	
 	<!-- QC 저장 버튼, 상태 : 검사 중 (1) -->
@@ -270,16 +270,21 @@
 	<update id="updateQcStat2" parameterType="int">
 		UPDATE qc
 		SET
-		qc_date = now(), qc_stat = 2
+			qc_date = now(),
+			qc_stat = 2
 		WHERE qc_num = #{qc_num}
 	</update>
-	
-	<!-- QC 제출, inventory 추가 -->
-	<update id="updateInvenMat" parameterType="inventoryVO">
-		INSERT INTO inventory (inven_name, invent_type, inven_item_num, invent_amount, invent_price)
-		ON DUPLIOURE
-	</update>
-	
+		
+	<!-- QC 제출, inventory 업데이트 -->
+	<insert id="updateInven" parameterType="InventoryVO">
+		UPDATE inventory
+		SET
+			inven_amount = inven_amount + #{inven_amount}
+		WHERE
+			inven_name = #{inven_name}
+			AND inven_item_num = #{inven_item_num}
+			AND inven_type = #{inven_type};
+	</insert>
 <!-- 나현. 끝. -->
 	
 	<insert id="insertProduction" parameterType="ProductionPlanVO">

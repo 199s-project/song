@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.example.demo.dao.ProjectDAO;
 import com.example.demo.dto.CompanyVO;
 import com.example.demo.dto.FileVO;
+import com.example.demo.dto.InventoryVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
@@ -349,6 +350,11 @@ public class ProjectService {
 		// QC 제출 버튼, 상태 : 검사 완료 (2)
 		public int updateQcStat2(int qc_num) {
 			return projectDAO.updateQcStat2(qc_num);
+		}
+		
+		// QC 제출 버튼, inventory 수량 증가
+		public int updateInven(InventoryVO inven) {
+			return projectDAO.updateInven(inven);
 		}
 		
 	// 나현. 끝.

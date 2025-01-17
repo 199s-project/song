@@ -7,14 +7,15 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.example.demo.dto.CompanyVO;
 import com.example.demo.dto.FileVO;
+import com.example.demo.dto.InventoryVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
-import com.example.demo.dto.QcVO;
 import com.example.demo.dto.PlandetailVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionPlanVO;
 import com.example.demo.dto.QcDetailVO;
+import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 
@@ -108,6 +109,9 @@ public interface ProjectDAO {
 	
 	// QC 제출 버튼, 상태 : 검사 완료 (2)
 	int updateQcStat2(int qc_num);
+	
+	// QC 제출 버튼, inventory 수량 증가
+	int updateInven(InventoryVO inven);
 	
 	// 나현. 끝.
 

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.dto.CompanyVO;
 import com.example.demo.dto.FileVO;
+import com.example.demo.dto.InventoryVO;
 import com.example.demo.dto.OrderformVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.QcDetailVO;
@@ -589,7 +591,7 @@ public class ProjectController {
     
     // QC Test 부적격 수량 저장
     @ResponseBody
-    @PostMapping("/updateQcDetail")    
+    @PostMapping("updateQcDetail")    
     public ResponseEntity<String> updateQcDetail(@RequestBody List<QcDetailVO> qcDetails) {
         try {
             for (QcDetailVO detail : qcDetails) {
@@ -612,12 +614,63 @@ public class ProjectController {
     }
     
     // QC Test POST
-    @PostMapping("submitQc")
-    public int submitQc() {
+    @PostMapping("qcTest")
+    public String qcTest(@RequestParam Map<String, String> map,
+						Model model) { 	
+    	System.out.println(map);    	
+    	String inven_name = map.get("item_name");
+        String qc_type = map.get("qc_type");
+        
+        int inven_item_num = Integer.parseInt(map.get("qc_item_num"));
+        int inven_amount = Integer.parseInt(map.get("totalPass"));
+        int qc_num = Integer.parseInt(map.get("qc_num"));
+        
+//        System.out.println("########################## inven_name: " + invenName);
+        System.out.println("########################## qc_type: " + qc_type);
+        System.out.println("########################## inven_item_num: " + inven_item_num);
+        System.out.println("########################## inven_amount: " + inven_amount);
+        System.out.println("########################## qc_num: " + qc_num);
     	
+    	InventoryVO inven = new InventoryVO();
     	
-    	return 1;
+//    	inven.setInven_name(invenName);
+    	
+    	// 타입
+    	int inven_type = 0;
+	    	if (qc_type.equals("order")) {
+	    		inven_type = 0;
+	    	} else if (qc_type.equals("plan")) {
+	    		inven_type = 1;
+	    	}
+	    	
+	    inven.setInven_name(inven_name);
+	    inven.setInven_item_num(inven_item_num);
+	    inven.setInven_amount(inven_amount);
+	    inven.setInven_type(inven_type);
+	    
+	    System.out.println(inven.getInven_item_num());
+	    
+    	int updateinven = projectService.updateInven(inven);
+    	int updateQcStat2 = projectService.updateQcStat2(qc_num);
+    	
+    	List<QcVO> QcList = projectService.getQcList();
+    	model.addAttribute("QcList", QcList);
+    	log.info("qc 이동");
+    	
+    	return "redirect:/qc";
     }
+    
+    
+    
+	// company 등록
+	@PostMapping("addCompanytest")
+	public String addCompanytest(@RequestBody CompanyVO companyVO){
+	    String name = companyVO.getCompany_name();
+	    log.info("Company's name is : "+ name);
+	    int r = projectService.addCompany(companyVO);
+	    return "index";
+	}
+    
     
     // QC 유형 등록 페이지 이동
     @GetMapping("qcTypeReg")
