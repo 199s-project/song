@@ -112,13 +112,6 @@ public class ProjectController {
 	}
    
    
-   
-	
-	
-
-	
-
-	
 	
     // 비어있는 페이지
 	@GetMapping("notepad")
@@ -730,7 +723,13 @@ public class ProjectController {
     @GetMapping("qc")
     public String qc(Model model) {
     	List<QcVO> QcList = projectService.getQcList();
+    	List<QcVO> QcList0 = projectService.getQcList0();
+    	List<QcVO> QcList1 = projectService.getQcList1();
+    	List<QcVO> QcList2 = projectService.getQcList2();
     	model.addAttribute("QcList", QcList);
+    	model.addAttribute("QcList0", QcList0);
+    	model.addAttribute("QcList1", QcList1);
+    	model.addAttribute("QcList2", QcList2);
     	log.info("qc 이동");
         return "qc";
     }
@@ -1079,56 +1078,94 @@ public class ProjectController {
     }
     
     @PostMapping("postFactoryDetail")
-    public String postFactoryDetail(@RequestParam Map<String,Object> formData) {
-    	
-        Map<String,Object> itemData = formData.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().contains("item_name"))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    public String postFactoryDetail(@RequestParam Map<String, Object> formData) {
+       Map<String, Object> itemData = formData
+             .entrySet()
+             .stream()
+             .filter(entry -> entry.getKey().contains("item_name"))
+             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+       
+       Optional<Integer> itemMaxNumber = itemData.keySet().stream().filter(key -> key.startsWith("item_name"))
+             .map(key -> Integer.parseInt(key.replace("item_name", ""))).max(Integer::compareTo);
+       
+       int pd_num =Integer.parseInt((String)formData.get("pd_num")); // pd_num 갖고오기
+       
+       int maxCount = itemMaxNumber.orElse(0);
+       
+       int num = (int)projectService.getfindLastProductionNumber();
+       
+       ProductVO productVO  = new ProductVO();
+       
+       QcVO qc = new QcVO();
+       
+       
+    
+       
+       for (int i = 1; i <= maxCount; i++) {
+          String itemNameKey = "item_name" + i;
+          String quantityKey = "quantity" + i;
+
+          String itemName = (String)formData.get(itemNameKey);
+          int quantity = Integer.parseInt((String)formData.get(quantityKey));
+          //qc에 관련한 product_name select 해서 product_num 찾기
+          productVO.setProduct_name(itemName);
           
-          Optional<Integer> itemMaxNumber = itemData.keySet()
-                .stream()
-                .filter(key -> key.startsWith("item_name"))
-                .map(key -> Integer.parseInt(key.replace("item_name", "")))
-                .max(Integer::compareTo);
-         
+          projectService.getfindProductNum(productVO);
           
-        int maxCount = itemMaxNumber.orElse(0);
-        
-    	int num = (int) projectService.getfindLastProductionNumber();
-    	
-    	for(int i =1; i<=maxCount;i++) {
-    		String itemNameKey = "item_name" + i ; 
-    		String quantityKey = "quantity" + i ;
-    		
-    		String itemName = (String) formData.get(itemNameKey);
-    		int quantity = Integer.parseInt((String) formData.get(quantityKey));
-    		
-		
-			 log.info(itemNameKey);
-			 log.info(quantityKey);
-			 
-    		
-    		int recipe_num = projectService.getRecipeNumByProductName(itemName);
-    		List<RecipeDetailVO> list = projectService.getRecipeDetailListByRecipeNum(recipe_num);
-    		int listSize = list.size();
-    		
-    		for(int k =1; k<=listSize;k++) {
-    			 int Mamount =list.get(k-1).getMaterial_amount();
-    			String Mname = list.get(k-1).getMaterial_name();
-    			InventoryVO inventoryVO = new InventoryVO();
-    			
-    			int totalMamount = Mamount * quantity ; 
-    		
-    			inventoryVO.setInven_amount(totalMamount);
-    			inventoryVO.setInven_name(Mname);
-    			
-    			int r = projectService.reduceInventoryAmount(inventoryVO);
-    		}
-    		
-    	}
-    		
-    	return "redirect:factoryPlan";
+          ProductVO product_num = projectService.getfindProductNum(productVO);
+          
+          qc.setQc_item_num(product_num.getProduct_num());
+          qc.setQc_quan(quantity);
+          qc.setQc_type("plan");
+          qc.setPaper_num(num);
+          qc.setQc_writer("test");
+          
+          log.info(itemNameKey);
+          log.info(quantityKey);
+          
+          int recipe_num = projectService.getRecipeNumByProductName(itemName);
+          List<RecipeDetailVO> list = projectService.getRecipeDetailListByRecipeNum(recipe_num);
+          int listSize = list.size();
+          
+          for (int k = 1; k <= listSize; k++) {
+             int Mamount = list.get(k - 1).getMaterial_amount();
+             String Mname = list.get(k - 1).getMaterial_name();
+             InventoryVO inventoryVO = new InventoryVO();
+             
+             
+             int totalMamount = Mamount * quantity;
+
+             inventoryVO.setInven_amount(totalMamount);
+             inventoryVO.setInven_name(Mname);
+             
+             int r = projectService.reduceInventoryAmount(inventoryVO);
+             
+             if (r > 0) {
+                System.out.println("생산되었습니다.");
+                ProductionVO productionVO = new ProductionVO();
+                productionVO.setPd_num(pd_num);
+                
+                
+                productVO.setProduct_name(itemName);
+                
+                
+                   
+                   
+                   //set 해둔 qc 문 update
+                   int result2 = projectService.insertqc(qc);
+					/* int pd_check = projectService.setPdCheckUpdate(productionVO); */
+                
+                return "redirect:factoryPlan";
+             } else {
+
+                System.out.println("재고가 부족합니다. 재고를 확인후 생산 계획서를 수정해 주세요.");
+
+             }
+          }
+          
+       }
+
+       return "redirect:factoryPlan";
     }
     
     

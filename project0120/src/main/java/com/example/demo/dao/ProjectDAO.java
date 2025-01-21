@@ -79,6 +79,15 @@ public interface ProjectDAO {
 	// QC 전체 리스트
 	List<QcVO> getQcList();
 	
+	// QC 리스트 : 검사 전 0
+	List<QcVO> getQcList0();
+	
+	// QC 리스트 : 작성 중 1
+	List<QcVO> getQcList1();
+	
+	// QC 리스트 : 작성 중 2
+	List<QcVO> getQcList2();
+	
 	// QC 1건 기본 정보
 	QcVO getOneQc(int qc_num);
 	
@@ -178,6 +187,8 @@ public interface ProjectDAO {
 	ProductVO getProductDetail(int product_num);
    
 	List<FileVO> getProductImages(int product_num);
+	
+	ProductVO getfindProductNum(ProductVO productVO);
 	
 
 // new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 시작

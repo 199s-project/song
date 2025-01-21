@@ -220,7 +220,50 @@
 		FROM qc
 			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
 			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
-		ORDER BY qc.qc_num DESC; </select>
+		ORDER BY qc.qc_num DESC;		
+	</select>
+		
+	<!-- QC 리스트 중 검사 전 -->
+	<select id="getQcList0" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		WHERE qc.qc_stat = 0
+		ORDER BY qc.qc_num DESC;		
+	</select>
+		
+	<!-- QC 리스트 중 작성 중 -->
+	<select id="getQcList1" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		WHERE qc.qc_stat = 1
+		ORDER BY qc.qc_num DESC;		
+	</select>
+	
+	<!-- QC 리스트 중 검사 완료 -->
+	<select id="getQcList2" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		WHERE qc.qc_stat = 2
+		ORDER BY qc.qc_num DESC;		
+	</select>	
 
 	<!-- QC 1건 기본 정보 가져오기 -->
 	<select id="getOneQc" parameterType="java.lang.Integer"
@@ -327,13 +370,10 @@
 
 	<!-- QC 제출, inventory 업데이트 -->
 	<insert id="updateInven" parameterType="InventoryVO">
-		UPDATE inventory
-		SET
-		inven_amount = inven_amount + #{inven_amount}
-		WHERE
-		inven_name = #{inven_name}
-		AND inven_item_num = #{inven_item_num}
-		AND inven_type = #{inven_type};
+		INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount)
+		VALUE (#{inven_type}, #{inven_item_num}, #{inven_name}, #{inven_amount})
+		ON DUPLICATE KEY UPDATE
+		inven_amount = inven_amount + #{inven_amount};
 	</insert>
 	<!-- 나현. 끝. -->
 
@@ -491,6 +531,13 @@
 		select * from file where file_pk = #{product_num} and file_subject =
 		"product" order by file_num desc
 	</select>
+	
+	   <select id="getfindProductNum" parameterType="ProductVO" resultType="ProductVO">
+      SELECT 
+       product.product_num FROM product
+      INNER JOIN productiondetail ON product.product_name = productiondetail.product_name
+      where productiondetail.product_name = #{product_name} LIMIT 1;
+   </select>
 
 	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
 		이의재 시작 -->

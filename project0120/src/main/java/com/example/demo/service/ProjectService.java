@@ -310,6 +310,21 @@ public class ProjectService {
 				return projectDAO.getQcList();
 			}
 			
+			// QC 리스트 : 검사 전 0
+			public List<QcVO> getQcList0() {
+				return projectDAO.getQcList0();
+			}
+			
+			// QC 리스트 : 작성 중 1
+			public List<QcVO> getQcList1() {
+				return projectDAO.getQcList1();
+			}
+			
+			// QC 리스트 : 검사 완료 2
+			public List<QcVO> getQcList2() {
+				return projectDAO.getQcList2();
+			}
+			
 			// QC 1건 정보
 			public QcVO getOneQc(int qc_num) {
 				log.info("getOneQc - Service");
@@ -654,6 +669,9 @@ public class ProjectService {
 		
 // ---------------------김민성---------------------------------	
 	
-	
+	public ProductVO getfindProductNum(ProductVO productVO) {
+	      // TODO Auto-generated method stub
+	      return projectDAO.getfindProductNum(productVO);
+	   }
 	
 }

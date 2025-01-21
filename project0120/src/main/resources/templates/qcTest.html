@@ -1,15 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>품질 검사 내역</title>
+<title>품질 검사 내역123</title>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- sweetalert -->
+		<script src="src/plugins/sweetalert2/sweetalert2.all.js"></script>
+		<script src="src/plugins/sweetalert2/sweet-alert.init.js"></script>
+
 <!-- 부적격 수량 검수 -->
 <script type="text/javascript">
   function quanChange() {
     var totalFail = 0; // 총 부적격 수량
     var qcQuantity = parseInt($('#qcQuan').val()) || 0; // 검사 수량
     var exceedAlertShown = false; // 초과 경고창 표시 여부
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'center-end',
+        showConfirmButton: false,
+        timer: 2500, // 2.5초
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
 
     // 각 필드 확인 및 초과 처리
     $('.quantity').each(function () {
@@ -19,7 +34,11 @@
       // 개별 값이 검사 수량 초과 시 강조
       if (value > qcQuantity) {
         if (!exceedAlertShown) {
-          alert("부적격 수량은 검사 수량을 초과할 수 없습니다.");
+          /* alert("부적격 수량은 검사 수량을 초과할 수 없습니다."); */
+          Toast.fire({
+      		icon: 'error',
+      		title: '부적격 수량이 검사 수량을 초과할 수 없습니다.'
+      	});
           exceedAlertShown = true;
         }
         $this.addClass('form-control-danger'); // 초과 상태 강조
@@ -29,25 +48,6 @@
 
       totalFail += value; // 총 부적격 수량 계산
     });
-
-    // 총합 초과 시 강조
-    if (totalFail > qcQuantity) {
-      if (!exceedAlertShown) {
-        alert("총 부적격 수량이 검사 수량을 초과할 수 없습니다.");
-      }
-      $('.quantity').each(function () {
-        var $this = $(this);
-        var value = parseInt($this.val()) || 0;
-
-        // 총합 초과 상태 강조
-        if (totalFail > qcQuantity && value > 0) {
-          $this.addClass('form-control-danger');
-        }
-      });
-    } else {
-      // 모든 초과 상태 해제
-      $('.quantity').removeClass('form-control-danger');
-    }
 
     // 계산 결과 반영
     updateResults(totalFail, qcQuantity);
@@ -81,6 +81,16 @@
 <script type="text/javascript">
 
 function saveData() {
+	
+	const totalPass = parseInt(document.querySelector('#totalPass').value) || 0;
+    if (totalPass < 0) {
+    	Swal.fire({
+    		icon: 'error',
+    		title: '적격 수량이 0보다 작을 수 없습니다.'
+    	});
+        return false;
+    }
+    
         const rows = document.querySelectorAll('#qcDetailTable tbody tr');
         const testerElement = document.querySelector('#qcTester');
         const testerName = testerElement.value;
@@ -109,9 +119,15 @@ function saveData() {
         })
         .then(response => {
             if (response.ok) {
-            	Swal.fire("정상적으로 저장했습니다.");
+            	Swal.fire({
+            		icon: 'success',
+            		title: '정상적으로 저장했습니다.'
+            	});
             } else {
-            	alert('저장에 실패했습니다.');
+            	Swal.fire({
+            		icon: 'error',
+            		title: '저장에 실패했습니다.'
+            	});
             }
         })
 }
@@ -123,7 +139,16 @@ function saveButton() {
 
 function submitButton() {
 	saveData();
-	if (confirm("검사를 종료하고, 제출하겠습니까?")) {
+	if (
+	Swal.fire({
+		icon: 'warning',
+		title: '검사를 종료하고 제출하겠습니까?',
+		showCancelButton: true,
+		confirmButtonText: '제출',
+	    cancelButtonText: '취소',
+	    reverseButtons: true, // 버튼 순서 거꾸로				
+	})
+	) {
 		var form = document.getElementById("qcForm");
 		form.submit();
 		location.reload();
