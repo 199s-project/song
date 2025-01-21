@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<style>
+	#register-table {
+		width: 450px;
+		tr {
+			height: 55px;
+			border-bottom: 1px solid lightgray;
+		}
+		thead {
+			tr {
+				height: 120px !important;
+				font-weight: bold;
+				font-size: 40px;
+			}
+		}
+	}
+	.table-title {
+		border: 1px;
+		border-radius: 10px;
+		color: #8d8d8d;
+		padding: 10px;
+	}
+	.swal2-input {
+		height: 30px !important;
+		margin: 0;
+	}
+	#fileVO {
+		height: 32px !important;
+		padding: 2px 0 0 2px;
+	}
+	.heading-td {
+		width: 20% !important;
+		text-align: left !important;
+		font-size: 15px;
+		font-weight: bold;
+	}
+	.input-auto-size td {
+		input {
+			width: 90%;
+			font-size: 15px;
+		}
+		#product-input2, #product-input3 {
+			width: 44%;
+			float: left;
+			margin-left: 18px;
+		}
+		.code-validation-result, .company-validation-result {
+			width: 44%;
+			float: right;
+			margin-right: 18px;
+		}
+	}
+	#zipcode {
+		width: 50% !important;
+		float: left;
+		margin-left: 5% !important;
+	}
+	#daumaddress {
+		width: 38% !important;
+		margin-right: 3% !important;
+		background-color: lightgray;
+		font-weight: bold;
+		text-align: center;
+	}
+	.swal2-actions {
+		margin: 0.75em 0 0 0 !important;
+	}
+	
+</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+<script>
+
+function addproduct() {
+	Swal.fire({
+		html: `
+			<table id="register-table" class="input-auto-size">
+				<thead>
+					<tr>
+						<td colspan="2" style="text-align:left"> 
+							<div class="table-title"><i class="fa-solid fa-gift"></i> &nbsp; 제품 정보 등록 </div> 
+						<td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="heading-td"> 제품명 </td>
+						<td> <input id="product-input1" class="swal2-input" placeholder="제품명"> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 제품코드 </td>
+						<td> <input id="product-input2" class="swal2-input" placeholder="제품코드" oninput="product_codeValidation()"> <input id="code-validation-result" class="swal2-input code-validation-result" readonly placeholder="중복여부"></td>
+					</tr>            
+					<tr>
+						<td class="heading-td"> 제조업체 </td>
+						<td> <input id="product-input3" class="swal2-input" placeholder="제조업체" oninput="product_companyNameCheck()"> <input id="company-validation-result" class="swal2-input company-validation-result" readonly placeholder="검색결과"> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 카테고리 </td>
+						<td> <input id="product-input4" class="swal2-input" placeholder="카테고리"> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 제품 가격 </td>
+						<td> <input id="product-input5" class="swal2-input" placeholder="제품 가격"> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 제품 사진 </td>
+						<td><input type="file" id="fileVO" class="swal2-input" multiple name="fileVO"></td>
+					</tr>
+				</tbody>
+			</table>
+		`,
+		showCancelButton: true,
+		confirmButtonColor: "#2BC783",
+		cancelButtonColor: "#d33",
+		confirmButtonText: "Submit",
+		cancelButtonText: "Cancel",
+		allowOutsideClick: false,
+		focusConfirm: false,
+		preConfirm: () => {
+			const name = document.getElementById("product-input1").value;
+			const code = document.getElementById("product-input2").value;
+			const brand = document.getElementById("company-validation-result").value;
+			const category = document.getElementById("product-input4").value;
+			const price = document.getElementById("product-input5").value;
+			const files = document.getElementById("fileVO").files;
+			const productCodeValidation = document.getElementById("code-validation-result").value;
+			
+			if (!name || !code || !brand || !category || !price) {
+				Swal.showValidationMessage("모든 입력란을 채워주세요!");
+				return false;
+			}
+			if (productCodeValidation == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 제품코드입니다!");
+				return false;
+			}
+			if (files.length === 0) {
+				Swal.showValidationMessage("이미지를 업로드해주세요!");
+				return false;
+			}
+	      
+			return { 
+				product_name: name, 
+				product_code: code, 
+				product_brand: brand, 
+				product_category: category, 
+				product_price: price,
+				files: files, // 파일 정보를 전달
+			};
+		},
+	})
+	.then((result) => {
+		if (result.isConfirmed) {
+			// 1. 제품 정보 등록
+			fetch('/addProduct', {
+				method: 'POST',
+				headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				product_name: result.value.product_name,
+				product_code: result.value.product_code,
+				product_brand: result.value.product_brand,
+				product_category: result.value.product_category,
+				product_price: result.value.product_price,
+			}),
+		})
+		.then(response => {
+			if (!response.ok) {
+				return response.text().then(text => {
+					throw new Error(`Error: ${text}`);
+				});
+			}
+			return response.json();
+		})
+		.then(data => {
+			// 2. 이미지 업로드
+			const formData = new FormData();
+			for (const file of result.value.files) {
+				formData.append("fileVO", file);
+			}
+			return fetch('/imageUpload', {
+				method: 'POST',
+				body: formData,
+			});
+		})
+		.then(response => {
+			if (!response.ok) {
+				return response.text().then(text => {
+					throw new Error(`Error: ${text}`);
+				});
+			}
+			return response.json();
+		})
+		.then(data => {
+			Swal.fire("성공", "제품 정보와 이미지를 성공적으로 추가했습니다.", "success");
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire("오류", error.message, "error");
+			});
+		}
+	});
+}
+
+</script>
+
+<script>
+
+function product_codeValidation() {
+	var product_code = $("#product-input2").val();
+	if (!product_code) {
+		$('.code-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/productCodeCheck",
+			data: {product_code : product_code},
+			success: function(cnt) {
+				if (cnt > 0) {
+					$('.code-validation-result').attr('value', '사용불가');
+					$('.code-validation-result').css({
+						"color" : "red",
+					});
+				} else {
+					$('.code-validation-result').attr('value', '사용가능');
+					$('.code-validation-result').css({
+						"color" : "green",
+					});
+				}
+			}
+		});
+	}
+}
+
+function product_companyNameCheck() {
+	var company_name = $("#product-input3").val();
+	if (!company_name) {
+		$('.company-validation-result').attr('value', '');	
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/companyNameCheck",
+			data: {'company_name' : company_name},
+			success: function(company) {
+				if (company) {
+					$('.company-validation-result').attr('value', company);	
+				}
+			}
+		});
+	}
+}
+
+</script>
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Export Datatable start -->
+				<div>
+					<button class="btn btn-primary m-2" onclick="addproduct()">제품 정보 등록</button>
+				</div>
+				<!-- Export Datatable End -->
+			</div>
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>

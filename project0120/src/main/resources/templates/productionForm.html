@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function func(member_dept){
+	document.production.selectdept.value=member_dept;
+	//form name=production
+}
+
+</script>
+
+    
+<style>
+	th.table-plus.datatable-nosort.sorting_asc::before, 
+	th.table-plus.datatable-nosort.sorting_asc::after,
+	th.sorting::before, th.sorting::after {
+		content: none !important;
+	}
+	th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+		pointer-events: none; /* 클릭 비활성화 */
+	}
+</style>
+	
+<style>
+       body {
+           font-family: Arial, sans-serif;
+           line-height: 1.5;
+           margin: 20px;
+       }
+       table {
+           width: 100%;
+           border-collapse: collapse;
+           margin-bottom: 5px;
+       }
+       th, td {
+           border: 1px solid black;
+           padding: 8px;
+           text-align: left;
+       }
+       th, .heading-section {
+       	font-weight: bold !important;
+           background-color: #f2f2f2;
+       }
+       .title {
+           text-align: center;
+           font-weight: bold;
+           font-size: 20px;
+           margin-bottom: 20px;
+       }
+       .signature {
+           text-align: center;
+           margin-top: 20px;
+       }
+	.rownum {
+		text-align: right;
+		padding-right: 13px !important;
+	}
+	.rowbtn {
+		width: 110px;
+		height: 30px;
+		font-size: 15px !important;
+		padding: 0 !important;
+	}
+	
+	
+	
+	
+	.input-auto-size td input {
+		width: 100%;
+	}
+	input[type="number"].amount-number, input[type="number"].price-number {
+		text-align: right;
+	}
+
+	input[type='date']{
+     	
+            position: relative;
+            
+            background: url("https://www.flaticon.com/kr/free-icons/") no-repeat;       
+            padding-right: 10px;
+         
+            color: #858585;                        
+        }
+
+
+	
+       
+        input[type="date"]::-webkit-clear-button,
+        input[type="date"]::-webkit-inner-spin-button { 
+        	display: none;
+        } 
+        
+        
+        
+
+        input[type='date']::-webkit-calendar-picker-indicator {
+            position:absolute;
+           
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            
+            background: transparent;
+            color: transparent;
+          }
+
+</style>
+
+
+
+<script>
+
+var count = 2;
+
+function addrow() {
+	
+	const elem = document.createElement("tr");
+	
+	elem.classList.add('added-row'+count);
+	elem.innerHTML = `
+        <td class="rownum">`+count+`</td>
+        <td><input type="text" name="item_name` + count + `"></td>
+        <td><input type="number" name="quantity` + count + `" class="amount-number" min=1 value=1></td>
+	`;
+	count++;
+	document.querySelector(".products").appendChild(elem);
+	document.getElementById("maxCount").value= count -1;
+}
+
+function deleterow() {
+	
+	if (count>2) {
+	    const table = document.getElementById('products');
+	    count--;
+	    table.deleteRow(count);
+	    document.getElementById("maxCount").value = count -1;
+	}
+}
+
+
+</script>
+
+
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Export Datatable start -->
+				<div class="card-box mb-30">
+				<div style="padding: 70px;">
+				<div style="border: 1px solid black; width: 1200px; padding: 60px 120px; margin: 0 auto;">
+				
+				    <div class="title" style="padding: 30px 0 40px 0; font-size: 40px;">생산 계획서</div>
+					<form action="postProductionForm" method="post">
+					<input type="hidden" id="maxCount" name="maxCount" value="1">
+					<table class="input-auto-size">
+					    <tr>
+					        <td class="heading-section">작성자</td>
+					        <td colspan="3"><input type="text" id="pd_writer" name="pd_writer" size="60"></td>
+					    </tr>
+					    <tr>
+					        <td class="heading-section">부서명</td>
+					        <td colspan="3"><select id="pd_dept"name="pd_dept" class="member_dept" onchange="func(this.value)">
+					       <option disabled selected>부서명</option>
+					       <option value="생산">생산</option>
+					       <option value="구매">구매</option>
+					       <option value="관리">관리</option>
+					       <option value="대표">대표</option>
+					       </select><div style="display:none">
+					       <input type="text" name="selectdept" size="60" >
+					       </div></td>
+					    </tr>
+					   
+					     <tr>
+					        <td class="heading-section" width="15%">생산 시작일</td>
+					        <td colspan="3"><input type="date" id="pd_startdate" name="pd_startdate" size="60"></td>
+					    </tr>
+					     <tr>
+					        <td class="heading-section" width="15%">생산 마감일</td>
+					        <td colspan="3"><input type="date" id="pd_enddate" name="pd_enddate" size="60"></td>
+					    </tr>
+					</table>
+					
+					<table class="products input-auto-size" id="products">
+					    <tr>
+					        <th width="10%">번호</th>
+					        <th>물품명
+					        	<button type="button" class="btn btn-primary m-2 rowbtn" onclick="addrow()">ROW 추가</button> 
+					        	<button type="button" class="btn btn-primary m-2 rowbtn" onclick="deleterow()">ROW 제거</button>
+					        </th>
+					        <th width="15%">수량(ea)</th>
+					    </tr>
+					    <tr class="added-row1">
+					        <td style="text-align: right; padding-right: 15px;">1</td>
+					        <td><input type="text" id = "item_name1"name="item_name1"></td>
+					        <td><input type="number" id="quantity1"name="quantity1" class="amount-number" min=1 value=1 style="text-align: right;"></td>
+					    </tr>
+
+					    <!-- Add more rows as needed -->
+					</table>
+					
+					<table class="input-auto-size">
+					     <tr>
+					        <td class="heading-section">생산 목적</td>
+					        <td colspan="3"><input type="text" id="pd_name" name="pd_name" size="60"></td>
+					    </tr>
+					    <tr>
+					        <td class="heading-section" style="text-align: center;">비고</td>
+					        <td><textarea id="pd_content" name="pd_content" rows="10" style="width: 100%;"></textarea></td>
+					    </tr>
+					</table>
+					<button type="submit" value="제출하기" class="btn btn-primary m-2 rowbtn">제출</button>
+					</form>
+				</div>
+				
+				
+				
+				
+				</div>
+				</div>
+				
+
+				
+				<!-- Export Datatable End -->
+			</div>
+			
+			
+			
+			
+			
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>

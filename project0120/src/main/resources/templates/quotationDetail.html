@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+    
+<style>
+	th.table-plus.datatable-nosort.sorting_asc::before, 
+	th.table-plus.datatable-nosort.sorting_asc::after,
+	th.sorting::before, th.sorting::after {
+		content: none !important;
+	}
+	th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+		pointer-events: none; /* 클릭 비활성화 */
+	}
+</style>
+	
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.5;
+        margin: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 5px;
+    }
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+    }
+    th, .heading-section {
+		font-weight: bold !important;
+        background-color: #f2f2f2;
+        text-align: center;
+    }
+    .title2 {
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    .signature {
+        text-align: center;
+        margin-top: 20px;
+    }
+	.rownum {
+		text-align: right;
+		padding-right: 13px !important;
+	}
+	.rowbtn {
+		width: 110px;
+		height: 30px;
+		font-size: 15px !important;
+		padding: 0 !important;
+	}
+	.input-auto-size td input {
+		width: 100%;
+	}
+	input[type="number"].amount-number, input[type="number"].price-number {
+		text-align: right;
+	}
+
+	
+</style>
+
+
+
+<script>
+
+window.addEventListener('DOMContentLoaded', function onload() {
+	let payment = 0;
+	document.querySelectorAll("tr").forEach(row => {
+		const rownumElement = row.querySelector(".rownum");
+		
+		if (rownumElement) {
+			const rownum = rownumElement.textContent.trim();
+			const amountElement = row.querySelector(".quantity")
+			const quotdetail_amount = amountElement.textContent.trim();
+			const totalElement = row.querySelector(".total_price");
+			const quotdetail_price = totalElement.textContent.trim();
+			const unit_price = quotdetail_price / quotdetail_amount;
+			const priceElement = row.querySelector(".unit_price");
+			priceElement.textContent = unit_price;
+			payment += parseInt(unit_price);
+		}
+	});
+	document.getElementById("payment").textContent = payment;
+	document.getElementById("contract_deposit").textContent = payment * 0.1;
+});
+
+
+</script>
+
+
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Export Datatable start -->
+				<div class="card-box mb-30">
+				<div style="padding: 70px;">
+				<div style="border: 1px solid black; width: 1200px; padding: 60px 120px; margin: 0 auto;">
+				    <div class="title2" style="padding: 30px 0 40px 0; font-size: 40px;">물품 판매 계약서</div>
+				    <table class="input-auto-size">
+				        <tr>
+				            <td class="heading-section" width="15%">계약 번호</td>
+				            <td colspan="4"><th:block th:text="${code}"></th:block></td>
+				        </tr>
+				        <tr height="50px">
+				            <td class="heading-section">발주처</td>
+				            <td class="heading-section" width="11%">회사명</td>
+				            <td><th:block th:text="${company1VO.company_name}"></th:block></td>
+				            <td class="heading-section" width="11%">대표자</td>
+				            <td><th:block th:text="${company1VO.company_ceo}"></th:block></td>
+				        </tr>
+				        <tr height="50px">
+				        	<td rowspan="3" class="heading-section">계약 대상자</td>
+				            <td class="heading-section">회사명</td>
+				            <td><th:block th:text="${company2VO.company_name}"></th:block></td>
+				            <td class="heading-section">대표자</td>
+				            <td><th:block th:text="${company2VO.company_ceo}"></th:block></td>
+				        </tr>
+				        <tr>
+				            <td class="heading-section">사업자번호</td>
+				            <td><th:block th:text="${company2VO.company_busnum}"></th:block></td>
+				            <td class="heading-section">연락처</td>
+				            <td><th:block th:text="${company2VO.company_phone}"></th:block></td>
+				        </tr>
+				        <tr height="100px">
+				            <td class="heading-section">주소</td>
+				            <td colspan="3"><th:block th:text="${company2VO.company_address}"></th:block></td>
+				        </tr>
+				    </table>
+					<table class="products input-auto-size" id="products">
+					    <tr>
+					        <th class="heading-section"width="6%">번호</th>
+					        <th class="heading-section">물품명</th>
+					        <th class="heading-section" width="20%">단가(원)</th>
+					        <th class="heading-section" width="10%">수량(ea)</th>
+					        <th class="heading-section" width="20%">금액(원)</th>
+					    </tr>
+					    <tr th:each="quotationDetailVO : ${quotationDetailListVO}">
+					        <td class="rownum" style="text-align: right; padding-right: 15px;"><th:block th:text="${quotationDetailVOStat.count}"></th:block></td>
+					        <td><th:block th:text="${quotationDetailVO.product_num}"></th:block></td>
+					        <td class="unit_price"><span id="unit_price" onload="onload()"></span></td>
+					        <td class="quantity"><th:block id="quantity" name="quantity" th:text="${quotationDetailVO.quotdetail_amount}"></th:block></td>
+					        <td class="total_price"><th:block id="total_price" name="total_price" th:text="${quotationDetailVO.quotdetail_price}"></th:block></td>
+					    </tr>
+					    <!-- Add more rows as needed -->
+					</table>
+					
+					<table class="input-auto-size">
+					    <tr>
+					        <td class="heading-section" width="15%">계약일</td>
+					        <td><th:block th:text="${quotationVO.quot_enddate}"></th:block></td>
+					        <td class="heading-section" width="15%">계약 금액</td>
+					        <td class="payment"><span id="payment"></span></td>
+					    </tr>
+					    <tr>
+					        <td class="heading-section">계약 이행일</td>
+					        <td><th:block th:text="${quotationVO.quot_startdate}"></th:block></td>
+					        <td class="heading-section">계약 보증금</td>
+					        <td class="contract_deposit"><span id="contract_deposit"></span></td>
+					    </tr>
+					    <tr>
+					        <td class="heading-section">납품 장소</td>
+					        <td colspan="3"><th:block th:text="${company1VO.company_address}"></th:block></td>
+					    </tr>
+					    <tr height="300px">
+					        <td class="heading-section">비고</td>
+					        <td colspan="3"><th:block th:text="${quotationVO.quot_content}"></th:block></td>
+					    </tr>
+					</table>				
+				</div>
+				
+				
+				
+				
+				</div>
+				</div>
+				
+
+				
+				<!-- Export Datatable End -->
+			</div>
+			
+			
+			
+			
+			
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>

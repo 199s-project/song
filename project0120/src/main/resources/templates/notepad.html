@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+async function rowproductChange(event) {
+	const product_name = event.target.value;
+	const response = await fetch(`/getProductByProductName?product_name=${product_name}`);
+	const product = await response.json();
+	
+	const row = event.target.closest("tr");
+	const rownumElement = row.querySelector(".rownum");
+	const rownum = rownumElement.textContent.trim();
+	
+	document.getElementById("unit_price" + rownum).value = product.product_price;
+	
+	const quantity = document.getElementById("quantity" + rownum).value;
+	const total = quantity * product.product_price;
+	document.getElementById("total_price" + rownum).value = total;
+	
+	const rows = document.querySelectorAll(".rownum");
+	
+	let payment = 0;
+	
+	rows.forEach(row => {
+		const rownum = row.textContent.trim();
+		const totalPriceInput = document.getElementById("total_price" + rownum).value;
+		payment += parseInt(totalPriceInput);
+	});
+	document.getElementById("payment").value = payment;
+	document.getElementById("contract_deposit").value = payment * 0.1;
+}
+
+async function rowquantityChange(event) {
+	const quantity = event.target.value;
+	
+	const row = event.target.closest("tr");
+	const rownumElement = row.querySelector(".rownum");
+	const rownum = rownumElement.textContent.trim();
+	
+	const price = document.getElementById("unit_price" + rownum).value;
+	const total = quantity * price;
+	document.getElementById("total_price" + rownum).value = total;
+	
+	const rows = document.querySelectorAll(".rownum");
+	
+	let payment = 0;
+	
+	rows.forEach(row => {
+		const rownum = row.textContent.trim();
+		const totalPriceInput = document.getElementById("total_price" + rownum).value;
+		payment += parseInt(totalPriceInput);
+	});
+	document.getElementById("payment").value = payment;
+	document.getElementById("contract_deposit").value = payment * 0.1;
+}
+
+</script>
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+				
+				<!-- Export Datatable start -->
+				
+				<div>
+					<div id="kakaomap" style="width: 500px; height: 400px;"></div>
+                     <script>
+						var mapContainer = document.getElementById('kakaomap');
+						var mapOptions = {
+							center: new kakao.maps.LatLng(33.450701, 126.570667),
+							level: 3
+						};
+							var map = new kakao.maps.Map(mapContainer, mapOptions); //지도 생성 및 객체 리턴
+						
+					</script>
+				</div>
+				
+				
+
+				<!-- Export Datatable End -->
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script>
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script>
+
+	</script>
+	
+	</body>
+
+</html>

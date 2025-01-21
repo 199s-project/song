@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<style>
+.product-thumbnail {
+	text-align: center !important;
+}
+img {
+	object-fit: contain !important;
+	max-height: 417px !important;
+}
+.producct-img img {
+	transition: all .8s cubic-bezier(0, 1.18, 0.24, 0.99) !important;
+}
+div:where(.swal2-popup) {
+	width: 40em !important;
+}
+.product-detail-table {
+
+	margin-top: 20px;
+	
+	thead {
+		tr {
+			height: 80px;
+			font-size: 40px;
+			font-weight: bold;
+		}
+	}
+	tbody {
+	
+		font-size: 0.9em !important;
+		
+		tr {
+			height: 40px;
+			text-align: left;
+
+			.heading-td {
+				width: 110px;
+				text-align: left;
+				text-indent: 5px;
+			}
+			.section-bording-td {
+				width: 30px;
+				color: lightgray;
+			}
+		}
+	}
+}
+
+</style>
+
+
+
+
+<script th:inline="javascript">
+
+function productDetail(path, num, amount) {
+    // 비동기로 데이터베이스에서 제품 정보 가져오기
+    $.ajax({
+        url: '/getProductDetail', // 서버의 API 엔드포인트
+        type: 'GET',
+        data: { product_num: num }, // num 값을 전달
+        success: function (data) {
+            // 받은 데이터에서 이름과 가격 추출
+            const name = data.product.product_name;
+            const code = data.product.product_code;
+            const brand = data.product.product_brand;
+            const category = data.product.product_category;
+            const price = data.product.product_price;
+			const imagePathArr = data.imagePathArr;
+			
+            // Start building carousel indicators and items
+            let indicators = '';
+            let items = '';
+			let carousel_controler = '';
+			
+            for (let i = 0; i < amount; i++) {
+                // Add indicators
+                indicators += `
+                    <li data-target="#carouselExampleIndicators" data-slide-to="${i}" ${i === 0 ? 'class="active"' : ''}></li>
+                `;
+
+                // Add carousel items
+                items += `
+                    <div class="carousel-item ${i === 0 ? 'active' : ''}"> 
+                        <img class="d-block w-100" src="${imagePathArr[i]}" alt="Slide ${i + 1}">
+                    </div>
+                `;
+            }
+            
+            if (amount > 1) {
+            	carousel_controler += `
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+	                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+	                    <span class="sr-only">Previous</span>
+	                </a>
+	                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+	                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+	                    <span class="sr-only">Next</span>
+	                </a>
+            	`;
+            }
+
+            // Show the SweetAlert modal
+            Swal.fire({
+                html: `
+                    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                        <ol class="carousel-indicators">
+                            ${indicators}
+                        </ol>
+                        <div class="carousel-inner">
+                            ${items}
+                        </div>
+						${carousel_controler}
+                    </div>
+        			<table class="product-detail-table">
+	    				<thead>
+	    					<tr>
+	    						<td colspan="3" style="text-align:left"> 
+	    							<div class="table-title"> ${name} </div> 
+	    						<td>
+	    					</tr>
+	    				</thead>
+	    				<tbody>
+	    					<tr>
+	    						<td class="heading-td"> 제품코드 </td> <td class="section-bording-td"> | </td>
+	    						<td> ${code} </td>
+	    					</tr>            
+	    					<tr>
+	    						<td class="heading-td"> 제조업체 </td> <td class="section-bording-td"> | </td>
+	    						<td> ${brand} </td>
+	    					</tr>
+	    					<tr>
+	    						<td class="heading-td"> 카테고리 </td> <td class="section-bording-td"> | </td>
+	    						<td> ${category} </td>
+	    					</tr>
+	    					<tr>
+	    						<td class="heading-td"> 제품 가격 </td> <td class="section-bording-td"> | </td>
+	    						<td> ${price.toLocaleString()}원 </td>
+	    					</tr>
+	    					<tr>
+	    						<td class="heading-td"> 제품 사진 </td> <td class="section-bording-td"> | </td>
+	    						<td> </td>
+	    					</tr>
+	    				</tbody>
+	    			</table>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                cancelButtonText: "Cancel",
+            });
+        },
+        error: function (error) {
+            console.error("Failed to fetch product details:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load product details. Please try again.',
+                confirmButtonText: 'OK',
+            });
+        }
+    });
+}
+
+</script>
+
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+				
+				<!-- Export Datatable start -->
+				
+				<div class="product-wrap">
+					<div class="product-list">
+						<ul class="row">
+						
+							<th:block th:each="product,stat: ${productList}">
+								<li class="col-lg-4 col-md-6 col-sm-12">
+									<div class="product-box">
+										<div class="producct-img product-thumbnail">
+											<img th:src="${product.file_path}" alt="" 
+												th:onclick="productDetail([[${product.file_path}]],[[${product.product_num}]],[[${product.file_amount}]])">
+										</div>
+										<div class="product-caption">
+											<h4> <a href="#"><th:block th:text="${product.product_name}"></th:block> </a></h4>
+											<div class="price">
+												<del><th:block th:text="${product.product_price}"></th:block></del>
+												<ins><th:block th:text="${product.product_price}"></th:block></ins>
+											</div>
+											<a href="#" class="btn btn-outline-primary">Read More</a>
+										</div>
+									</div>
+								</li>
+							</th:block>
+						
+						
+						</ul>
+					</div>
+					<div class="blog-pagination mb-30">
+						<div class="btn-toolbar justify-content-center mb-15">
+							<div class="btn-group">
+								<a href="#" class="btn btn-outline-primary prev"><i class="fa fa-angle-double-left"></i></a>
+								<a href="#" class="btn btn-outline-primary">1</a>
+								<a href="#" class="btn btn-outline-primary">2</a>
+								<span class="btn btn-primary current">3</span>
+								<a href="#" class="btn btn-outline-primary">4</a>
+								<a href="#" class="btn btn-outline-primary">5</a>
+								<a href="#" class="btn btn-outline-primary next"><i class="fa fa-angle-double-right"></i></a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				<!-- Export Datatable End -->
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+</html>

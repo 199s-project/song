@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<title>물품 구매 계약서</title>
+<head>
+<style>
+table {
+    border-collapse: collapse !important; /* 테두리 중첩 방지 */
+    width: 100%; /* 테이블의 너비를 100%로 설정 */
+     border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+    
+}
+
+th, td {
+    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+    padding: 8px; /* 셀 내부 간격 */
+    text-align: left; /* 텍스트 정렬 */
+    
+}
+
+th {
+    background-color: #f4f4f4; /* 헤더 배경색 */
+    font-weight: bold; /* 헤더 강조 */
+}
+
+tr:hover {
+    background-color: #f9f9f9; /* 마우스 오버 효과 */
+}
+.hidden_row{
+ display: none;
+ 
+}
+
+
+.pd-20 {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 20px;
+}
+</style>
+
+<!--  <script>
+        function toggleDetails(orderId) {
+            const detailRow = document.getElementById('details-' + orderId);
+            if (detailRow.style.display === 'none' || detailRow.style.display === '') {
+                detailRow.style.display = 'table-row';
+            } else {
+                detailRow.style.display = 'none';
+            }
+        }
+    </script> -->
+
+
+
+<style>
+th.table-plus.datatable-nosort.sorting_asc::before, th.table-plus.datatable-nosort.sorting_asc::after,
+	th.sorting::before, th.sorting::after {
+	content: none !important;
+}
+
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+	pointer-events: none; /* 클릭 비활성화 */
+}
+.buttons-pdf{
+	display: none !important;
+}
+
+</style>
+
+
+</head>
+<body>
+<div th:if="${msg != null}">
+	<script th:inline="javascript">
+		var msg = [[${msg}]];
+		alert(msg);
+		msg = null;
+	</script>
+</div>
+
+
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>서류 관리</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">물품
+										구매 계약서</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right"></div>
+					</div>
+				</div>
+
+				<!-- Export Datatable start -->
+				<div class="card-box mb-30">
+
+					<div class="pd-20 d-flex align-items-center justify-content-between">
+               			<h4 class="text-blue h4">Data Table with Export Buttons</h4>
+               			<button onclick="location.href='getOrderformRegister'" value="구매 계약서 작성" class="btn btn-primary m-2 rowbtn">구매 계약서 작성</button>
+            		</div>
+					<div class="pb-20">
+
+
+						<table
+							class="table hover multiple-select-row data-table-export nowrap">
+							<thead>
+								<tr>
+									<th class="hidden_row"></th>
+									<th class="table-plus datatable-nosort">계약서 번호</th>
+									<th>계약서 이름</th>
+									<th>주문자 명</th>
+									<th>계약 대상 명</th>
+									<th>계약일</th>
+									<th>마감일</th>
+									<th>상태</th>
+								</tr>
+							</thead>
+							<tbody>
+									<th:block th:each="form,stat: ${orderList}">
+										<tr onclick="toggleDetails(1)">
+											<td class="hidden_row"></td>
+											<td><th:block th:text="${stat.size-stat.index}"></th:block></td> 
+											<td><a th:href="@{getOrderformDetail(orderform_num=${form.orderform_num})}"><th:block th:text="${form.orderform_name}"></th:block></a></td>
+											<td><th:block th:text="${form.company_num}"></th:block></td>
+											<td><th:block th:text="${form.company_num2}"></th:block></td>
+											<td><th:block th:text="${form.orderform_startDate}"></th:block></td>
+											<td><th:block th:text="${form.orderform_endDate}"></th:block></td>
+											<td><th:block th:text="${form.orderform_stat}"></th:block></td>
+										</tr>
+									</th:block>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Export Datatable End -->
+			</div>
+
+
+
+
+
+
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				we are all 1995's <a href="index" target="_blank">Suit</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script>
+	   <style>
+table.dataTable tbody tr.selected, table.dataTable.display tbody tr:hover.selected, table.dataTable.hover tbody tr:hover.selected {
+    background-color: #ffffff !important;
+    color: black !important;
+}
+</style>
+</body>
+</html>
