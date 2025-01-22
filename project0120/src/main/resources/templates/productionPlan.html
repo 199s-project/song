@@ -32,8 +32,66 @@ tr:hover {
 </style>
 
 <script>
-	
 
+
+/* document.getElementById('getDeptCheck').addEventListener('click',() =>{
+
+	
+	// Toast 설정 (공통)
+	  const Toast = Swal.mixin({
+	    toast: true,
+	    position: 'center-center',
+	    showConfirmButton: false,
+	    timer: 2000,
+	    timerProgressBar: true,
+	    didOpen: (toast) => {
+	      toast.addEventListener('mouseenter', Swal.stopTimer);
+	      toast.addEventListener('mouseleave', Swal.resumeTimer);
+	    }
+	  });
+	  const memberDept = window.sessionStorage.getItem("member_dept");
+	  // 조건에 따라 Toast 알림 실행
+	  if (memberDept === "생산") {
+		  const targetUrl = document.getElementById('getDeptCheck').getAttribute('data-url');
+		  window.location.href = targetUrl;
+		  
+	    Toast.fire({
+	      icon: 'success',
+	      title: '입장하셨습니다.'
+	    });
+	  } else {
+	    Toast.fire({
+	      icon: 'error',
+	      title: '입장할 수 없습니다.'
+	    })
+	  }
+	})
+	 */
+
+
+ 
+
+
+
+/* 
+Toast.fire({
+    icon: 'error',
+    title: '권한이 없습니다.'
+})
+
+Toast.fire({
+    icon: 'warning',
+    title: '로그인을 하고 접속해주세요.'
+}) */
+
+
+function memberDeptCheck() {
+	Swal.fire({
+		icon: 'success',
+		title: '입장하셨습니다.'
+		
+	})
+}
 </script>
 
 
@@ -85,7 +143,8 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
             
                <div class="pd-20 d-flex align-items-center justify-content-between">
    					<h4 class="text-blue h4">Data Table with Export Buttons</h4>
-    				<button th:onclick="|location.href='@{productionForm}'|" value="생산 계획서 작성" class="btn btn-primary m-2 rowbtn">생산 계획서 작성</button>
+    				<!-- <button  th:onclick="|location.href='@{productionForm}'|"  class="btn btn-primary m-2 rowbtn">생산 계획서 작성</button> -->
+    				<button onclick="memberDeptCheck()" class="btn btn-primary m-2">check</button>
 			   </div>
                
                <div class="pb-20">

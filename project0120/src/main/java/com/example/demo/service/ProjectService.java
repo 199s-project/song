@@ -27,6 +27,7 @@ import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
 import com.example.demo.dto.RecipeDetailVO;
+import com.example.demo.dto.RecipeVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
@@ -302,7 +303,7 @@ public class ProjectService {
 		return projectDAO.getProductByProductName(product_name);
 	}
 
-	// 나현. 시작.
+	// 나현. 시작. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// QC
 
 			// QC 전체 리스트
@@ -389,7 +390,7 @@ public class ProjectService {
 				return projectDAO.updateQcTester(qc);
 			}
 			
-		// 나현. 끝.
+		// 나현. 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -458,220 +459,279 @@ public class ProjectService {
 	
 	
 
-// ---------------new 작업공간 (이의재) ----------------------------
-	
-	public ModelAndView getQuotationDetail(
-			@RequestParam("quot_num") int quot_num
-			) {
-		
-		QuotationVO quotationVO = new QuotationVO();
-		quotationVO = projectDAO.getQuotationByQuotnum(quot_num);
-		List<QuotationDetailVO> quotationDetailListVO = projectDAO.getQuotationDetailListByQuotnum(quot_num);
-		
-		CompanyVO company1VO = projectDAO.getCompanyByCompanynum(quotationVO.getCompany_num());
-		CompanyVO company2VO = projectDAO.getCompanyByCompanynum(quotationVO.getCompany_num2());
-		
-		String code = updateQuotationCode(quotationVO);
-		
-		
-		mv = new ModelAndView();
-		mv.addObject("code", code);
-		mv.addObject("quotationDetailListVO", quotationDetailListVO);
-		mv.addObject("company1VO", company1VO);
-		mv.addObject("company2VO", company2VO);
-		mv.addObject("quotationVO", quotationVO);
-		mv.setViewName("quotationDetail");
-		return mv;
-	}
-	
-	public ModelAndView getOrderformDetail(
-			@RequestParam("orderform_num") int orderform_num
-			) {
-		OrderformVO orderformVO = new OrderformVO();
-		orderformVO = projectDAO.getOrderformByOrderformnum(orderform_num);
-		List<OrderformDetailVO> orderformDetailListVO = projectDAO.getOrderformDetailListByOrderformnum(orderform_num);
-		
-		CompanyVO company1VO = projectDAO.getCompanyByCompanynum(orderformVO.getCompany_num());
-		CompanyVO company2VO = projectDAO.getCompanyByCompanynum(orderformVO.getCompany_num2());
-		
-		String code = updateOrderformCode(orderformVO);
-		
-		mv = new ModelAndView();
-		mv.addObject("code", code);
-		mv.addObject("orderformDetailListVO", orderformDetailListVO);
-		mv.addObject("company1VO", company1VO);
-		mv.addObject("company2VO", company2VO);
-		mv.addObject("orderformVO", orderformVO);
-		mv.setViewName("orderformDetail");
-		return mv;
-	}
-
-	public String updateQuotationCode(QuotationVO quotationVO) {
-		String code1 = quotationVO.getQuot_regdate().substring(0,10).replaceAll("-", "");
-		String code2 = Integer.toString(quotationVO.getCompany_num());
-		String code3 = Integer.toString(quotationVO.getCompany_num2());
-		String code4 = Integer.toString(quotationVO.getQuot_num());
-		String code = code1 + code2 + code3 + code4;
-		return code;
-	}
-	
-	public String updateOrderformCode(OrderformVO orderformVO) {
-		String code1 = orderformVO.getOrderform_regdate().substring(0,10).replaceAll("-", "");
-		String code2 = Integer.toString(orderformVO.getCompany_num());
-		String code3 = Integer.toString(orderformVO.getCompany_num2());
-		String code4 = Integer.toString(orderformVO.getOrderform_num());
-		String code = code1 + code2 + code3 + code4;
-		return code;
-	}
-	
-	public ModelAndView getAllFormDetail(
-			@RequestParam("this_num") String this_num
-			) {
-		mv = new ModelAndView();
-		if (this_num.contains("quot")) {
-			int quot_num = Integer.parseInt(this_num.replaceAll("quot", ""));
-			mv.addObject("quot_num", quot_num);
-			mv.setViewName("getQuotationDetail");
-			return mv;
-		}
-		return mv;
-	}
-	
-	public ModelAndView getMaterialRegister() {
-		mv = new ModelAndView();
-		mv.setViewName("materialRegister");
-		return mv;
-	}
-	
-	public int materialCodeCheck(String material_code) {
-		return projectDAO.materialCodeCheck(material_code);
-	}
-	
-	public int findMaxMaterialNum() {
-		return projectDAO.findMaxMaterialNum();
-	}
-	
-	public int addMaterial(MaterialVO materialVO) {
-		return projectDAO.addMaterial(materialVO);
-	}
-	
-	public List<MaterialVO> getMaterialList() {
-		return projectDAO.getMaterialList();
-	}
-	
-	public int materialFileAmount(int material_num) {
-		return projectDAO.materialFileAmount(material_num);
-	}
-	
-	public FileVO materialFindFirstImage(int material_num) {
-		return projectDAO.materialFindFirstImage(material_num);
-	}
-
-	public List<FileVO> getMaterialImages(int material_num) {
-		return projectDAO.getMaterialImages(material_num);
-	}
-	
-	public MaterialVO getMaterialDetail (int material_num) {
-		return projectDAO.getMaterialDetail(material_num);
-	}
-	
-	public MaterialVO getMaterialByMaterialName(String product_name) {
-		return projectDAO.getMaterialByMaterialName(product_name);
-	}
-	
-	public ModelAndView member(
-			
-			) {
-		mv = new ModelAndView();
-		
-		List<MemberVO> memberListVO = projectDAO.getMemberList();
-		
-		mv.addObject("memberListVO", memberListVO);
-		mv.setViewName("member");
-		return mv;
-	}
-	
-	public MemberVO getMemberByMemberId(String member_id) {
-		return projectDAO.getMemberByMemberId(member_id);
-	}
-	
-	public int memberIdValidation(Map<String,Object> map) {
-		return projectDAO.memberIdValidation(map);
-	}
-	
-	public int updateMember(MemberVO memberVO) {
-		return projectDAO.updateMember(memberVO);
-	}
-	
-	public int addMaterialInventory(InventoryVO inventoryVO) {
-		return projectDAO.addMaterialInventory(inventoryVO);
-	}
-	
-	public int addProductInventory(InventoryVO inventoryVO) {
-		return projectDAO.addProductInventory(inventoryVO);
-	}
-	
-	
 	// ---------------new 작업공간 (이의재) ----------------------------
 	
-	
-// ---------------------김민성---------------------------------
-	
-	public List<ProductionVO> getProductionList() {
-		// TODO Auto-generated method stub
-		log.info("getFatoryWorkList()");
-		return projectDAO.getFatoryWorkList();
-	}
-	
-	public int setproductionForm(List<ProductionDetailVO> list) {
-		// TODO Auto-generated method stub
-		return projectDAO.insertproductiondetail(list);
-	}
-	
-	public int insertProduction(ProductionVO productionVO) {
-		// TODO Auto-generated method stub
-		return projectDAO.insertProduction(productionVO);
-	}
-	
-	public int getfindLastProductionNumber() {
-		// TODO Auto-generated method stub
-		return projectDAO.getfindLastProductionNumber();
-	}
-	
-	public List<ProductionVO> getFactoryDetailList(int pd_num) {
-		// TODO Auto-generated method stub
-		return projectDAO.getFactoryDetailList(pd_num);
-	}
-	
-	public ProductionVO getFactoryDetail(int pd_num) {
-		// TODO Auto-generated method stub
-		return projectDAO.getFactoryDetail(pd_num);
-	}
-	
-	public int getRecipeNumByProductName(String product_name) {
-		return projectDAO.getRecipeNumByProductName(product_name);
-	}
-	
-	public List<RecipeDetailVO> getRecipeDetailListByRecipeNum(int recipe_num) {
-		return projectDAO.getRecipeDetailListByRecipeNum(recipe_num);
-	}
-	
-	public int reduceInventoryAmount(InventoryVO inventoryVO) {
+		public ModelAndView getQuotationDetail(
+				@RequestParam("quot_num") int quot_num
+				) {
+			
+			QuotationVO quotationVO = new QuotationVO();
+			quotationVO = projectDAO.getQuotationByQuotnum(quot_num);
+			List<QuotationDetailVO> quotationDetailListVO = projectDAO.getQuotationDetailListByQuotnum(quot_num);
+			
+			CompanyVO company1VO = projectDAO.getCompanyByCompanynum(quotationVO.getCompany_num());
+			CompanyVO company2VO = projectDAO.getCompanyByCompanynum(quotationVO.getCompany_num2());
+			
+			String code = updateQuotationCode(quotationVO);
+			
+			
+			mv = new ModelAndView();
+			mv.addObject("code", code);
+			mv.addObject("quotationDetailListVO", quotationDetailListVO);
+			mv.addObject("company1VO", company1VO);
+			mv.addObject("company2VO", company2VO);
+			mv.addObject("quotationVO", quotationVO);
+			mv.setViewName("quotationDetail");
+			return mv;
+		}
 		
-		return projectDAO.reduceInventoryAmount(inventoryVO);
-	}
+		public ModelAndView getOrderformDetail(
+				@RequestParam("orderform_num") int orderform_num
+				) {
+			OrderformVO orderformVO = new OrderformVO();
+			orderformVO = projectDAO.getOrderformByOrderformnum(orderform_num);
+			List<OrderformDetailVO> orderformDetailListVO = projectDAO.getOrderformDetailListByOrderformnum(orderform_num);
+			
+			CompanyVO company1VO = projectDAO.getCompanyByCompanynum(orderformVO.getCompany_num());
+			CompanyVO company2VO = projectDAO.getCompanyByCompanynum(orderformVO.getCompany_num2());
+			
+			String code = updateOrderformCode(orderformVO);
+			
+			mv = new ModelAndView();
+			mv.addObject("code", code);
+			mv.addObject("orderformDetailListVO", orderformDetailListVO);
+			mv.addObject("company1VO", company1VO);
+			mv.addObject("company2VO", company2VO);
+			mv.addObject("orderformVO", orderformVO);
+			mv.setViewName("orderformDetail");
+			return mv;
+		}
 
-	public int insertqc(QcVO qcVO) {
-		return projectDAO.insertqc(qcVO);
-	}		
+		public String updateQuotationCode(QuotationVO quotationVO) {
+			String code1 = quotationVO.getQuot_regdate().substring(0,10).replaceAll("-", "");
+			String code2 = Integer.toString(quotationVO.getCompany_num());
+			String code3 = Integer.toString(quotationVO.getCompany_num2());
+			String code4 = Integer.toString(quotationVO.getQuot_num());
+			String code = code1 + code2 + code3 + code4;
+			return code;
+		}
+		
+		public String updateOrderformCode(OrderformVO orderformVO) {
+			String code1 = orderformVO.getOrderform_regdate().substring(0,10).replaceAll("-", "");
+			String code2 = Integer.toString(orderformVO.getCompany_num());
+			String code3 = Integer.toString(orderformVO.getCompany_num2());
+			String code4 = Integer.toString(orderformVO.getOrderform_num());
+			String code = code1 + code2 + code3 + code4;
+			return code;
+		}
+		
+		public ModelAndView getAllFormDetail(
+				@RequestParam("this_num") String this_num
+				) {
+			mv = new ModelAndView();
+			if (this_num.contains("quot")) {
+				int quot_num = Integer.parseInt(this_num.replaceAll("quot", ""));
+				mv.addObject("quot_num", quot_num);
+				mv.setViewName("getQuotationDetail");
+				return mv;
+			}
+			return mv;
+		}
+		
+		public ModelAndView getMaterialRegister() {
+			mv = new ModelAndView();
+			mv.setViewName("materialRegister");
+			return mv;
+		}
+		
+		public int materialCodeCheck(String material_code) {
+			return projectDAO.materialCodeCheck(material_code);
+		}
+		
+		public int findMaxMaterialNum() {
+			return projectDAO.findMaxMaterialNum();
+		}
+		
+		public int addMaterial(MaterialVO materialVO) {
+			return projectDAO.addMaterial(materialVO);
+		}
+		
+		public List<MaterialVO> getMaterialList() {
+			return projectDAO.getMaterialList();
+		}
+		
+		public int materialFileAmount(int material_num) {
+			return projectDAO.materialFileAmount(material_num);
+		}
+		
+		public FileVO materialFindFirstImage(int material_num) {
+			return projectDAO.materialFindFirstImage(material_num);
+		}
+
+		public List<FileVO> getMaterialImages(int material_num) {
+			return projectDAO.getMaterialImages(material_num);
+		}
+		
+		public MaterialVO getMaterialDetail (int material_num) {
+			return projectDAO.getMaterialDetail(material_num);
+		}
+		
+		public MaterialVO getMaterialByMaterialName(String product_name) {
+			return projectDAO.getMaterialByMaterialName(product_name);
+		}
+		
+		public ModelAndView member(
+				
+				) {
+			mv = new ModelAndView();
+			
+			List<MemberVO> memberListVO = projectDAO.getMemberList();
+			
+			mv.addObject("memberListVO", memberListVO);
+			mv.setViewName("member");
+			return mv;
+		}
+		
+		public MemberVO getMemberByMemberId(String member_id) {
+			return projectDAO.getMemberByMemberId(member_id);
+		}
+		
+		public int memberIdValidation(Map<String,Object> map) {
+			return projectDAO.memberIdValidation(map);
+		}
+		
+		public int updateMember(MemberVO memberVO) {
+			return projectDAO.updateMember(memberVO);
+		}
+		
+		public int addMaterialInventory(InventoryVO inventoryVO) {
+			return projectDAO.addMaterialInventory(inventoryVO);
+		}
+		
+		public int addProductInventory(InventoryVO inventoryVO) {
+			return projectDAO.addProductInventory(inventoryVO);
+		}
+		
+		public int productNameCheck(String product_name) {
+			return projectDAO.productNameCheck(product_name);
+		}
+		
+		public String[] getProductCodeAndNameListConcat() {
+			return projectDAO.getProductCodeAndNameListConcat();
+		}
+		
+		public int addRecipe(@RequestParam Map<String,Object> map) throws Exception {
+	    	
+	    	String product_code = (String)map.get("recipe-input1");
+	    	System.out.println(product_code);
+	    	String product_code_replaced = product_code.replaceAll("\\(.*\\)$", "");
+	    	System.out.println(product_code_replaced);
+	    	RecipeVO recipeVO = new RecipeVO();
+	    	recipeVO.setProduct_name((String)map.get("recipe-input2"));
+	    	recipeVO.setProduct_code(product_code_replaced);
+	    	recipeVO.setRecipe_price(Integer.parseInt((String) map.get("recipe-input3")));
+	    	
+	    	int result = projectDAO.insertRecipe(recipeVO);
+	    	
+	    	int LastRecipeNum = projectDAO.getLastRecipeNum();
+	    	int i = 1;
+	    	
+	    	for (;;) {
+	    		String a = "material-name-input" + i;
+	    		String b = "material-amount-input" + i;
+	    		i += 1;
+	    		RecipeDetailVO recipeDetailVO = new RecipeDetailVO();
+	    		String material_name = (String)(map.get(a));
+	    		int material_amount = Integer.parseInt((String)(map.get(b)));
+	    		
+	    		if(material_name == "") {
+	    			continue;
+	    		}
+	    		if(material_amount == 0) {
+	    			continue;
+	    		}
+	    		
+	    		recipeDetailVO.setRecipe_num(LastRecipeNum);
+	    		recipeDetailVO.setMaterial_name(material_name);
+	    		recipeDetailVO.setMaterial_amount(material_amount);
+	    		
+	    		System.out.println(recipeDetailVO);
+	    		
+	    		int result2 = projectDAO.insertRecipeDetail(recipeDetailVO);
+	    	}
+	    	
+	    }
 		
 		
-		
-// ---------------------김민성---------------------------------	
+		// ---------------new 작업공간 (이의재) ----------------------------
 	
-	public ProductVO getfindProductNum(ProductVO productVO) {
-	      // TODO Auto-generated method stub
-	      return projectDAO.getfindProductNum(productVO);
-	   }
 	
+	// ---------------------김민성---------------------------------
+	
+		public List<ProductionVO> getProductionList() {
+			// TODO Auto-generated method stub
+			log.info("getProductionList()");
+			return projectDAO.getProductionList();
+		}
+		
+		public int setproductionForm(List<ProductionDetailVO> list) {
+			// TODO Auto-generated method stub
+			return projectDAO.insertproductiondetail(list);
+		}
+		
+		public int insertProduction(ProductionVO productionVO) {
+			// TODO Auto-generated method stub
+			return projectDAO.insertProduction(productionVO);
+		}
+		
+		public int getfindLastProductionNumber() {
+			// TODO Auto-generated method stub
+			return projectDAO.getfindLastProductionNumber();
+		}
+		
+		public List<ProductionVO> getFactoryDetailList(int pd_num) {
+			// TODO Auto-generated method stub
+			return projectDAO.getFactoryDetailList(pd_num);
+		}
+		
+		public ProductionVO getFactoryDetail(int pd_num) {
+			// TODO Auto-generated method stub
+			return projectDAO.getFactoryDetail(pd_num);
+		}
+		
+		public int getRecipeNumByProductName(String product_name) {
+			return projectDAO.getRecipeNumByProductName(product_name);
+		}
+		
+		public List<RecipeDetailVO> getRecipeDetailListByRecipeNum(int recipe_num) {
+			return projectDAO.getRecipeDetailListByRecipeNum(recipe_num);
+		}
+		
+		public int reduceInventoryAmount(InventoryVO inventoryVO) {
+			
+			return projectDAO.reduceInventoryAmount(inventoryVO);
+		}
+
+		public int setPdCheckUpdate(ProductionVO productionVO) {
+			// TODO Auto-generated method stub
+			return projectDAO.setPdCheckUpdate(productionVO);
+		}
+
+		public int insertqc(QcVO qcVO) {
+			// TODO Auto-generated method stub
+			return projectDAO.insertqc(qcVO);
+		}
+
+		public List<ProductionVO> getFatoryWorkList() {
+			// TODO Auto-generated method stub
+			return projectDAO.getFatoryWorkList();
+		}
+
+		public ProductVO getfindProductNum(ProductVO productVO) {
+			// TODO Auto-generated method stub
+			return projectDAO.getfindProductNum(productVO);
+		}
+
+			
+	// ---------------------김민성---------------------------------	
 }

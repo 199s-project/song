@@ -4,18 +4,22 @@ import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @Alias("RecipeVO")
 public class RecipeVO {
 	private int recipe_num;
 	private String recipe_name;
 	private int recipe_price;
 	
+	
 	//recipedetail
 	private int rd_num;
 	private String product_name;
+	private String product_code;
 	private int material_amount;
 	private int meterial_price;
 	

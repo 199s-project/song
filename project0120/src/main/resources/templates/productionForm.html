@@ -104,7 +104,9 @@ function func(member_dept){
             background: transparent;
             color: transparent;
           }
-
+	.hidden_row {
+   display:none;
+}	
 </style>
 
 
@@ -137,6 +139,13 @@ function deleterow() {
 	    document.getElementById("maxCount").value = count -1;
 	}
 }
+
+async function addProductList(event){
+	
+	
+	
+}
+
 
 
 </script>
@@ -191,19 +200,14 @@ function deleterow() {
 					<table class="input-auto-size">
 					    <tr>
 					        <td class="heading-section">작성자</td>
-					        <td colspan="3"><input type="text" id="pd_writer" name="pd_writer" size="60"></td>
+					        <td colspan="3"><input class="hidden_row" type="text" id="pd_writer" name="pd_writer" size="60" th:value="${member.member_name}" readonly>
+					        <span th:text="${member.member_name}"></span></td>
 					    </tr>
 					    <tr>
 					        <td class="heading-section">부서명</td>
-					        <td colspan="3"><select id="pd_dept"name="pd_dept" class="member_dept" onchange="func(this.value)">
-					       <option disabled selected>부서명</option>
-					       <option value="생산">생산</option>
-					       <option value="구매">구매</option>
-					       <option value="관리">관리</option>
-					       <option value="대표">대표</option>
-					       </select><div style="display:none">
-					       <input type="text" name="selectdept" size="60" >
-					       </div></td>
+					        <td colspan="3">
+					        <input class="hidden_row"type="text" id="pd_dept" name="pd_dept" size="60" th:value="${member.member_dept}" readonly>
+					        <span th:text="${member.member_dept}"></span></td>
 					    </tr>
 					   
 					     <tr>
@@ -247,7 +251,6 @@ function deleterow() {
 					<button type="submit" value="제출하기" class="btn btn-primary m-2 rowbtn">제출</button>
 					</form>
 				</div>
-				
 				
 				
 				

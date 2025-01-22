@@ -115,10 +115,6 @@
 		orderform.orderform_num;
 	</select>
 
-	<select id="getProductionList" resultType="ProductionVO">
-		select * from production;
-	</select>
-
 	<select id="getCompanyList" resultType="CompanyVO">
 		select *
 		from company
@@ -375,6 +371,9 @@
 		ON DUPLICATE KEY UPDATE
 		inven_amount = inven_amount + #{inven_amount};
 	</insert>
+	
+	<!--  -->
+	
 	<!-- 나현. 끝. -->
 
 	<!-- 김윤호 =========================================================김윤호================================ -->
@@ -422,264 +421,247 @@
 
 	<!-- 김윤호 =========================================================김윤호================================ -->
 
-
-
-
-
-	<!-- 김민성 ========================================================================================= -->
-
-
-
-
-	<insert id="insertProduction" parameterType="ProductionVO">
-		insert into
-		production
-		(pd_writedate,pd_writer,pd_dept,pd_startdate,pd_enddate,pd_name,pd_content,pd_check)
-		values
-		(now(),#{pd_writer},#{pd_dept},#{pd_startdate},#{pd_enddate},#{pd_name},#{pd_content},0)
-	</insert>
-
-	<insert id="insertproductiondetail"
-		parameterType="ProductionDetailVO">
-		insert into productiondetail
-		(pd_num,product_name,productiondetail_amount)
-		values
-		<foreach collection="list" item="planVO" separator=",">
-			(#{planVO.pd_num},#{planVO.product_name},#{planVO.productiondetail_amount})
-		</foreach>
-	</insert>
-
+<!-- 김민성 ========================================================================================= -->
+	
+	<select id="getProductionList" resultType="ProductionVO">
+		select * from production;
+	</select>
+	
 	<select id="getFatoryWorkList" resultType="ProductionVO">
-		select * from
-		production where pd_check = 0;
+		select * from production where pd_check = 0;
 	</select>
-
-	<select id="getFactoryDetail" parameterType="int">
-		select * from
-		production where pd_num = #{pd_num}
+		
+	<insert id="insertProduction" parameterType="ProductionVO">
+		insert into production (pd_writedate,pd_writer,pd_dept,pd_startdate,pd_enddate,pd_name,pd_content,pd_check)
+		values (now(),#{pd_writer},#{pd_dept},#{pd_startdate},#{pd_enddate},#{pd_name},#{pd_content},0)
+	</insert>
+	
+	<insert id="insertproductiondetail" parameterType="ProductionDetailVO">
+		insert into productiondetail (pd_num,product_name,productiondetail_amount)
+		values
+	 <foreach collection="list" item="planVO" separator=",">
+	 (#{planVO.pd_num},#{planVO.product_name},#{planVO.productiondetail_amount})
+	 </foreach>
+	</insert> 	
+	
+	<select id="getFactoryDetail" parameterType="int" >
+		select * from production where pd_num = #{pd_num}
 	</select>
-
-	<select id="getFactoryDetailList" parameterType="int">
-		select *
-		from productiondetail where pd_num = #{pd_num}
+	
+	<select id="getFactoryDetailList" parameterType="int" >
+		select * from productiondetail where pd_num = #{pd_num}
 	</select>
-
+	
 	<select id="getfindLastProductionNumber" resultType="int">
-		select
-		pd_num from production order by pd_num desc limit 1;
+		select pd_num from production order by pd_num desc limit 1;
 	</select>
-
-	<select id="getRecipeNumByProductName" resultType="int">
-		select recipe_num from recipe where product_name = #{product_name};
+	
+   	<select id="getRecipeNumByProductName" resultType="int">
+   		select recipe_num  from  recipe  where product_name = #{product_name};
+   	</select>
+   
+  	<select id="getRecipeDetailListByRecipeNum" resultType="RecipeDetailVO">
+  		 select * from recipedetail where recipe_num = #{recipe_num};
+   	</select>
+   
+   
+	  <!-- 원본 -->
+  <update id="reduceInventoryAmount" parameterType="InventoryVO">
+   update inventory 
+   set inven_amount = inven_amount - #{inven_amount} where inven_name = #{inven_name} and inven_amount >= #{inven_amount}
+   </update> 
+ 	
+  <update id="setPdCheckUpdate" parameterType="ProductionVO"> 
+	update 	production
+	set pd_check = 1 where pd_num = #{pd_num}
+  </update>
+ 	   
+	<select id="getfindProductNum" parameterType="ProductVO" resultType="ProductVO">
+		SELECT 
+    	product.product_num FROM product
+		INNER JOIN productiondetail ON product.product_name = productiondetail.product_name
+		where productiondetail.product_name = #{product_name} LIMIT 1;
 	</select>
+	
+	
+<!-- 김민성 ========================================================================================= -->	
+	
+	
 
-	<select id="getRecipeDetailListByRecipeNum"
-		resultType="RecipeDetailVO">
-		select * from recipedetail where recipe_num = #{recipe_num};
+	<select id="companyNameValidation" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from company where company_name = #{company_name}
 	</select>
-
-
-	<update id="reduceInventoryAmount" parameterType="InventoryVO">
-		update
-		inventory
-		set inven_amount = inven_amount - #{inven_amount} where inven_name =
-		#{inven_name}
-	</update>
-
-
-
-	<!-- 김민성 ========================================================================================= -->
-
-
-
-	<select id="companyNameValidation" parameterType="String"
-		resultType="java.lang.Integer">
-		select count(*) from company where company_name =
-		#{company_name}
+	
+	<select id="companyCodeValidation" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from company where company_busnum = #{company_code}
 	</select>
-
-	<select id="companyCodeValidation" parameterType="String"
-		resultType="java.lang.Integer">
-		select count(*) from company where company_busnum =
-		#{company_code}
-	</select>
-
+	
 	<select id="productList" resultType="ProductVO">
-		select *, 0 as file_amount,
-		'file_name' as file_name, 'file_path' as file_path from product
+		select *, 0 as file_amount, 'file_name' as file_name, 'file_path' as file_path from product
 	</select>
-
-	<select id="fileAmount" parameterType="java.lang.Integer"
-		resultType="java.lang.Integer">
-		select count(*) from file where file_pk = #{product_num}
-		and file_subject = "product"
+	
+	<select id="fileAmount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from file where file_pk = #{product_num} and file_subject = "product"
+	</select>	
+	
+	<select id="findFirstImage" parameterType="java.lang.Integer" resultType="FileVO">
+		select * from file where file_pk = #{product_num} and file_subject = "product" order by file_num desc limit 1
 	</select>
-
-	<select id="findFirstImage" parameterType="java.lang.Integer"
-		resultType="FileVO">
-		select * from file where file_pk = #{product_num} and
-		file_subject = "product" order by file_num desc limit 1
-	</select>
-
-	<select id="getProductDetail" parameterType="java.lang.Integer"
-		resultType="ProductVO">
+	
+	<select id="getProductDetail" parameterType="java.lang.Integer" resultType="ProductVO"> 
 		select * from product where product_num = #{product_num}
 	</select>
 
-	<select id="getProductImages" parameterType="java.lang.Integer"
-		resultType="FileVO">
-		select * from file where file_pk = #{product_num} and file_subject =
-		"product" order by file_num desc
+	<select id="getProductImages" parameterType="java.lang.Integer" resultType="FileVO"> 
+		select * from file where file_pk = #{product_num} and file_subject = "product" order by file_num desc
 	</select>
-	
-	   <select id="getfindProductNum" parameterType="ProductVO" resultType="ProductVO">
-      SELECT 
-       product.product_num FROM product
-      INNER JOIN productiondetail ON product.product_name = productiondetail.product_name
-      where productiondetail.product_name = #{product_name} LIMIT 1;
-   </select>
 
-	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-		이의재 시작 -->
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 시작 -->
 
 	<select id="getQuotationByQuotnum" parameterType="int">
 		select *
-		from
-		quotation
+		from quotation
 		where quot_num = #{quot_num}
 	</select>
-
+	
 	<select id="getCompanyByCompanynum" parameterType="int">
 		select *
-		from
-		company
+		from company
 		where company_num = #{company_num}
 	</select>
-
+	
 	<select id="getQuotationDetailListByQuotnum" parameterType="int">
 		select *
 		from quotationdetail
 		where quot_num = #{quot_num}
 	</select>
-
+	
 	<select id="getOrderformByOrderformnum" parameterType="int">
 		select *
 		from orderform
 		where orderform_num = #{orderform_num}
 	</select>
-
-	<select id="getOrderformDetailListByOrderformnum"
-		parameterType="int">
+	
+	<select id="getOrderformDetailListByOrderformnum" parameterType="int">
 		select *
 		from orderformdetail
-		where orderform_num =
-		#{orderform_num}
+		where orderform_num = #{orderform_num}
 	</select>
-
-	<select id="materialCodeCheck" parameterType="String"
-		resultType="java.lang.Integer">
-		select count(*) from material where material_code =
-		#{material_code}
+	
+	<select id="materialCodeCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from material where material_code = #{material_code}
 	</select>
 
 	<select id="findMaxMaterialNum" resultType="int">
-		select
-		max(material_num) from material
+		select max(material_num) from material
 	</select>
-
+	
 	<insert id="addMaterial" parameterType="MaterialVO">
-		INSERT INTO material (material_name, material_code, material_brand,
-		material_category, material_price)
-		VALUES (#{material_name}, #{material_code}, #{material_brand},
-		#{material_category}, #{material_price});
+	    INSERT INTO material (material_name, material_code, material_brand, material_category, material_price)
+	    VALUES (#{material_name}, #{material_code}, #{material_brand}, #{material_category}, #{material_price});
 	</insert>
-
+	
 	<select id="getMaterialList" resultType="MaterialVO">
 		select *
 		from material
 	</select>
+	
+	<select id="materialFileAmount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from file where file_pk = #{material_num} and file_subject = "material"
+	</select>	
 
-	<select id="materialFileAmount"
-		parameterType="java.lang.Integer" resultType="java.lang.Integer">
-		select count(*) from file
-		where file_pk = #{material_num} and file_subject = "material"
+	<select id="materialFindFirstImage" parameterType="java.lang.Integer" resultType="FileVO">
+		select * from file where file_pk = #{material_num} and file_subject = "material" order by file_num desc limit 1
 	</select>
-
-	<select id="materialFindFirstImage"
-		parameterType="java.lang.Integer" resultType="FileVO">
-		select * from file where
-		file_pk = #{material_num} and file_subject = "material" order by
-		file_num desc limit 1
-	</select>
-
-	<select id="getMaterialDetail" parameterType="java.lang.Integer"
-		resultType="MaterialVO">
+	
+	<select id="getMaterialDetail" parameterType="java.lang.Integer" resultType="MaterialVO"> 
 		select * from material where material_num = #{material_num}
 	</select>
-
-	<select id="getMaterialImages" parameterType="java.lang.Integer"
-		resultType="FileVO">
-		select * from file where file_pk = #{material_num} and file_subject =
-		"material" order by file_num desc
+	
+	<select id="getMaterialImages" parameterType="java.lang.Integer" resultType="FileVO"> 
+		select * from file where file_pk = #{material_num} and file_subject = "material" order by file_num desc
 	</select>
-
+	
 	<select id="getMaterialByMaterialName" resultType="MaterialVO">
 		select *
-		from
-		material
+		from material
 		where material_name = #{material_name}
-	</select>
-
+	</select>	
+	
 	<insert id="insertqc" parameterType="QcVO">
-		INSERT INTO qc (qc_type, paper_num, qc_reg, qc_writer, qc_item_num, qc_quan)
-		VALUES (#{qc_type}, #{paper_num}, now(), #{qc_writer}, #{qc_item_num},
-		#{qc_quan});
+	    INSERT INTO qc (qc_type, paper_num, qc_reg, qc_writer, qc_item_num, qc_quan)
+	    VALUES (#{qc_type}, #{paper_num}, now(), #{qc_writer}, #{qc_item_num}, #{qc_quan});
 	</insert>
-
+	
 	<select id="getMemberList" resultType="MemberVO">
 		select *
 		from member
 	</select>
-
+	
 	<select id="getMemberByMemberId" resultType="MemberVO">
 		select *
 		from member
 		where member_id = #{member_id}
 	</select>
-
-	<select id="memberIdValidation" parameterType="java.util.Map"
-		resultType="java.lang.Integer">
-		select count(*) from member where member_id = #{member_id}
-		and member_num != #{member_num}
+	
+	<select id="memberIdValidation" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from member where member_id = #{member_id} and member_num != #{member_num}
 	</select>
-
+	
 	<update id="updateMember" parameterType="MemberVO">
 		update member
-		set
-		member_num = #{member_num},
-		member_id = #{member_id},
-		member_pwd = #{member_pwd},
-		member_name = #{member_name},
-		member_email = #{member_email},
-		member_phone = #{member_phone},
-		member_grade = #{member_grade},
-		member_dept = #{member_dept}
+		set	member_num = #{member_num}, 
+			member_id = #{member_id}, 
+			member_pwd = #{member_pwd},
+			member_name = #{member_name},
+			member_email = #{member_email},
+			member_phone = #{member_phone},
+			member_grade = #{member_grade},
+			member_dept = #{member_dept}
 		where member_num = #{member_num}
 	</update>
-
+	
 	<insert id="addMaterialInventory" parameterType="InventoryVO">
-		INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount,
-		inven_price)
-		VALUES (0, #{inven_item_num}, #{inven_name}, 0, 0);
+	    INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount, inven_price)
+	    VALUES (0, #{inven_item_num}, #{inven_name}, 0, 0);
 	</insert>
-
+	
 	<insert id="addProductInventory" parameterType="InventoryVO">
-		INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount,
-		inven_price)
-		VALUES (1, #{inven_item_num}, #{inven_name}, 0, 0);
+	    INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount, inven_price)
+	    VALUES (1, #{inven_item_num}, #{inven_name}, 0, 0);
 	</insert>
-
-	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-		이의재 끝 -->
+	
+	<select id="productNameCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from product where product_name = #{product_name}
+	</select>
+	
+	<select id="getProductCodeAndNameListConcat" resultType="String">
+		select concat(product_code, '(', product_name, ')') AS product_code
+		from product
+	</select>
+	
+	<insert id="insertRecipe" parameterType="RecipeVO">
+	    INSERT INTO recipe (product_name, product_code, recipe_price)
+	    VALUES (#{product_name}, #{product_code}, #{recipe_price});
+	</insert>
+	
+	<select id="getLastRecipeNum" resultType="int">
+		select *
+		from recipe
+		order by recipe_num desc
+		limit 1;
+	</select>
+	
+	<insert id="insertRecipeDetail" parameterType="RecipeDetailVO">
+	    INSERT INTO recipedetail (recipe_num, material_name, material_amount, material_price)
+	    VALUES (#{recipe_num}, #{material_name}, #{material_amount}, 0);
+	</insert>
+	
+	<select id="recipeProductCodeCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from recipe where product_name = #{product_name}
+	</select>
+	
+	
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재  끝 -->
 
 </mapper>
