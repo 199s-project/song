@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>품질 검사 내역123</title>
+<title>품질 검사 내역</title>
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <!-- sweetalert -->
@@ -81,81 +81,93 @@
 <script type="text/javascript">
 
 function saveData() {
-	
-	const totalPass = parseInt(document.querySelector('#totalPass').value) || 0;
+    const totalPass = parseInt(document.querySelector('#totalPass').value) || 0;
     if (totalPass < 0) {
-    	Swal.fire({
-    		icon: 'error',
-    		title: '적격 수량이 0보다 작을 수 없습니다.'
-    	});
-        return false;
+        Swal.fire({
+            icon: 'error',
+            title: '적격 수량이 0보다 작을 수 없습니다.'
+        });
+        return Promise.reject('Invalid totalPass value');  // Promise reject를 반환하여 오류를 처리하도록
     }
     
-        const rows = document.querySelectorAll('#qcDetailTable tbody tr');
-        const testerElement = document.querySelector('#qcTester');
-        const testerName = testerElement.value;
-        
-        const data = Array.from(rows).map(row => {
-            const questnumElement = row.querySelector('.questrownum');
-            const quantityElement = row.querySelector('.quantity');
-            const qcnumElement = document.querySelector('.qcNum');
+    const rows = document.querySelectorAll('#qcDetailTable tbody tr');
+    const testerElement = document.querySelector('#qcTester');
+    const testerName = testerElement.value;
+    
+    const data = Array.from(rows).map(row => {
+        const questnumElement = row.querySelector('.questrownum');
+        const quantityElement = row.querySelector('.quantity');
+        const qcnumElement = document.querySelector('.qcNum');
 
-            return {
-                qc_num: qcnumElement.value,
-                qcq_num: questnumElement.textContent,
-                qc_fail_quan: quantityElement.value,
-                qc_tester: testerName
-            };
-        });
+        return {
+            qc_num: qcnumElement.value,
+            qcq_num: questnumElement.textContent,
+            qc_fail_quan: quantityElement.value,
+            qc_tester: testerName
+        };
+    });
 
-        console.log('saveData 데이터:', data);
+    console.log('saveData 데이터:', data);
 
-        fetch('/updateQcDetail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-            	Swal.fire({
-            		icon: 'success',
-            		title: '정상적으로 저장했습니다.'
-            	});
-            } else {
-            	Swal.fire({
-            		icon: 'error',
-            		title: '저장에 실패했습니다.'
-            	});
-            }
-        })
+    return fetch('/updateQcDetail', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    });
 }
 
-function saveButton() {
-	saveData();
 
+function saveButton() {
+    saveData()
+        .then(response => {
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '정상적으로 저장했습니다.'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '저장에 실패했습니다.'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error in saveData:', error);
+            Swal.fire({
+                icon: 'error',
+                title: '저장 중 오류가 발생했습니다.'
+            });
+        });
 }
 
 function submitButton() {
-	saveData();
-	if (
-	Swal.fire({
-		icon: 'warning',
-		title: '검사를 종료하고 제출하겠습니까?',
-		showCancelButton: true,
-		confirmButtonText: '제출',
-	    cancelButtonText: '취소',
-	    reverseButtons: true, // 버튼 순서 거꾸로				
-	})
-	) {
-		var form = document.getElementById("qcForm");
-		form.submit();
-		location.reload();
-	} else {
-		location.reload();
-	}
+    saveData()
+        .then(() => {
+            return Swal.fire({
+                icon: 'warning',
+                title: '검사를 종료하고 제출하겠습니까?',
+                showCancelButton: true,
+                confirmButtonText: '제출',
+                cancelButtonText: '취소',
+                reverseButtons: true // 버튼 순서 거꾸로
+            });
+        })
+        .then(result => {
+            if (result.isConfirmed) { // '제출' 선택 시
+                var form = document.getElementById("qcForm");
+                form.submit();  // 폼 제출
+            } else { // "취소" 버튼 클릭 시
+                location.reload(); // 페이지 리로드
+            }
+        })
+        .catch(error => {
+            console.error('Error in submitButton:', error);
+        });
 }
+
 </script>
 
 </head>
@@ -209,6 +221,7 @@ function submitButton() {
 								<span class="badge badge-warning">생산품 견적서</span>
 								</th:block>
 								&nbsp; <th:block th:text="${qc.paper_num}"></th:block>
+								<input type="hidden" id="paper_num" name="paper_num" th:value="${qc.paper_num}">
 							</td>
 						</tr>
 						<tr>

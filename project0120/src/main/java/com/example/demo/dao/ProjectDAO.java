@@ -125,8 +125,13 @@ public interface ProjectDAO {
 	// QC 제출 버튼, 제출자 session
 	int updateQcTester(QcVO qc);
 	
+	// 원자재 문서 번호로 정보 찾아오기
+	OrderformVO getOrderformByPapernum(int paper_num);
+	
+	// 원자재 번호로 가격 찾아오기
+	int getMaterialPrice(int inven_item_num);
+	
 	// 나현. 끝.
-
 
 	// new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@윤호윤호윤호@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  시작
 	

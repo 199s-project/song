@@ -4,9 +4,11 @@ import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @Alias("OrderformVO")
 public class OrderformVO {
 	private int orderform_num;

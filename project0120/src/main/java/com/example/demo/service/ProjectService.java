@@ -390,6 +390,27 @@ public class ProjectService {
 				return projectDAO.updateQcTester(qc);
 			}
 			
+			
+			//
+			public OrderformVO getOrderformByPapernum(int paper_num) {
+				return projectDAO.getOrderformByPapernum(paper_num);
+			}
+			
+			public int getLastOrderformNum() {
+				return projectDAO.getLastOrderformNum();
+			}
+			
+			public int insertOrderform(OrderformVO of) {
+				return projectDAO.insertOrderform(of);
+			}
+			
+			public int insertOrderformDetail(OrderformDetailVO ofd) {
+				return projectDAO.insertOrderformDetail(ofd);
+			}
+			
+			public int getMaterialPrice(int inven_item_num) {
+				return projectDAO.getMaterialPrice(inven_item_num);
+			};
 		// 나현. 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 

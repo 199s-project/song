@@ -29,6 +29,7 @@ import com.example.demo.dto.FileVO;
 import com.example.demo.dto.InventoryVO;
 import com.example.demo.dto.MaterialVO;
 import com.example.demo.dto.MemberVO;
+import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionDetailVO;
@@ -886,48 +887,110 @@ public class ProjectController {
 		}
 	}
 
-	// QC Test POST
+	// QC Test POST (1. 인벤토리 업데이트 2. qc 상태 업데이트 3. 필요 시 계약서 및 계획서 자동 작성 4. 완료 시 qcList로 이동)
 	@PostMapping("qcTest")
-	public String qcTest(@RequestParam Map<String, String> map, Model model) {
-		
+	public String qcTest(@RequestParam Map<String, String> map, Model model, HttpSession session) {
+
+		// 인벤토리 업데이트 & qc 상태 업데이트
+		// 가져온 값 확인
 		System.out.println(map);
+		
+		// 인벤토리에 넣어줄 값 설정
 		String inven_name = map.get("item_name");
 		String qc_type = map.get("qc_type");
-
 		int inven_item_num = Integer.parseInt(map.get("qc_item_num"));
 		int inven_amount = Integer.parseInt(map.get("totalPass"));
-		int qc_num = Integer.parseInt(map.get("qc_num"));
 
-		System.out.println("########################## qc_type: " + qc_type);
-		System.out.println("########################## inven_item_num: " + inven_item_num);
-		System.out.println("########################## inven_amount: " + inven_amount);
-		System.out.println("########################## qc_num: " + qc_num);
+//		System.out.println("########################## qc_type: " + qc_type);
+//		System.out.println("########################## inven_item_num: " + inven_item_num);
+//		System.out.println("########################## inven_amount: " + inven_amount);
+//		System.out.println("########################## qc_num: " + qc_num);
 
+		// 값을 넣어줄 객체 생성
 		InventoryVO inven = new InventoryVO();
 
-		// 타입
-		int inven_type = 0;
-		if (qc_type.equals("order")) {
-			inven_type = 0;
-		} else if (qc_type.equals("plan")) {
-			inven_type = 1;
-		}
-
+		// 객체에 값 set
+		
 		inven.setInven_name(inven_name);
+		// 타입
+			int inven_type = 0;
+			if (qc_type.equals("order")) {
+				inven_type = 0;
+			} else if (qc_type.equals("plan")) {
+				inven_type = 1;
+			}
+		inven.setInven_type(inven_type);
 		inven.setInven_item_num(inven_item_num);
 		inven.setInven_amount(inven_amount);
-		inven.setInven_type(inven_type);
 
-		System.out.println(inven.getInven_item_num());
-
-		int updateinven = projectService.updateInven(inven);
-		int updateQcStat2 = projectService.updateQcStat2(qc_num);
-
+		
+		// update 실행 (인벤토리 추가, qc 상태 업데이트)
+		int result1 = projectService.updateInven(inven);		
+			int qc_num = Integer.parseInt(map.get("qc_num"));
+		int result2 = projectService.updateQcStat2(qc_num);
+		
+		
+		// 부적격 재고 발생 시, [원자재 구매 계약서] 및 [제품 생산 계획서] 작성
+		
+		System.out.println("####################################### 인벤토리 업데이트 완료, 부적격 재고 처리 실행");
+		
+		// 필요 값 설정	
+		int paper_num = Integer.parseInt(map.get("paper_num"));
+		int totalFail = Integer.parseInt(map.get("totalFail"));
+		
+		MemberVO user = (MemberVO) session.getAttribute("user");
+				
+		System.out.println("####################################### paper_num 출력 ####### " + paper_num);
+		System.out.println("####################################### 총 부적격 수량 totalFail 출력 ####### " + totalFail);
+		System.out.println("####################################### type 출력 ####### " + inven_type);
+		
+		if (totalFail > 0) {
+			if (inven_type == 0) {
+				
+				OrderformVO of = projectService.getOrderformByPapernum(paper_num);
+				
+				int of_num = projectService.getLastOrderformNum() + 1;
+				String of_name = "[재신청] " + of.getOrderform_name();
+				String of_content = "[재신청] " + of.getOrderform_content();
+				
+				of.setOrderform_num(of_num);
+				of.setOrderform_name(of_name);
+				of.setOrderform_content(of_content);
+				
+				System.out.println("####################################### of 출력 #######" + of.toString());
+				
+				projectService.insertOrderform(of);
+				
+				OrderformDetailVO ofd = new OrderformDetailVO();
+				
+				ofd.setOrderform_num(of_num);
+				ofd.setProduct_num(inven_item_num);
+				
+				int amount = Integer.parseInt(map.get("totalFail"));
+				ofd.setOrderdetail_amount(amount);
+				
+				int price = projectService.getMaterialPrice(inven_item_num);
+				ofd.setOrderdetail_price(price * amount);
+				
+				
+				System.out.println("####################################### ofd 출력 #######" + ofd.toString());
+				
+				projectService.insertOrderformDetail(ofd);
+				
+			}
+//			else if (inven_type == 1) {
+//				
+//				projectService.insertproduction(user);
+//			}
+		};
+		
+		
+		// QcList로 이동
 		List<QcVO> QcList = projectService.getQcList();
 		model.addAttribute("QcList", QcList);
 		log.info("qc 이동");
 
-		return "redirect:/qc";
+		return "redirect:qc";
 	}
 
 	// QC 유형 등록 페이지 이동
