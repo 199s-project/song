@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+
+
+
+
+<style>
+
+
+
+div.tabcontent {
+	margin-left: 30px;
+}
+
+
+input[type="radio"] {
+	display:none;
+}
+
+input[type="radio"] + label {
+	display:inline-block;
+	width: 90px;
+	padding:10px 20px;
+	background:#fff;
+	color:#9a7dab;
+	border-radius: 10px;
+	border: 1px solid #9a7dab;
+	font-size: 14px; 
+	text-align: center;
+	cursor:pointer;
+	box-shadow: 1px 1px 1px 1px lightgray;
+}
+
+input[type = "radio"]:checked + label {
+	background:#9a7dab;
+	color:#fff;
+	border: 1px solid #9a7dab;
+	font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+table.inventory-list-table {
+	border-collapse: collapse !important; /* 테두리 중첩 방지 */
+	width: 100%; /* 테이블의 너비를 100%로 설정 */
+	border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	width: 96% !important;
+	margin-left: 2%;
+	
+    th, td {
+	    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	    padding: 8px; /* 셀 내부 간격 */
+	    text-align: left; /* 텍스트 정렬 */
+	    height: 37px;
+	}
+	
+	th {
+	    background-color: #f4f4f4; /* 헤더 배경색 */
+	    font-weight: bold; /* 헤더 강조 */
+	    height: 30px;
+	}
+	
+	tr:hover {
+	    background-color: #f9f9f9; /* 마우스 오버 효과 */
+	}
+	
+	.hidden_row {
+		display: none;
+	}
+	
+}
+
+
+
+
+
+#DataTables_Table_0_wrapper {
+	display: none;
+}
+
+#DataTables_Table_1_wrapper {
+	display: none;
+}
+
+#DataTables_Table_2_wrapper {
+}
+
+</style>
+
+
+<style>
+
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+	content: none !important;
+}
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+	pointer-events: none; /* 클릭 비활성화 */
+}
+.buttons-pdf{
+	display: none !important;
+}
+
+div.dataTables_filter {
+	width: 500px;
+	float: right;
+	margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+	margin: 0 0 10px 16px;
+}
+
+</style>
+
+
+
+<script>
+
+
+function radio1(element) {
+	if (element.checked) {
+		$('#DataTables_Table_0_wrapper').css({
+			"display" : "none",
+		});
+		$('#DataTables_Table_1_wrapper').css({
+			"display" : "none",
+		});
+		$('#DataTables_Table_2_wrapper').css({
+			"display" : "block",
+		});
+	}
+}
+
+function radio2(element) {
+	if (element.checked) {
+		$('#DataTables_Table_0_wrapper').css({
+			"display" : "block",
+		});
+		$('#DataTables_Table_1_wrapper').css({
+			"display" : "none",
+		});
+		$('#DataTables_Table_2_wrapper').css({
+			"display" : "none",
+		});
+	}
+}
+
+function radio3(element) {
+	if (element.checked) {
+		$('#DataTables_Table_0_wrapper').css({
+			"display" : "none",
+		});
+		$('#DataTables_Table_1_wrapper').css({
+			"display" : "block",
+		});
+		$('#DataTables_Table_2_wrapper').css({
+			"display" : "none",
+		});
+	}
+}
+
+</script>
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<button class="btn btn-primary m-2" onclick="addtable()">테이블 생성</button>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+				
+				<!-- Export Datatable start -->
+				
+				<div class="card-box mb-30">
+					<div class="pd-20">
+					</div>
+					
+					
+					<div class="pb-20" id="add-html-here">
+					
+
+					
+						
+						<div class="tabcontent">
+						    <input type="radio" name="tab" checked id="tabmenu01" onclick="radio1(this)">
+						    <label for="tabmenu01">전체</label>
+						    <input type="radio" name="tab" id="tabmenu02" onclick="radio2(this)">
+						    <label for="tabmenu02">원자재</label>
+						    <input type="radio" name="tab" id="tabmenu03" onclick="radio3(this)">
+						    <label for="tabmenu03">완제품</label>
+						</div><br>
+						
+						
+						
+						<table class="table hover data-table-export nowrap inventory-list-table">
+							<thead>
+								<tr style="text-align: center;">
+									<th class="hidden_row"></th>
+									<th class="table-plus datatable-nosort" width="3%">번호</th>
+									<th style="width: 10%;">재고 타입</th>
+									<th style="width: 12%;">물품 이름</th>
+									<th style="width: 8%;">재고 수량</th>
+									<th style="width: 10%;">단가</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="inventory,stat: ${inventoryMaterialList}">
+									<tr>
+										<td class="hidden_row"></td>
+										<td style="text-align: center;"><th:block th:text="${stat.size-stat.index}"></th:block></td>  
+										<td><th:block th:text="${inventory.inven_type == 0 ? '원자재' : '완제품'}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_name}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_amount}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_price}"></th:block></td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+						
+						
+						
+						
+						
+						<table class="table hover data-table-export nowrap inventory-list-table">
+							<thead>
+								<tr style="text-align: center;">
+									<th class="hidden_row"></th>
+									<th class="table-plus datatable-nosort" width="3%">번호</th>
+									<th style="width: 10%;">재고 타입</th>
+									<th style="width: 12%;">물품 이름</th>
+									<th style="width: 8%;">재고 수량</th>
+									<th style="width: 10%;">단가</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="inventory,stat: ${inventoryProductList}">
+									<tr>
+										<td class="hidden_row"></td>
+										<td style="text-align: center;"><th:block th:text="${stat.size-stat.index}"></th:block></td>  
+										<td><th:block th:text="${inventory.inven_type == 0 ? '원자재' : '완제품'}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_name}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_amount}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_price}"></th:block></td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+						
+						
+						
+					
+						<table class="table hover data-table-export nowrap inventory-list-table">
+							<thead>
+								<tr style="text-align: center;">
+									<th class="hidden_row"></th>
+									<th class="table-plus datatable-nosort" width="3%">번호</th>
+									<th style="width: 10%;">재고 타입</th>
+									<th style="width: 12%;">물품 이름</th>
+									<th style="width: 8%;">재고 수량</th>
+									<th style="width: 10%;">단가</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="inventory,stat: ${inventoryList}">
+									<tr>
+										<td class="hidden_row"></td>
+										<td style="text-align: center;"><th:block th:text="${stat.size-stat.index}"></th:block></td>  
+										<td><th:block th:text="${inventory.inven_type == 0 ? '원자재' : '완제품'}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_name}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_amount}"></th:block></td>
+										<td><th:block th:text="${inventory.inven_price}"></th:block></td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					
+					
+					
+					
+					</div>
+
+
+				</div>
+				
+				
+
+				<!-- Export Datatable End -->
+				
+				
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script>
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script>
+
+	</script>
+	
+	</body>
+
+</html>

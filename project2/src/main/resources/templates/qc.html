@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>품질 관리 검사</title>
+
+<!-- 테이블 디자인, 정렬 삭제 -->
+<style>
+.hidden_row {
+   display:none;
+}
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+	content: none !important;
+}
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+	pointer-events: none; /* 클릭 비활성화 */
+}
+.buttons-pdf{
+	display: none !important;
+}
+</style>
+
+<!-- 라디오 탭 디자인 -->
+<style>
+
+input[type="radio"] {
+display: none;
+}
+
+input[type="radio"] + label {
+	position: relative;
+	display: inline-block;
+	padding: 10px 20px;
+	background:#fff;
+	color:#9a7dab;
+	border: 1px solid #9a7dab;
+	cursor:pointer;
+	border-radius: 0.5em;
+	margin: 30px 0 0 0;
+	}
+	
+input[type = "radio"]:checked + label {
+	background:#9a7dab;
+	color:#fff;		
+}
+
+input[type = "radio"]:checked:checked + label + .tab_content {
+	display: block;
+}
+
+.content02, .content03, .content04 {
+	display: none;
+}
+</style>
+
+<style type="text/css">
+div.dataTables_filter {
+   width: 500px;
+   float: right;
+   margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+   margin: 0 0 10px 16px;
+}
+</style>
+
+<script type="text/javascript">
+
+function tab1(element) {
+	if (element.checked) {
+		$('.content01').css({"display" : "inline"});
+		$('.content02').css({"display" : "none"});
+		$('.content03').css({"display" : "none"});
+		$('.content04').css({"display" : "none"});
+	}	
+}
+
+function tab2(element) {
+	if (element.checked) {
+		$('.content01').css({"display" : "none"});
+		$('.content02').css({"display" : "inline"});
+		$('.content03').css({"display" : "none"});
+		$('.content04').css({"display" : "none"});
+	}	
+}
+
+function tab3(element) {
+	if (element.checked) {
+		$('.content01').css({"display" : "none"});
+		$('.content02').css({"display" : "none"});
+		$('.content03').css({"display" : "inline"});
+		$('.content04').css({"display" : "none"});
+	}	
+}
+
+function tab4(element) {
+	if (element.checked) {
+		$('.content01').css({"display" : "none"});
+		$('.content02').css({"display" : "none"});
+		$('.content03').css({"display" : "none"});
+		$('.content04').css({"display" : "inline"});
+	}	
+}
+
+</script>
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+	
+	<div th:if="${msg != null}">
+		<script th:inline="javascript">
+			const Toast = Swal.mixin({
+		        toast: true,
+		        position: 'center-center',
+		        showConfirmButton: false,
+		        timer: 2500, // 2.5초
+		        timerProgressBar: true,
+		        didOpen: (toast) => {
+		            toast.addEventListener('mouseenter', Swal.stopTimer),
+		            toast.addEventListener('mouseleave', Swal.resumeTimer)
+		        }
+		    })
+			var msg = [[${msg}]];
+			Toast.fire({
+	            icon: 'success',
+	            title: msg
+	        })
+			msg = null;
+		</script>
+	</div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+			
+			<!-- 상단 카드  -->
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>품질 관리</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">QC 검사</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+				
+				<!-- Export Datatable start -->
+				
+				<div class="card-box mb-30 pd-20">				
+					<div class="tabcontent" style="margin: 0 0 20px 30px">
+					    <input type="radio" name="tab" id="tabmenu01" checked onclick="tab1(this)">
+					    <label for="tabmenu01">전체</label>
+					    <input type="radio" name="tab" id="tabmenu02" onclick="tab2(this)">
+					    <label for="tabmenu02">검사 전</label>
+					    <input type="radio" name="tab" id="tabmenu03" onclick="tab3(this)">
+					    <label for="tabmenu03">검사 중</label>
+					    <input type="radio" name="tab" id="tabmenu04" onclick="tab4(this)">
+					    <label for="tabmenu04">검사 완료</label>
+				    </div>
+					<div class="pb-20 content-box content01">
+
+						<table class="table hover data-table-export nowrap">
+							<thead>
+								<tr>									
+									<th class="hidden_row"></th>
+									<th>검사 번호</th>
+									<th>등록일</th>
+									<th>검사 종류</th>									
+									<th>검사 품목</th>
+									<th>담당자</th>
+									<th>검사 완료일</th>
+									<th>상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="qc,stat: ${QcList}">									
+									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''" style="cursor:pointer;">
+										<td class="hidden_row"></td>
+									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
+									    <td><th:block th:text="${qc.qc_reg}"></th:block></td>
+										<td><th:block th:if="${qc.qc_type}=='order'">
+											<span class="badge badge-success">원자재</span>					
+											</th:block>										
+											<th:block th:if="${qc.qc_type}=='plan'">
+											<span class="badge badge-warning">생산품</span>
+											</th:block></td>
+										
+										<td><th:block th:text="${qc.qc_item_name}"></th:block></td>
+										<td><th:block th:text="${qc.qc_tester}"></th:block></td>
+										<td><th:block th:text="${qc.qc_date}"></th:block></td>
+										<td>
+											<th:block th:if="${qc.qc_stat}==0">
+											<span class="badge badge-warning">검사 전</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==1">
+											<span class="badge badge-primary">작성 중</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==2">
+											<span class="badge badge-light">검사 완료</span>
+											</th:block>		
+											
+										</td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="pb-20 content-box content02">
+
+						<table class="table hover data-table-export nowrap">
+							<thead>
+								<tr>									
+									<th class="hidden_row"></th>
+									<th>검사 번호</th>
+									<th>등록일</th>
+									<th>검사 종류</th>									
+									<th>검사 품목</th>
+									<th>담당자</th>
+									<th>검사 완료일</th>
+									<th>상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="qc,stat: ${QcList0}">									
+									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">
+										<td class="hidden_row"></td>
+									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
+									    <td><th:block th:text="${qc.qc_reg}"></th:block></td>
+										<td><th:block th:if="${qc.qc_type}=='order'">
+											<span class="badge badge-success">원자재</span>					
+											</th:block>										
+											<th:block th:if="${qc.qc_type}=='plan'">
+											<span class="badge badge-warning">생산품</span>
+											</th:block></td>
+										
+										<td><th:block th:text="${qc.qc_item_name}"></th:block></td>
+										<td><th:block th:text="${qc.qc_tester}"></th:block></td>
+										<td><th:block th:text="${qc.qc_date}"></th:block></td>
+										<td>
+											<th:block th:if="${qc.qc_stat}==0">
+											<span class="badge badge-warning">검사 전</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==1">
+											<span class="badge badge-primary">작성 중</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==2">
+											<span class="badge badge-light">검사 완료</span>
+											</th:block>		
+											
+										</td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="pb-20 content-box content03">
+
+						<table class="table hover data-table-export nowrap">
+							<thead>
+								<tr>									
+									<th class="hidden_row"></th>
+									<th>검사 번호</th>
+									<th>등록일</th>
+									<th>검사 종류</th>									
+									<th>검사 품목</th>
+									<th>담당자</th>
+									<th>검사 완료일</th>
+									<th>상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="qc,stat: ${QcList1}">									
+									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">
+										<td class="hidden_row"></td>
+									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
+									    <td><th:block th:text="${qc.qc_reg}"></th:block></td>
+										<td><th:block th:if="${qc.qc_type}=='order'">
+											<span class="badge badge-success">원자재</span>					
+											</th:block>										
+											<th:block th:if="${qc.qc_type}=='plan'">
+											<span class="badge badge-warning">생산품</span>
+											</th:block></td>
+										
+										<td><th:block th:text="${qc.qc_item_name}"></th:block></td>
+										<td><th:block th:text="${qc.qc_tester}"></th:block></td>
+										<td><th:block th:text="${qc.qc_date}"></th:block></td>
+										<td>
+											<th:block th:if="${qc.qc_stat}==0">
+											<span class="badge badge-warning">검사 전</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==1">
+											<span class="badge badge-primary">작성 중</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==2">
+											<span class="badge badge-light">검사 완료</span>
+											</th:block>		
+											
+										</td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="pb-20 content-box content04">
+
+						<table class="table hover data-table-export nowrap">
+							<thead>
+								<tr>									
+									<th class="hidden_row"></th>
+									<th>검사 번호</th>
+									<th>등록일</th>
+									<th>검사 종류</th>									
+									<th>검사 품목</th>
+									<th>담당자</th>
+									<th>검사 완료일</th>
+									<th>상태</th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="qc,stat: ${QcList2}">									
+									<tr th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">
+										<td class="hidden_row"></td>
+									    <td><th:block th:text="${qc.qc_num}"></th:block></td> 
+									    <td><th:block th:text="${qc.qc_reg}"></th:block></td>
+										<td><th:block th:if="${qc.qc_type}=='order'">
+											<span class="badge badge-success">원자재</span>					
+											</th:block>										
+											<th:block th:if="${qc.qc_type}=='plan'">
+											<span class="badge badge-warning">생산품</span>
+											</th:block></td>
+										
+										<td><th:block th:text="${qc.qc_item_name}"></th:block></td>
+										<td><th:block th:text="${qc.qc_tester}"></th:block></td>
+										<td><th:block th:text="${qc.qc_date}"></th:block></td>
+										<td>
+											<th:block th:if="${qc.qc_stat}==0">
+											<span class="badge badge-warning">검사 전</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==1">
+											<span class="badge badge-primary">작성 중</span>
+											</th:block>
+											<th:block th:if="${qc.qc_stat}==2">
+											<span class="badge badge-light">검사 완료</span>
+											</th:block>		
+											
+										</td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+				</div>
+		<!-- Export Datatable End -->
+				
+			</div>
+			
+			<div class="footer-wrap pd-20 mb-20 card-box">
+           we are all 1995's  <a href="" target="_blank">Suit</a>
+         </div>
+      </div>
+   </div>
+	<!-- js -->
+   <script src="vendors/scripts/core.js"></script>
+   <script src="vendors/scripts/script.min.js"></script>
+   <script src="vendors/scripts/process.js"></script>
+   <script src="vendors/scripts/layout-settings.js"></script>
+   <script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+   <script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+   <script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+   <script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+   <!-- buttons for Export datatable -->
+   <script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+   <script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+   <script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+   <!-- Datatable Setting js -->
+   <script src="vendors/scripts/datatable-setting.js"></script>
+   </body>
+</html>

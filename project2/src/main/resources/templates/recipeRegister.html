@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<style>
+
+div.dataTables_filter {
+   width: 500px;
+   float: right;
+   margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+   margin: 0 0 10px 16px;
+}
+	#register-table {
+		width: 450px;
+		tr {
+			height: 55px;
+			border-bottom: 1px solid lightgray;
+		}
+		thead {
+			tr {
+				height: 120px !important;
+				font-weight: bold;
+				font-size: 40px;
+			}
+		}
+	}
+	.table-title {
+		border: 1px;
+		border-radius: 10px;
+		color: #8d8d8d;
+		padding: 10px;
+	}
+	.swal2-input {
+		height: 30px !important;
+		margin: 0;
+	}
+	.swal2-input2 {
+		height: 30px !important;
+		margin: 0;
+	}
+	#fileVO {
+		height: 32px !important;
+		padding: 2px 0 0 2px;
+	}
+	.heading-td {
+		width: 20% !important;
+		text-align: left !important;
+		font-size: 15px;
+		font-weight: bold;
+	}
+	.input-auto-size td {
+		input {
+			width: 90%;
+			font-size: 15px;
+		}
+		#material-input2, #material-input3 {
+			width: 44%;
+			float: left;
+			margin-left: 18px;
+		}
+		#recipe-input1 {
+			width: 54%;
+			float: left;
+			margin-left: 18px;
+		}
+		.material-name-input, .material-amount-input {
+			width: 44%;
+			float: left;
+			margin-left: 18px;
+		}
+		.product-code-result {
+			width: 33%;
+			float: right;
+			margin-right: 18px;
+		}
+	}
+	#zipcode {
+		width: 50% !important;
+		float: left;
+		margin-left: 5% !important;
+	}
+	#daumaddress {
+		width: 38% !important;
+		margin-right: 3% !important;
+		background-color: lightgray;
+		font-weight: bold;
+		text-align: center;
+	}
+	.swal2-actions {
+		margin: 0.75em 0 0 0 !important;
+	}
+	.rowbtn {
+		width: 110px;
+		height: 30px;
+		font-size: 15px !important;
+		padding: 0 !important;
+	}
+	
+	table .btn-td {
+		text-align: center !important;
+		vertical-align: middle !important;
+	}
+	
+	.ui-menu {
+		z-index: 2000 !important;
+		max-height: 130px !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+	}
+	
+
+	
+	
+</style>
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+<script>
+
+
+
+
+var count = 2;
+
+function addrow() {
+	
+	const elem = document.createElement("tr");
+	elem.classList.add('added-row'+count);
+	elem.innerHTML = `
+		<tr>
+			<td class="heading-td"> 레시피${count} </td>
+			<td> <input type="text" id="material-name-input` + count + `" class="swal2-input material-name-input" placeholder="레시피 종류" autocomplete="off" required onblur="rowmaterialChange(event)"> <input type="text" id="material-amount-input` + count + `" class="swal2-input material-amount-input" placeholder="레시피 수량" autocomplete="off" required></td>
+		</tr> 
+	`;
+	count++;
+	document.querySelector(".register-table").appendChild(elem);
+}
+
+function deleterow() {
+	if (count>=3) {
+	    const table = document.getElementById('register-table');
+	    count--;
+	    table.deleteRow(count+4);
+	}
+}
+
+function addrecipe() {
+	Swal.fire({
+		html: `
+			<table id="register-table" class="register-table input-auto-size">
+				<thead>
+					<tr>
+						<td colspan="2" style="text-align:left"> 
+							<div class="table-title"><i class="fa-solid fa-gift"></i> &nbsp; 레시피 정보 등록 </div> 
+						<td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="heading-td"> 제품코드 </td>
+						<td> <input id="recipe-input1" class="swal2-input" placeholder="제품코드" autocomplete="new-password" onclick="productcodeAutocomplete()" onblur="product_codeValidation()" required> <input id="product-code-validation-result" class="swal2-input product-code-result" readonly placeholder="사용가능여부"> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 제품명 </td>
+						<td> <input id="recipe-input2" class="swal2-input" placeholder="제품명" autocomplete="new-password" readonly> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 생산단가 </td>
+						<td> <input id="recipe-input3" class="swal2-input" placeholder="생산단가" autocomplete="new-password" required> </td>
+					</tr>
+					<tr>
+						<td class="heading-td">열 추가/삭제</td>
+						<td class="btn-td">
+						<button type="button" class="btn btn-primary m-2 rowbtn" onclick="addrow()">열 추가</button>
+			        	<button type="button" class="btn btn-primary m-2 rowbtn" onclick="deleterow()">열 제거</button>
+						</td>
+			        </tr>
+					<tr>
+						<td class="heading-td"> 레시피1 </td>
+						<td> <input type="text" id="material-name-input1" class="swal2-input material-name-input" placeholder="레시피 종류" autocomplete="off" required onblur="rowmaterialChange(event)"> <input type="text" id="material-amount-input1" class="swal2-input material-amount-input" placeholder="레시피 수량" autocomplete="new-password" required></td>
+					</tr>            
+				</tbody>
+			</table>
+		`,
+		showCancelButton: true,
+		confirmButtonColor: "#2BC783",
+		cancelButtonColor: "#d33",
+		confirmButtonText: "Submit",
+		cancelButtonText: "Cancel",
+		allowOutsideClick: false,
+		focusConfirm: false,
+		preConfirm: () => {
+			const formElements = document.querySelectorAll('#register-table input');
+			const codevalidation = document.querySelector('#product-code-validation-result');
+			const codevalue = codevalidation.value;
+			const formData = new Map();
+			let isValid = true; // 입력 값 검증 상태
+			
+			if (codevalue === "사용불가") {
+				isValid = false;
+			} else {
+				isValid = true;
+			}
+			
+			formElements.forEach(input => {
+				const value = input.value.trim(); // 값 확인
+				if (!value && input.required) { // 값이 없는 경우
+					isValid = false;
+					input.style.borderColor = "red"; // 경고
+					input.focus(); // 필드로 포커스 변경
+				} else {
+					input.style.borderColor = ""; // 경고제거
+					formData.set(input.id, value);
+				}
+			});
+	      
+			if (!isValid) {
+				Swal.showValidationMessage("입력란을 채워주세요.")
+				return false;
+			}
+			
+			return Object.fromEntries(formData);
+		},
+	})
+	.then((result) => {
+		if (result.isConfirmed) {
+			fetch(`/addRecipe`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(result.value),
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`Error: 다시해~!`);
+				}
+				return response.json();
+			})
+			.then(data => {
+				Swal.fire("성공", "레시피 정보 추가완료", "success");
+			})
+			.catch(error=> {
+				console.error('Error:', error);
+				Swal.fire("오류", error.message, "error");
+			});
+		}
+		count = 2;
+	});
+}
+
+function productcodeAutocomplete() {
+	$.ajax({
+		url: "/getProductCodeAndNameListConcat",
+		type: "GET",
+		dataType: "json",
+		success: function(data) {
+			$("#recipe-input1").autocomplete({
+				source: data,
+				minLength: 0,
+	            select: function(event, ui) {
+	                $("#recipe-input1").val(ui.item.value);
+	                return false;
+	            },
+	            position: {
+	            	my: "left top",
+	            	at: "left bottom",
+	            	of: "#recipe-input1"
+	            }
+			});
+			$("#recipe-input1").on("focus", function() {
+				$(this).autocomplete("search", "");
+			});
+		},
+		error: function(xhr, status, error) {
+			console.error("에러: ", error);
+		}
+	});
+}
+
+
+
+$(document).on("focus", ".material-name-input", function() {
+	const $this = $(this);
+	$.ajax({
+		url: "/getMaterialNameList",
+		type: "POST",
+		dataType: "json",
+		success: function(data) {
+			$this.autocomplete({
+				source: data,
+				minLength: 0,	
+				select: function(event, ui) {
+					$this.val(ui.item.value);
+					return false;
+				},
+				position: {
+					my: "left top",
+					at: "left bottom",
+					of: $this,
+				},
+			});
+			
+			$this.autocomplete("search", "");
+			
+		},
+		error: function (xhr, status, error) {
+			console.error("에러: ", error);
+		},
+	});
+});
+
+function product_codeValidation() {
+	var product_codeAndName = $("#recipe-input1").val();
+	var product_code = product_codeAndName.replace(/\(.*\)$/, "");
+	var product_name = product_codeAndName.replace(/.*\(|\)/g, "");
+	if (!product_code) {
+		$('.product-code-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			url: "/productCodeCheck",
+			type: "POST",
+			data: {product_code : product_code},
+			success: function(cnt) {
+				if (cnt > 0) {
+					console.log("cnt:",cnt);
+					//여기 사이에 recipe에 존재하는지 여부 확인하는 함수
+					$.ajax({
+						url: "/recipeProductCodeCheck",
+						type: "GET",
+						data: {product_code : product_code},
+						success: function(cntcode) {
+							if (cntcode > 0) {
+								console.log("cntcode: ",cntcode);
+								$('.product-code-result').attr('value', '레시피존재');
+								$('.product-code-result').css({
+									"color" : "red",
+								});
+								alert("이미 존재하는 레시피입니다.");
+								$("#recipe-input2").val("");
+							} else {
+								$('.product-code-result').attr('value', '사용가능');
+								$('.product-code-result').css({
+									"color" : "green",
+								});
+								$("#recipe-input2").val(product_name);
+							}
+						}
+					});
+				} else {
+					$('.product-code-result').attr('value', '사용불가');
+					$('.product-code-result').css({
+						"color" : "red",
+					});
+					alert("존재하지 않는 제품입니다.");
+					$("#recipe-input2").val("");
+				}
+			}
+		});
+	}
+}
+
+function rowmaterialChange(event) {
+    const currentInput = event.target;
+    const currentId = currentInput.id;
+    const currentValue = currentInput.value.trim();
+    const allInputs = document.querySelectorAll('.material-name-input');
+
+    // Extract k from the id (itemk)
+    const k = currentId.replace('material-name-input', '');
+    const materialAmountInput = document.getElementById(`material-amount-input${k}`);
+
+    // Check if the value exists in other inputs
+    let isDuplicate = false;
+    allInputs.forEach(input => {
+        if (input !== currentInput && input.value.trim() === currentValue) {
+            isDuplicate = true;
+        }
+    });
+
+    if (isDuplicate) {
+        alert('이미 동일한 값이 입력되어 있습니다.');
+        currentInput.value = ''; // Clear the current input
+        if (materialAmountInput) materialAmountInput.value = ''; // Clear associated unit price
+    }
+}
+
+
+
+
+
+</script>
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Export Datatable start -->
+				<div>
+					<button class="btn btn-primary m-2" onclick="addrecipe()">레시피 정보 등록</button>
+				</div>
+				<!-- Export Datatable End -->
+			</div>
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script></body>
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</html>

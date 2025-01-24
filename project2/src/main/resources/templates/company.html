@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html>
+<title>협력사 목록</title>
+<head>
+<style>
+table.company-list-table {
+	border-collapse: collapse !important; /* 테두리 중첩 방지 */
+	width: 100%; /* 테이블의 너비를 100%로 설정 */
+	border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	width: 96% !important;
+	margin-left: 2%;
+	
+    th, td {
+	    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	    padding: 8px; /* 셀 내부 간격 */
+	    text-align: left; /* 텍스트 정렬 */
+	    height: 37px;
+	}
+	
+	th {
+	    background-color: #f4f4f4; /* 헤더 배경색 */
+	    font-weight: bold; /* 헤더 강조 */
+	    height: 30px;
+	}
+	
+	tr:hover {
+	    background-color: #f9f9f9; /* 마우스 오버 효과 */
+	}
+	
+	.hidden_row {
+		display: none;
+	}
+	
+}
+
+
+
+
+#kakao-map > div div div {
+	> div:first-child {
+		display: none;
+		box-shadow: 0 0 gray !important;
+	}
+	> div {
+		border-radius:5px !important;
+		width: 130px !important;
+		box-shadow: 2px 2px 2px gray;
+		padding: 6px;
+	
+		> div:first-child {
+			display: none;
+			box-shadow: 0 0 gray !important;
+		}
+	}
+}
+
+.kakaomap-indicator {
+	display: inline !important;
+	box-shadow: 0 0 gray !important;
+	width:100px; 
+	text-align:center !important; 
+	padding: 10px;
+	position: static !important;
+	font-weight: bold;
+}
+
+#update-table {
+	width: 450px;
+	tr {
+		height: 55px;
+		border-bottom: 1px solid lightgray;
+	}
+	thead {
+		tr {
+			height: 120px !important;
+			font-weight: bold;
+			font-size: 40px;
+		}
+	}
+}
+
+#register-table {
+	width: 450px;
+	tr {
+		height: 55px;
+		border-bottom: 1px solid lightgray;
+	}
+	thead {
+		tr {
+			height: 120px !important;
+			font-weight: bold;
+			font-size: 40px;
+		}
+	}
+}
+
+.table-title {
+	border: 1px;
+	border-radius: 10px;
+	color: #8d8d8d;
+	padding: 10px;
+}
+.swal2-input {
+	height: 30px !important;
+	margin: 0;
+}
+#fileVO {
+	height: 32px !important;
+	padding: 2px 0 0 2px;
+}
+.heading-td {
+	width: 20% !important;
+	text-align: left !important;
+	font-size: 15px;
+	font-weight: bold;
+}
+.input-auto-size td {
+	input {
+		width: 90%;
+		font-size: 15px;
+	}
+	#product-input2, #product-input3, #company-input1, #company-input2, #company-register-input1, #company-register-input2 {
+		width: 44%;
+		float: left;
+		margin-left: 18px;
+	}
+	.code-validation-result, .company-validation-result, .company-name-validation-result, .company-code-validation-result,
+	.company-register-name-validation-result, .company-register-code-validation-result {
+		width: 44%;
+		float: right;
+		margin-right: 18px;
+	}
+}
+#zipcode, #zipcode-register {
+	width: 50% !important;
+	float: left;
+	margin-left: 5% !important;
+}
+#daumaddress {
+	width: 38% !important;
+	margin-right: 3% !important;
+	background-color: lightgray;
+	font-weight: bold;
+	text-align: center;
+}
+.swal2-actions {
+	margin: 0.75em 0 0 0 !important;
+}
+</style>
+
+  
+    
+<style>
+
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+	content: none !important;
+}
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+	pointer-events: none; /* 클릭 비활성화 */
+}
+.buttons-pdf{
+	display: none !important;
+}
+
+div.dataTables_filter {
+	width: 500px;
+	float: right;
+	margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+	margin: 0 0 10px 16px;
+}
+</style>
+
+
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+
+
+<script th:inline="javascript">
+
+
+
+
+function openKakaomap(address, name) {
+	
+	const geocoder = new kakao.maps.services.Geocoder();
+	geocoder.addressSearch(address, function(result, status) {
+		if (status === kakao.maps.services.Status.OK) {
+
+			var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+		         
+			Swal.fire({
+				html: `
+					<div id="kakao-map" style="width: 100%; height: 600px;"></div>
+				`,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                cancelButtonText: "Close",
+			});
+	     	
+			var mapContainer = document.getElementById('kakao-map');
+			var mapOptions = {
+				center: new kakao.maps.LatLng(33.450701, 126.570667),
+				level: 3
+			};
+	    	
+			var map = new kakao.maps.Map(mapContainer, mapOptions); //지도 생성 및 객체 리턴
+	        var marker = new kakao.maps.Marker({
+	            map: map,
+	            position: coords
+	        });
+	        var infowindow = new kakao.maps.InfoWindow({
+	            content: '<div class="kakaomap-indicator">' + name + '</div>'
+	        });
+	        infowindow.open(map, marker);
+	         
+			// 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+			map.setCenter(coords);
+	         
+			$('div:where(.swal2-popup)').css({
+				'width': '40em',
+				'height': '45em',
+			})
+		} else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '올바른 주소가 아닙니다.',
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonColor: "#d33",
+                cancelButtonText: "Close",
+            });
+	     }
+	});
+	
+}
+
+
+async function updateCompany(company_name, company_address) {
+	
+	const response = await fetch(`/getCompanyByCompanyName?company_name=${company_name}`);
+	const company = await response.json();
+	
+	const address = company_address;
+	
+    const split = ["", "", ""]; // 주소창에 기존 주소 띄우려고 만든 배열
+
+    const firstOpen = address.indexOf("("); // 첫번째 여는괄호 위치(index)
+    const firstClose = address.indexOf(")"); // 첫번째 닫는괄호 위치(index)
+    if (firstOpen !== -1 && firstClose !== -1) {
+        split[0] = address.substring(firstOpen + 1, firstClose).trim();
+    }
+
+    const lastOpen = address.lastIndexOf("(");
+    const lastClose = address.lastIndexOf(")");
+    if (lastOpen !== -1 && lastClose > lastOpen) {
+        split[2] = address.substring(lastOpen + 1, lastClose).trim();
+    }
+
+    let remainingAddress = address;
+    if (split[0]) {
+        remainingAddress = remainingAddress.replace(`(${split[0]})`, "").trim();
+    }
+    if (split[2]) {
+        remainingAddress = remainingAddress.replace(`(${split[2]})`, "").trim();
+    }
+    split[1] = remainingAddress;
+    
+    if (firstOpen !== 0 || split[0].length !== 5) {
+    	split[0] = "";
+    	split[1] = "";
+    	split[2] = remainingAddress;
+    }
+	
+	
+	Swal.fire({
+		html: `
+			<table id="update-table" class="input-auto-size">
+	  			<thead>
+	  				<tr>
+	  					<td colspan="2" style="text-align:left"> <div class="table-title"><i class="fa-solid fa-building-circle-check"></i> &nbsp; 회사 정보 수정</div> </td>
+	  				</tr>
+	  			</thead>
+	  			<tbody>
+	  				<tr>
+	  					<td class="heading-td"> 회사명 </td>
+	  					<td> 
+	  						<input id="company-input1" class="swal2-input" value="${company.company_name}" placeholder="회사명" data-company-name="${company_name}" oninput="company_nameValidation(this.dataset.companyName)"> 
+	  						<input id="company-name-validation-result" class="swal2-input company-name-validation-result" readonly placeholder="중복여부"> 
+	  					</td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 사업자번호 </td>
+	  					<td> <input id="company-input2" class="swal2-input" value="${company.company_busnum}"  placeholder="사업자번호" readonly> <input id="company-code-validation-result" class="swal2-input company-code-validation-result" readonly placeholder="변경불가"> </td>
+	  				</tr>	  					
+	  				<tr>
+	  					<td class="heading-td"> 대표자명 </td>
+	  					<td> <input id="company-input3" class="swal2-input" value="${company.company_ceo}" placeholder="대표자명"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 연락처 </td>
+	  					<td> <input id="company-input4" class="swal2-input" value="${company.company_phone}" placeholder="연락처"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 이메일 </td>
+	  					<td> <input id="company-input5" class="swal2-input" value="${company.company_email}" placeholder="이메일"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 회사 주소 </td>
+	  					<td> 
+	  						<input style="margin: 0.75em 0 0 0;" id="zipcode" class="swal2-input" value="${split[0]}" size="10" readonly placeholder="우편번호" >
+		  					<input style="margin: 0.75em 0 0 0;" class="swal2-input" id="daumaddress" type="button" value="우편번호 검색" onclick="execDaumPostcode()">
+				            <input style="margin: 0.5em 0 0 0;" id="address1" class="swal2-input" value="${split[1]}" type="text" readonly placeholder="도로명 주소"/>
+				            <input style="margin: 0.5em 0 0.75em 0;" id="address2" class="swal2-input" value="${split[2]}" type="text" placeholder="상세주소 입력"/>
+				            <input type="hidden" id="address_content" name="address_content">
+	  					</td>
+	  				</tr>
+	  			</tbody>
+	  		</table>
+	    `,
+		showCancelButton: true,
+	    confirmButtonColor: "#2BC783",
+	    cancelButtonColor: "#d33",
+	    confirmButtonText: "Submit",
+	    cancelButtonText: "Cancel",
+	    allowOutsideClick: false,
+	    focusConfirm: false,
+	    draggable: true,
+	    preConfirm: () => {
+			var zipcode = document.getElementById("zipcode").value;
+			var address1 = document.getElementById("address1").value;
+			var address2 = document.getElementById("address2").value;
+			var addressString = null;
+		    	
+			if (!address2) {
+				addressString = "(" + zipcode + ") " + address1;
+			} else {
+				addressString = "(" + zipcode + ") " + address1 + " (" + address2 + ")";
+			}
+	        
+			const inputName = document.getElementById("company-input1").value;
+			const name = document.getElementById("company-name-validation-result").value;
+			const busnum = document.getElementById("company-input2").value;
+			const ceo = document.getElementById("company-input3").value;
+			const phone = document.getElementById("company-input4").value;
+			const email = document.getElementById("company-input5").value;
+			const address = addressString;
+			const val1 = document.getElementById("company-name-validation-result").value;
+			const val2 = document.getElementById("company-code-validation-result").value;
+	      
+			if (!inputName || !ceo || !phone || !email || !zipcode) {
+				Swal.showValidationMessage("모든 입력란을 채워주세요!");
+				return false;
+			}
+			if (val1 == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 회사명입니다!");
+				return false;
+			}
+			if (val2 == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 등록번호입니다!");
+				return false;
+			}
+			return { 
+				company_name: inputName, 
+				company_busnum: busnum, 
+				company_ceo: ceo, 
+				company_phone: phone, 
+				company_email: email, 
+				company_address: address
+			};
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			fetch('/updateCompany', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(result.value),
+			})
+			.then(response => {
+				if (response.ok) {
+					Swal.fire("성공", "회사 정보가 성공적으로 수정되었습니다.", "success")
+					.then(result => {
+						location.reload();
+					});
+				} else {
+					Swal.fire("실패", "회사 정보를 수정하지 못했습니다.", "error")
+					.then(result => {
+						location.reload();
+					});
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire("오류", "요청 중 오류가 발생했습니다.", "error");
+			});
+	    }
+	});
+}
+
+
+function addcompany() {
+	Swal.fire({
+		html: `
+			<table id="register-table" class="input-auto-size">
+	  			<thead>
+	  				<tr>
+	  					<td colspan="2" style="text-align:left"> <div class="table-title"><i class="fa-solid fa-building-circle-check"></i> &nbsp; 회사 정보 등록</div> </td>
+	  				</tr>
+	  			</thead>
+	  			<tbody>
+	  				<tr>
+	  					<td class="heading-td"> 회사명 </td>
+	  					<td> <input id="company-register-input1" class="swal2-input" placeholder="회사명" oninput="company_register_nameValidation()"> <input id="company-register-name-validation-result" class="swal2-input company-register-name-validation-result" readonly placeholder="중복여부"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 사업자번호 </td>
+	  					<td> <input id="company-register-input2" class="swal2-input" placeholder="사업자번호" oninput="company_register_codeValidation()"> <input id="company-register-code-validation-result" class="swal2-input company-register-code-validation-result" readonly placeholder="중복여부"> </td>
+	  				</tr>	  					
+	  				<tr>
+	  					<td class="heading-td"> 대표자명 </td>
+	  					<td> <input id="company-register-input3" class="swal2-input" placeholder="대표자명"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 연락처 </td>
+	  					<td> <input id="company-register-input4" class="swal2-input" placeholder="연락처"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 이메일 </td>
+	  					<td> <input id="company-register-input5" class="swal2-input" placeholder="이메일"> </td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 회사 주소 </td>
+	  					<td> 
+	  						<input style="margin: 0.75em 0 0 0;" id="zipcode-register" class="swal2-input" size="10" readonly placeholder="우편번호" >
+		  					<input style="margin: 0.75em 0 0 0;" class="swal2-input" id="daumaddress" type="button" value="우편번호 검색" onclick="execDaumPostcodeRegister()">
+				            <input style="margin: 0.5em 0 0 0;" id="address1-register" class="swal2-input" type="text" readonly placeholder="도로명 주소"/>
+				            <input style="margin: 0.5em 0 0.75em 0;" id="address2-register" class="swal2-input" type="text" placeholder="상세주소 입력"/>
+				            <input type="hidden" id="address_content" name="address_content">
+	  					</td>
+	  				</tr>
+	  			</tbody>
+	  		</table>
+	    `,
+		showCancelButton: true,
+	    confirmButtonColor: "#2BC783",
+	    cancelButtonColor: "#d33",
+	    confirmButtonText: "Submit",
+	    cancelButtonText: "Cancel",
+	    allowOutsideClick: false,
+	    focusConfirm: false,
+	    draggable: true,
+	    preConfirm: () => {
+			var zipcode = document.getElementById("zipcode-register").value;
+			var address1 = document.getElementById("address1-register").value;
+			var address2 = document.getElementById("address2-register").value;
+			var addressString = null;
+		    	
+			if (!address2) {
+				addressString = "(" + zipcode + ") " + address1;
+			} else {
+				addressString = "(" + zipcode + ") " + address1 + " (" + address2 + ")";
+			}
+	        
+	        const name = document.getElementById("company-register-input1").value;
+	        const busnum = document.getElementById("company-register-input2").value;
+			const ceo = document.getElementById("company-register-input3").value;
+			const phone = document.getElementById("company-register-input4").value;
+			const email = document.getElementById("company-register-input5").value;
+			const address = addressString;
+			const val1 = document.getElementById("company-register-name-validation-result").value;
+			const val2 = document.getElementById("company-register-code-validation-result").value;
+	      
+			if (!name || !busnum || !ceo || !phone || !email || !zipcode) {
+				Swal.showValidationMessage("모든 입력란을 채워주세요!");
+				return false;
+			}
+			if (val1 == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 회사명입니다!");
+				return false;
+			}
+			if (val2 == "사용불가") {
+				Swal.showValidationMessage("이미 존재하는 등록번호입니다!");
+				return false;
+			}
+			return { 
+				company_name: name, 
+				company_busnum: busnum, 
+				company_ceo: ceo, 
+				company_phone: phone, 
+				company_email: email, 
+				company_address: address
+			};
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			fetch('/addCompany', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(result.value),
+			})
+			.then(response => {
+				if (response.ok) {
+					Swal.fire("성공", "회사 정보가 성공적으로 추가되었습니다.", "success")
+					.then(result => {
+						location.reload();
+					});
+				} else {
+					Swal.fire("실패", "회사 정보를 추가하지 못했습니다.", "error");
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire("오류", "요청 중 오류가 발생했습니다.", "error");
+			});
+	    }
+	});
+}
+
+
+
+
+function execDaumPostcode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var fullAddr = ''; // 최종 주소 변수
+            var extraAddr = ''; // 조합형 주소 변수
+
+            // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+            if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                fullAddr = data.roadAddress;
+            }
+            else { // 사용자가 지번 주소를 선택했을 경우(J)
+                fullAddr = data.jibunAddress;
+            }
+
+            // 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+            if(data.userSelectedType === 'R'){
+                //법정동명이 있을 경우 추가한다.
+                if(data.bname !== ''){
+                    extraAddr += data.bname;
+                }
+                // 건물명이 있을 경우 추가한다.
+                if(data.buildingName !== ''){
+                    extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                // 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+                fullAddr += (extraAddr !== '' ? ' ('+ extraAddr +')' : '');
+            }
+
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.querySelector('input[id=zipcode]').value = data.zonecode; //5자리 새우편번호 사용
+            document.querySelector('input[id=address1]').value = fullAddr;
+            	
+            // 커서를 상세주소 필드로 이동한다.
+            document.querySelector('input[id=address2]').focus();
+        }
+    }).open();
+}
+
+function execDaumPostcodeRegister() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var fullAddr = ''; // 최종 주소 변수
+            var extraAddr = ''; // 조합형 주소 변수
+
+            // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+            if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                fullAddr = data.roadAddress;
+            }
+            else { // 사용자가 지번 주소를 선택했을 경우(J)
+                fullAddr = data.jibunAddress;
+            }
+
+            // 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+            if(data.userSelectedType === 'R'){
+                //법정동명이 있을 경우 추가한다.
+                if(data.bname !== ''){
+                    extraAddr += data.bname;
+                }
+                // 건물명이 있을 경우 추가한다.
+                if(data.buildingName !== ''){
+                    extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                // 조합형주소의 유무에 따라 양쪽에 괄호를 추가하여 최종 주소를 만든다.
+                fullAddr += (extraAddr !== '' ? ' ('+ extraAddr +')' : '');
+            }
+
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.querySelector('input[id=zipcode-register]').value = data.zonecode; //5자리 새우편번호 사용
+            document.querySelector('input[id=address1-register]').value = fullAddr;
+            	
+            // 커서를 상세주소 필드로 이동한다.
+            document.querySelector('input[id=address2-register]').focus();
+        }
+    }).open();
+}
+
+
+</script>
+
+
+<script>
+
+function company_nameValidation(companyName) {
+	var company_name = $("#company-input1").val();
+	if (!company_name) {
+		$('.company-name-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/companyNameValidation",
+			data: {company_name : company_name},
+			success: function(cnt) {
+				if (cnt > 0) {
+					if (company_name.toUpperCase() === companyName.toUpperCase()) {
+						$('.company-name-validation-result').attr('value', '기존 이름 사용');
+					} else {
+						$('.company-name-validation-result').attr('value', '사용불가');
+						$('.company-name-validation-result').css({
+							"color" : "red",
+						});
+					}
+				} else {
+					$('.company-name-validation-result').attr('value', '사용가능');
+					$('.company-name-validation-result').css({
+						"color" : "green",
+					});
+				}
+			}
+		});
+	}
+}
+
+function company_register_nameValidation() {
+	var company_name = $("#company-register-input1").val();
+	if (!company_name) {
+		$('.company-register-name-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/companyNameValidation",
+			data: {company_name : company_name},
+			success: function(cnt) {
+				if (cnt > 0) {
+					$('.company-register-name-validation-result').attr('value', '사용불가');
+					$('.company-register-name-validation-result').css({
+						"color" : "red",
+					});
+				} else {
+					$('.company-register-name-validation-result').attr('value', '사용가능');
+					$('.company-register-name-validation-result').css({
+						"color" : "green",
+					});
+				}
+			}
+		});
+	}
+}
+
+function company_register_codeValidation() {
+	var company_code = $("#company-register-input2").val();
+	if (!company_code) {
+		$('.company-register-code-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			type: "POST",
+			url: "/companyCodeValidation",
+			data: {company_code : company_code},
+			success: function(cnt) {
+				if (cnt > 0) {
+					$('.company-register-code-validation-result').attr('value', '사용불가');
+					$('.company-register-code-validation-result').css({
+						"color" : "red",
+					});
+				} else {
+					$('.company-register-code-validation-result').attr('value', '사용가능');
+					$('.company-register-code-validation-result').css({
+						"color" : "green",
+					});
+				}
+			}
+		});
+	}
+}
+
+
+</script>
+
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2dd2d56701b1014424c03e264ce110c1&libraries=services"></script>
+</head>
+<body>
+ <div th:replace="~{/include/header}"></div>
+   <div class="mobile-menu-overlay"></div>
+
+   <div class="main-container">
+      <div class="pd-ltr-20 xs-pd-20-10">
+         <div class="min-height-200px">
+            <div class="page-header">
+               <div class="row">
+                  <div class="col-md-6 col-sm-12">
+                     <div class="title">
+                        <h4>서류 관리</h4>
+                     </div>
+                     <nav aria-label="breadcrumb" role="navigation">
+                        <ol class="breadcrumb">
+                           <li class="breadcrumb-item"><a href="index">Home</a></li>
+                           <li class="breadcrumb-item active" aria-current="page">협력사 목록</li>
+                        </ol>
+                     </nav>
+                  </div>
+                  <div class="col-md-6 col-sm-12 text-right">
+                     <button class="btn btn-primary m-2" onclick="addcompany()">회사 정보 등록</button>
+                  </div>
+                     
+
+               </div>
+            </div>
+            
+            <!-- Export Datatable start -->
+            <div class="card-box mb-30">
+            
+               <div class="pd-20">
+               </div>
+               
+               
+               <div class="pb-20">
+               
+            
+                  <table class="table hover data-table-export nowrap company-list-table">
+                  
+							<thead>
+								<tr style="text-align: center;">
+									<td class="hidden_row"></td>
+									<th class="table-plus datatable-nosort" width="3%">번호</th>
+									<th style="width: 10%;">사업자등록번호</th>
+									<th style="width: 12%;">협력사 이름</th>
+									<th style="width: 8%;">대표자</th>
+									<th style="width: 10%;">연락처</th>
+									<th class="th-email">이메일</th>
+									<th>주소</th>
+									<th style="width: 4%;">수정</th>
+									<th style="width: 4%;">삭제</th>
+								</tr>
+							</thead>
+							<tbody>
+									<th:block th:each="form,stat: ${companyList}">
+										<tr>
+											<td class="hidden_row"></td>
+											<td style="text-align: center;"><th:block th:text="${stat.size-stat.index}"></th:block></td>  
+											<td><th:block th:text="${form.company_busnum}"></th:block></td>
+											<td><th:block th:text="${form.company_name}"></th:block></td>
+											<td><th:block th:text="${form.company_ceo}"></th:block></td>
+											<td><th:block th:text="${form.company_phone}"></th:block></td>
+											<td><th:block th:text="${form.company_email}"></th:block></td>
+											<td><span th:text="${form.company_address}" th:onclick="openKakaomap([[${form.company_address}]],[[${form.company_name}]])"
+												style="cursor:pointer;" data-toggle="tooltip" data-placement="bottom" title th:data-original-title="${form.company_address}"></span></td>
+											<td><span th:text="수정" th:onclick="updateCompany([[${form.company_name}]],[[${form.company_address}]])"
+												style="cursor:pointer;"></td>
+											<td>삭제</td>
+										</tr>
+									</th:block>
+							</tbody>
+						</table>
+						
+					</div>
+				</div>
+            
+            <!-- Export Datatable End -->
+         </div>
+         
+         
+         
+         
+         
+         
+         <div class="footer-wrap pd-20 mb-20 card-box">
+           we are all 1995's  <a href="" target="_blank">Suit</a>
+         </div>
+      </div>
+   </div>
+
+   
+   
+   
+   <!-- js -->
+   <script src="vendors/scripts/core.js"></script>
+   <script src="vendors/scripts/script.min.js"></script>
+   <script src="vendors/scripts/process.js"></script>
+   <script src="vendors/scripts/layout-settings.js"></script>
+   <script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+   <script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+   <script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+   <script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+   <!-- buttons for Export datatable -->
+   <script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+   <script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+   <script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+   <!-- Datatable Setting js -->
+   <script src="vendors/scripts/datatable-setting.js"></script>
+   
+
+   
+   <style>
+table.dataTable tbody tr.selected, table.dataTable.display tbody tr:hover.selected, table.dataTable.hover tbody tr:hover.selected {
+    background-color: #ffffff !important;
+    color: black !important;
+}
+
+
+</style>
+
+
+<script>
+
+
+
+</script>
+
+
+
+   </body>
+
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>품질 검사 내역</title>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- sweetalert -->
+<script src="src/plugins/sweetalert2/sweetalert2.all.js"></script>
+<script src="src/plugins/sweetalert2/sweet-alert.init.js"></script>
+
+<!-- 부적격 수량 검수 -->
+<script type="text/javascript">
+  function quanChange() {
+    var totalFail = 0; // 총 부적격 수량
+    var qcQuantity = parseInt($('#qcQuan').val()) || 0; // 검사 수량
+    var exceedAlertShown = false; // 초과 경고창 표시 여부
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'center-end',
+        showConfirmButton: false,
+        timer: 2500, // 2.5초
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    // 각 필드 확인 및 초과 처리
+    $('.quantity').each(function () {
+      var $this = $(this);
+      var value = parseInt($this.val()) || 0;
+
+      // 개별 값이 검사 수량 초과 시 강조
+      if (value > qcQuantity) {
+        if (!exceedAlertShown) {
+          /* alert("부적격 수량은 검사 수량을 초과할 수 없습니다."); */
+          Toast.fire({
+      		icon: 'error',
+      		title: '부적격 수량이 검사 수량을 초과할 수 없습니다.'
+      	});
+          exceedAlertShown = true;
+        }
+        $this.addClass('form-control-danger'); // 초과 상태 강조
+      } else {
+        $this.removeClass('form-control-danger'); // 강조 해제
+      }
+
+      totalFail += value; // 총 부적격 수량 계산
+    });
+
+    // 계산 결과 반영
+    updateResults(totalFail, qcQuantity);
+  }
+
+  function updateResults(totalFail, qcQuantity) {
+    // 총 부적격 수량 업데이트 : 첫 번째 테이블
+    $('#totalFail').val(totalFail);
+
+    // 총 부적격 수량 업데이트 : 두 번째 테이블
+    $('#totalQuan').val(totalFail);
+
+    // 적격 수량 = 검사 수량 - 총 부적격 수량
+    var totalPass = qcQuantity - totalFail;
+    $('#totalPass').val(totalPass);
+
+    // 부적격률 계산 및 업데이트
+    var failRate = qcQuantity > 0 ? ((totalFail / qcQuantity) * 100).toFixed(2) : 0;
+    $('#failRate').val(failRate + '%');
+  }
+
+  $(document).ready(function () {
+    // oninput 이벤트 바인딩
+    $(document).on('input', '.quantity', function () {
+      quanChange();
+    });
+  });
+  
+  
+  <!-- 데이터 저장 ajax -->
+  
+  function saveData() {
+	    return new Promise((resolve, reject) => {
+	        const totalPass = parseInt(document.querySelector('#totalPass').value) || 0;
+	        if (totalPass < 0) {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '적격 수량이 0보다 작을 수 없습니다.'
+	            });
+	            reject('Invalid totalPass value'); // Promise reject
+	            return;
+	        }
+
+	        const rows = document.querySelectorAll('#qcDetailTable tbody tr');
+	        const testerElement = document.querySelector('#qcTester');
+	        const testerName = testerElement.value;
+
+	        const data = Array.from(rows).map(row => {
+	            const questnumElement = row.querySelector('.questrownum');
+	            const quantityElement = row.querySelector('.quantity');
+	            const qcnumElement = document.querySelector('.qcNum');
+
+	            return {
+	                qc_num: qcnumElement.value,
+	                qcq_num: questnumElement.textContent,
+	                qc_fail_quan: quantityElement.value,
+	                qc_tester: testerName
+	            };
+	        });
+
+	        console.log('saveData 데이터:', data);
+
+	        fetch('/updateQcDetail', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json',
+	            },
+	            body: JSON.stringify(data)
+	        })
+	        .then(response => {
+	            if (response.ok) {
+	                Swal.fire({
+	                    icon: 'success',
+	                    title: '정상적으로 저장했습니다.'
+	                }).then(() => resolve()); // Promise 성공 처리
+	            } else {
+	                Swal.fire({
+	                    icon: 'error',
+	                    title: '저장에 실패했습니다.'
+	                }).then(() => reject('Failed to save data')); // Promise 실패 처리
+	            }
+	        })
+	        .catch(error => {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '저장 중 오류가 발생했습니다.'
+	            }).then(() => reject(error)); // 네트워크 에러 처리
+	        });
+	    });
+	}
+
+	function saveButton() {
+	    saveData();
+	}
+
+	function submitButton() {
+	    saveData()
+	        .then(() => {
+	            return Swal.fire({
+	                icon: 'warning',
+	                title: '검사를 종료하고 제출하겠습니까?',
+	                showCancelButton: true,
+	                confirmButtonText: '제출',
+	                cancelButtonText: '취소',
+	                reverseButtons: true
+	            });
+	        })
+	        .then(result => {
+	            if (result.isConfirmed) {
+	                const form = document.getElementById("qcForm");
+	                form.submit(); // 폼 제출	                
+	            } else {
+	                location.reload(); // 페이지 리로드
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error in submitButton:', error);
+	        });
+	}
+	</script>
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+
+				<!-- 상단 카드. 시작.  -->
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>품질 검사 내역</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">QC
+										검사 내역</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+				</div>
+				<!-- 상단 카드. 끝. -->
+
+				<!-- Export Datatable start -->
+				<div class="card-box mb-30">
+					<div class="p-5">
+						<form action="/qcTest" method="post" id="qcForm">
+							<table class="table table-bordered">
+								<tr>
+									<th>QC 번호</th>
+									<td><input type="hidden" name="qc_num"
+										th:value="${qc.qc_num}"> <input
+										class="form-control col-md-6 qcNum" type="text" id="qcNum"
+										name="qcNum" th:value="${qc.qc_num}" readonly></td>
+									<th>관련 계약서</th>
+									<td><input type="hidden" th:value="${qc.qc_type}"
+										name="qc_type"> <th:block
+											th:if="${qc.qc_type}=='order'">
+											<span class="badge badge-success">원자재 계약서</span>
+										</th:block> <th:block th:if="${qc.qc_type}=='plan'">
+											<span class="badge badge-warning">생산품 견적서</span>
+										</th:block> &nbsp; <th:block th:text="${qc.paper_num}"></th:block> <input
+										type="hidden" id="paper_num" name="paper_num"
+										th:value="${qc.paper_num}"></td>
+								</tr>
+								<tr>
+									<th>검사 요청일</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="qcRegdate" name="qcRegdate" th:value="${qc.qc_reg}"
+										readonly></td>
+									<th>검사 대상</th>
+									<td><input class="form-control col-md-12" type="text"
+										id="qcItem" name="qcItem"
+										th:value="|${item_name} (아이템 번호: ${qc.qc_item_num})|" readonly>
+										<input type="hidden" name="item_name" th:value="${item_name}">
+										<input type="hidden" name="qc_item_num"
+										th:value="${qc.qc_item_num}"></td>
+								</tr>
+								<tr>
+									<th>검사 완료일</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="qcDate" name="qcDate" th:value="${qc.qc_date}" readonly>
+									</td>
+									<th>검사자</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="qcTester" name="qcTester" th:value="${member_name}"
+										readonly></td>
+								</tr>
+								<tr>
+									<th>검사 수량</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="qcQuan" name="qc_quan" th:value="${qc.qc_quan}" readonly>
+									</td>
+									<th>검사 상태</th>
+									<td><th:block th:if="${qc.qc_stat}==0">
+											<span class="badge badge-warning">검사 전</span>
+										</th:block> <th:block th:if="${qc.qc_stat}==1">
+											<span class="badge badge-primary">작성 중</span>
+										</th:block> <th:block th:if="${qc.qc_stat}==2">
+											<span class="badge badge-light">검사 완료</span>
+										</th:block></td>
+								</tr>
+								<tr>
+									<th>총 부적격 수량</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="totalFail" name="totalFail" th:value="${totalFail}"
+										readonly></td>
+									<th>부적격률</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="failRate" name="failRate"
+										th:value="${#numbers.formatDecimal(failRate,1,2)}+'%'"
+										readonly></td>
+								</tr>
+								<tr>
+									<th>총 적격 수량</th>
+									<td><input class="form-control col-md-6" type="text"
+										id="totalPass" name="totalPass" th:value="${totalPass}"
+										readonly></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</table>
+
+							<table class="table table-bordered" id="qcDetailTable">
+								<thead>
+									<tr>
+										<th>번호</th>
+										<th>QC 문항</th>
+										<th>부적격 수량</th>
+									</tr>
+								</thead>
+								<tbody>
+									<th:block th:each="qcq, stat: ${QcDetailList}">
+										<tr>
+											<td class="questrownum" th:text="${stat.count}"></td>
+											<td class="qcquest" th:text="${qcq.qcquest}"></td>
+											<td><input type="number"
+												class="form-control col-md-6 quantity"
+												th:id="'quantity' + ${stat.index}"
+												th:name="'quantity' + ${stat.index}"
+												th:value="${qcq.qc_fail_quan == null ? 0 : qcq.qc_fail_quan}"
+												min="0" oninput="quanChange()" /></td>
+										</tr>
+									</th:block>
+								</tbody>
+								<tfoot>
+									<tr>
+										<td></td>
+										<th>총 부적격 수량</th>
+										<th><input type="text" class="form-control col-md-6"
+											id="totalQuan" name="totalQuan" th:value="${totalFail}"
+											readonly></th>
+									</tr>
+								</tfoot>
+							</table>
+							<div class="d-flex justify-content-between">
+								<div>
+									<button type="button" class="btn btn-secondary m-2 rowbtn"
+										th:onclick="'location.href=\'/qcDetail?qc_num=' + ${qc.qc_num} + '\''">뒤로가기</button>
+								</div>
+								<div>
+									<button type="button" class="btn btn-success m-2 rowbtn"
+										onclick="saveButton()">저장</button>
+									<button type="button" class="btn btn-primary m-2 rowbtn"
+										onclick="submitButton()">저장 후 제출</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<!-- Export Datatable End -->
+
+			</div>
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a
+					href="https://github.com/dropways" target="_blank">Ankit
+					Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script>
+</body>
+</html>
