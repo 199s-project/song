@@ -159,7 +159,7 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 						</tr>
 					</thead>
 					<tbody>
-						<th:block th:each="product,stat: ${productSales}" th:if="${stat.index<3}">
+						<th:block th:each="product,stat: ${productSales}" th:if="${stat.index<5}">
 							<tr>
 								<td class="table-plus">
 									<img th:src="${product.product_img}" width="70" height="70" alt="">

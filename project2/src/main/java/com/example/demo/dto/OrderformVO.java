@@ -19,6 +19,10 @@ public class OrderformVO {
 	private String orderform_startDate;
 	private String orderform_endDate;
 	
+	// 25-01-24 추가
+	private String orderform_code;	
+	private String company_name1;
+	private String company_name2;
 	
 	//orderformDetailVO
 	private int orderdetail_num;
@@ -26,6 +30,4 @@ public class OrderformVO {
 	private int orderdetail_amount;
 	private int orderdetail_price;
 	private int total_price;
-	
-	
 }

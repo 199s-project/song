@@ -61,7 +61,7 @@ public class ProjectService {
     	}
     	 
     	session.setAttribute("user", member); 
-        mv.setViewName("index");
+        mv.setViewName("redirect:/");
     	
     	return mv;
     }
@@ -81,7 +81,7 @@ public class ProjectService {
     	
     	if (r == 1) {
     		mv.addObject("msg", "회원가입 성공");
-    		mv.setViewName("login");
+    		mv.setViewName("index");
     		return mv;
     	} 
     	
@@ -161,6 +161,15 @@ public class ProjectService {
     	int r = projectDAO.insertOrderform(orderformVO);
     	
     	int OrderformLastNum = projectDAO.getLastOrderformNum();
+
+    	OrderformVO updatedOrderform = projectDAO.getOrderformByOrderformnum(OrderformLastNum);
+    	
+    	String code1 = updatedOrderform.getOrderform_regdate().substring(0,10).replaceAll("-", "");
+    	String code2 = String.format("%04d", OrderformLastNum % 1000);
+    	String code3 = String.format("%04d", updatedOrderform.getCompany_num2() % 1000);
+    	String code = code1 + code2 + code3;
+    	
+    	int s = projectDAO.insertOrderformCode(OrderformLastNum, code);
     	
     	Map<String,Object> itemData = map.entrySet()
     			.stream()
@@ -208,9 +217,6 @@ public class ProjectService {
 	    	int result2 = projectDAO.insertqc(qcVO);
 	    	
     	}
-    	
-    	
-    	
     	
     	mv.addObject("msg", "계약서 등록 완료");
     	mv.setViewName("purchaseContract");

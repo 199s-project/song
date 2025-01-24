@@ -3,68 +3,81 @@
 <title>물품 구매 계약서</title>
 <head>
 <style>
-table {
+table.orderform-list-table {
     border-collapse: collapse !important; /* 테두리 중첩 방지 */
     width: 100%; /* 테이블의 너비를 100%로 설정 */
-     border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
-    
+	border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+    width: 96% !important;
+	margin-left: 2%;
+	
+    th, td {
+	    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	    padding: 8px; /* 셀 내부 간격 */
+	    text-align: left; /* 텍스트 정렬 */
+	    height: 37px;
+	}
+	td {
+		text-indent: 8px;
+	}
+	th {
+	    background-color: #f4f4f4; /* 헤더 배경색 */
+	    font-weight: bold; /* 헤더 강조 */
+	    vertical-align: middle !important;
+	    padding-bottom: 5px;
+	}
+	
+	th.heading-th {
+	    padding: 0 !important;
+	    text-align: center;
+	}
+	    
+	tr:hover {
+	    background-color: #f9f9f9; /* 마우스 오버 효과 */
+	}
+	
+    .hidden_row {
+		display: none;
+	}
+	
+	td.heading-td {
+		text-align: center !important;
+		text-indent: 0;
+	}
 }
 
-th, td {
-    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
-    padding: 8px; /* 셀 내부 간격 */
-    text-align: left; /* 텍스트 정렬 */
-    
+span.badge {
+	text-align: center !important;
+	padding: 12px 18px 10px 12px;
 }
 
-th {
-    background-color: #f4f4f4; /* 헤더 배경색 */
-    font-weight: bold; /* 헤더 강조 */
+span.badge-reject {
+	background: lightgray;
+	margin-left: 6px;
 }
 
-tr:hover {
-    background-color: #f9f9f9; /* 마우스 오버 효과 */
-}
-.hidden_row{
- display: none;
- 
-}
-
-
-.pd-20 {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 20px;
-}
-</style>
-
-<!--  <script>
-        function toggleDetails(orderId) {
-            const detailRow = document.getElementById('details-' + orderId);
-            if (detailRow.style.display === 'none' || detailRow.style.display === '') {
-                detailRow.style.display = 'table-row';
-            } else {
-                detailRow.style.display = 'none';
-            }
-        }
-    </script> -->
-
-
-
-<style>
-th.table-plus.datatable-nosort.sorting_asc::before, th.table-plus.datatable-nosort.sorting_asc::after,
-	th.sorting::before, th.sorting::after {
-	content: none !important;
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+   content: none !important;
 }
 
 th.sorting, th.table-plus.datatable-nosort.sorting_asc {
-	pointer-events: none; /* 클릭 비활성화 */
+   pointer-events: none; /* 클릭 비활성화 */
 }
+
 .buttons-pdf{
 	display: none !important;
 }
 
+div.dataTables_filter {
+	width: 500px;
+	float: right;
+	margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+	margin: 0 0 10px 16px;
+}
 </style>
 
 <script>
@@ -156,38 +169,38 @@ function orderformProceed(orderform_num) {
 					<div class="pb-20">
 
 
-						<table
-							class="table hover multiple-select-row data-table-export nowrap">
+						<table class="table hover data-table-export nowrap orderform-list-table">
 							<thead>
 								<tr>
 									<th class="hidden_row"></th>
-									<th class="table-plus datatable-nosort">계약서 번호</th>
+									<th class="heading-th" width="4%">번호</th>
+									<th width="13%" class="table-plus datatable-nosort">계약서 번호</th>
 									<th>계약서 이름</th>
-									<th>주문자 명</th>
-									<th>계약 대상 명</th>
-									<th>계약일</th>
-									<th>마감일</th>
-									<th>상태</th>
+									<th width="11%">주문자 명</th>
+									<th width="11%">계약 대상 명</th>
+									<th width="10%">계약일</th>
+									<th width="10%">마감일</th>
+									<th width="5%">상태</th>
+									<th width="11%"></th>
 								</tr>
 							</thead>
 							<tbody>
 									<th:block th:each="form,stat: ${orderList}">
-										<tr onclick="toggleDetails(1)">
+										<tr onclick="toggleDetails(1)" th:style="${form.orderform_stat == '완료' ? 'color: #a9a9a9;' : ''}">
 											<td class="hidden_row"></td>
-											<td><th:block th:text="${stat.size-stat.index}"></th:block></td> 
+											<td class="heading-td"><th:block th:text="${stat.size-stat.index}"></th:block></td> 
+											<td><th:block th:text="${form.orderform_code}"></th:block></td>
 											<td><a th:href="@{getOrderformDetail(orderform_num=${form.orderform_num})}"><th:block th:text="${form.orderform_name}"></th:block></a></td>
-											<td><th:block th:text="${form.company_num}"></th:block></td>
-											<td><th:block th:text="${form.company_num2}"></th:block></td>
+											<td><th:block th:text="${form.company_name1}"></th:block></td>
+											<td><th:block th:text="${form.company_name2}"></th:block></td>
 											<td><th:block th:text="${form.orderform_startDate}"></th:block></td>
 											<td><th:block th:text="${form.orderform_endDate}"></th:block></td>
+											<td><th:block th:text="${form.orderform_stat}"></th:block></td>
 											<td>
-												<span th:if="${form.orderform_stat == '진행중'}" 
-													  th:text="입고" th:onclick="orderformProceed([[${form.orderform_num}]])" 
-													  style="cursor:pointer;">
-												</span>
-												<span th:unless="${form.orderform_stat == '진행중'}"
-													  th:text="'완료'">
-												</span>
+												<th:block th:if="${form.orderform_stat == '진행중'}">
+													<span class="badge badge-warning" th:onclick="orderformProceed([[${form.orderform_num}]])" style="cursor:pointer;">출고</span>
+													<span class="badge badge-reject" th:onclick="orderformProceed([[${form.orderform_num}]])" style="cursor:pointer;">취소</span>
+												</th:block>
 											</td>
 										</tr>
 									</th:block>

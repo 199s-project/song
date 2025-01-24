@@ -305,6 +305,8 @@ public interface ProjectDAO {
    
    int updateOrderformFinish (int orderform_num);
    
+   int insertOrderformCode(@Param("orderform_num")int orderform_num, @Param("code")String code);
+   
 // new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 끝   
    
 }

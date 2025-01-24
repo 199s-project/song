@@ -244,6 +244,12 @@ public class ProjectController {
     	
     	mv = projectService.postOrderformRegister(map);
     	List<OrderformVO> list = projectService.orderList();
+    	
+		for (OrderformVO orderform : list) {
+	         orderform.setCompany_name1(projectService.getCompanyByCompanynum(orderform.getCompany_num()).getCompany_name());
+	         orderform.setCompany_name2(projectService.getCompanyByCompanynum(orderform.getCompany_num2()).getCompany_name());
+	      }
+    	
     	mv.addObject("orderList", list);
         return mv;
     }
@@ -1088,123 +1094,144 @@ public class ProjectController {
 	}
 
 	// QC Test POST (1. 인벤토리 업데이트 2. qc 상태 업데이트 3. 필요 시 계약서 및 계획서 자동 작성 4. 완료 시 qcList로 이동)
-	@PostMapping("qcTest")
-	public String qcTest(@RequestParam Map<String, String> map, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+		@PostMapping("qcTest")
+		public String qcTest(@RequestParam Map<String, String> map, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
-		// 인벤토리 업데이트 & qc 상태 업데이트
-		// 가져온 값 확인
-		System.out.println(map);
-		
-		// 인벤토리에 넣어줄 값 설정
-		String inven_name = map.get("item_name");
-		String qc_type = map.get("qc_type");
-		int inven_item_num = Integer.parseInt(map.get("qc_item_num"));
-		int inven_amount = Integer.parseInt(map.get("totalPass"));
+			// 인벤토리 업데이트 & qc 상태 업데이트
+			// 가져온 값 확인
+			System.out.println(map);
+			
+			// 인벤토리에 넣어줄 값 설정
+			String inven_name = map.get("item_name");
+			String qc_type = map.get("qc_type");
+			int inven_item_num = Integer.parseInt(map.get("qc_item_num"));
+			int inven_amount = Integer.parseInt(map.get("totalPass"));
 
-//		System.out.println("########################## qc_type: " + qc_type);
-//		System.out.println("########################## inven_item_num: " + inven_item_num);
-//		System.out.println("########################## inven_amount: " + inven_amount);
-//		System.out.println("########################## qc_num: " + qc_num);
+//			System.out.println("########################## qc_type: " + qc_type);
+//			System.out.println("########################## inven_item_num: " + inven_item_num);
+//			System.out.println("########################## inven_amount: " + inven_amount);
+//			System.out.println("########################## qc_num: " + qc_num);
 
-		// 값을 넣어줄 객체 생성
-		InventoryVO inven = new InventoryVO();
+			// 값을 넣어줄 객체 생성
+			InventoryVO inven = new InventoryVO();
 
-		// 객체에 값 set
-		
-		inven.setInven_name(inven_name);
-		// 타입
-			int inven_type = 0;
-			if (qc_type.equals("order")) {
-				inven_type = 0;
-			} else if (qc_type.equals("plan")) {
-				inven_type = 1;
-			}
-		inven.setInven_type(inven_type);
-		inven.setInven_item_num(inven_item_num);
-		inven.setInven_amount(inven_amount);
+			// 객체에 값 set
+			
+			inven.setInven_name(inven_name);
+			// 타입
+				int inven_type = 0;
+				if (qc_type.equals("order")) {
+					inven_type = 0;
+				} else if (qc_type.equals("plan")) {
+					inven_type = 1;
+				}
+			inven.setInven_type(inven_type);
+			inven.setInven_item_num(inven_item_num);
+			inven.setInven_amount(inven_amount);
 
-		
-		// update 실행 (인벤토리 추가, qc 상태 업데이트)
-		int result1 = projectService.updateInven(inven);		
-			int qc_num = Integer.parseInt(map.get("qc_num"));
-		int result2 = projectService.updateQcStat2(qc_num);
-		
-		
-		// 부적격 재고 발생 시, [원자재 구매 계약서] 및 [제품 생산 계획서] 작성
-		
-		System.out.println("####################################### 인벤토리 업데이트 완료, 부적격 재고 처리 실행");
-		
-		// 필요 값 설정	
-		int paper_num = Integer.parseInt(map.get("paper_num"));
-		int totalFail = Integer.parseInt(map.get("totalFail"));
-		
-		MemberVO user = (MemberVO) session.getAttribute("user");
-				
-		System.out.println("####################################### paper_num 출력 ####### " + paper_num);
-		System.out.println("####################################### 총 부적격 수량 totalFail 출력 ####### " + totalFail);
-		System.out.println("####################################### type 출력 ####### " + inven_type);
-		
-		if (totalFail > 0) {
-			if (inven_type == 0) {
-				
-				OrderformVO of = projectService.getOrderformByPapernum(paper_num);
-				
-				int of_num = projectService.getLastOrderformNum() + 1;
-				String of_name = "[재신청] " + of.getOrderform_name();
-				String of_content = "[재신청] " + of.getOrderform_content();
-				
-				of.setOrderform_num(of_num);
-				of.setOrderform_name(of_name);
-				of.setOrderform_content(of_content);
-				
-				System.out.println("####################################### of 출력 #######" + of.toString());
-				
-				projectService.insertOrderform(of);
-				
-				OrderformDetailVO ofd = new OrderformDetailVO();
-				
-				ofd.setOrderform_num(of_num);
-				ofd.setProduct_num(inven_item_num);
-				
-				int amount = Integer.parseInt(map.get("totalFail"));
-				ofd.setOrderdetail_amount(amount);
-				
-				int price = projectService.getMaterialPrice(inven_item_num);
-				ofd.setOrderdetail_price(price * amount);
-				
-				
-				System.out.println("####################################### ofd 출력 #######" + ofd.toString());
-				
-				projectService.insertOrderformDetail(ofd);
-				
-			}
-			else if (inven_type == 1) {
-				
-				// 값 저장할 객체 생성
-				ProductionVO pd = new ProductionVO();
-				// production 값 가져오기
-				
-				// productiondetail 값 가져오기
-				
-				
-				
-				// set 해주기
-				
-				// 등록하기
-				
-				
-			}
-		};
-		
-		
-		// QcList로 이동
-		List<QcVO> QcList = projectService.getQcList();
-		redirectAttributes.addFlashAttribute("QcList", QcList);
-		redirectAttributes.addFlashAttribute("msg", "품질 검사서 제출 완료!");
-		log.info("qc 이동");
+			
+			// update 실행 (인벤토리 추가, qc 상태 업데이트)
+			int result1 = projectService.updateInven(inven);		
+				int qc_num = Integer.parseInt(map.get("qc_num"));
+			int result2 = projectService.updateQcStat2(qc_num);
+			
+			
+			// 부적격 재고 발생 시, [원자재 구매 계약서] 및 [제품 생산 계획서] 작성
+			
+			System.out.println("####################################### 인벤토리 업데이트 완료, 부적격 재고 처리 실행");
+			
+			// 필요 값 설정	
+			int paper_num = Integer.parseInt(map.get("paper_num"));
+			int totalFail = Integer.parseInt(map.get("totalFail"));
+			
+			MemberVO user = (MemberVO) session.getAttribute("user");
+					
+			System.out.println("####################################### paper_num 출력 ####### " + paper_num);
+			System.out.println("####################################### 총 부적격 수량 totalFail 출력 ####### " + totalFail);
+			System.out.println("####################################### type 출력 ####### " + inven_type);
+			
+			if (totalFail > 0) {
+				if (inven_type == 0) {
+					
+					OrderformVO of = projectService.getOrderformByPapernum(paper_num);
+					
+					int of_num = projectService.getLastOrderformNum() + 1;
+					String of_name = "[재신청] " + of.getOrderform_name();
+					String of_content = "[재신청] " + of.getOrderform_content();
+					
+					of.setOrderform_num(of_num);
+					of.setOrderform_name(of_name);
+					of.setOrderform_stat("진행중");
+					of.setOrderform_content(of_content);
+					
+					System.out.println("####################################### of 출력 #######" + of.toString());
+					
+					projectService.insertOrderform(of);
+					
+					OrderformDetailVO ofd = new OrderformDetailVO();
+					
+					ofd.setOrderform_num(of_num);
+					ofd.setProduct_num(inven_item_num);
+					
+					int amount = Integer.parseInt(map.get("totalFail"));
+					ofd.setOrderdetail_amount(amount);
+					
+					int price = projectService.getMaterialPrice(inven_item_num);
+					ofd.setOrderdetail_price(price * amount);
+					
+					
+					System.out.println("####################################### ofd 출력 #######" + ofd.toString());
+					
+					projectService.insertOrderformDetail(ofd);
+					
+				}
+				else if (inven_type == 1) {
+					
+					// 객체 생성 + 기존 정보 가져오기
+					ProductionVO pd = projectService.getProductionByPapernum(paper_num);
+					
+					int pd_num = projectService.getfindLastProductionNumber() + 1;
+					String pd_writer = user.getMember_name();
+					String pd_dept = user.getMember_dept();
+					String pd_name = "[재신청] " + pd.getPd_name();
+					String pd_content = "[재신청] " +  pd.getPd_content();		
+					
+					pd.setPd_num(pd_num);
+					pd.setPd_writedate(null);
+					pd.setPd_writer(pd_writer);
+					pd.setPd_dept(pd_dept);
+					pd.setPd_name(pd_name);
+					pd.setPd_content(pd_content);
+					
+					System.out.println("####################################### pd 출력 #######" + pd.toString());
+					// 위 코드를 출력하고 싶으면 DTO에서 @ToString 추가해주면 나옴 
+					projectService.insertProduction(pd);
+					
+					// detail은 새로운 객체 생성
+					ProductionDetailVO pdd = new ProductionDetailVO();
+					int amount = Integer.parseInt(map.get("totalFail"));
+					
+					pdd.setPd_num(pd_num);
+					pdd.setProduct_name(inven_name);
+					pdd.setProductiondetail_amount(amount);
+					
+					System.out.println("####################################### pdd 출력 #######" + pdd.toString());
+					// 위 코드를 출력하고 싶으면 DTO에서 @ToString 추가해주면 나옴 
+					projectService.insertProductionDetail(pdd);
+					
+					
+				}
+			};
+			
+			
+			// QcList로 이동
+			List<QcVO> QcList = projectService.getQcList();
+			redirectAttributes.addFlashAttribute("QcList", QcList);
+			redirectAttributes.addFlashAttribute("msg", "품질 검사서 제출 완료!");
+			log.info("qc 이동");
 
-		return "redirect:qc";
-	}
+			return "redirect:qc";
+		}
 
 	// QC 유형 등록 페이지 이동
 	@GetMapping("qcTypeReg")
@@ -1287,21 +1314,32 @@ public class ProjectController {
 	public String purchaseContract(Model model) {
 
 		List<OrderformVO> list = projectService.orderList();
+		
+		for (OrderformVO orderform : list) {
+	         orderform.setCompany_name1(projectService.getCompanyByCompanynum(orderform.getCompany_num()).getCompany_name());
+	         orderform.setCompany_name2(projectService.getCompanyByCompanynum(orderform.getCompany_num2()).getCompany_name());
+	      }
+		
 		model.addAttribute("orderList", list);
-		log.info("list", list);
 		return "purchaseContract";
 
 	}
 
 	// 판매계약서 목록 화면 이동
 	@GetMapping("salesContract")
-	public String salesContractList(Model model) {
+	   public String salesContractList(Model model) {
 
-		List<QuotationVO> list = projectService.quotationList();
-		model.addAttribute("quotationList", list);
-		log.info("list", list);
-		return "salesContract";
-	}
+	      List<QuotationVO> list = projectService.quotationList();
+	      
+	      for (QuotationVO quotation : list) {
+	         quotation.setCompany_name1(projectService.getCompanyByCompanynum(quotation.getCompany_num()).getCompany_name());
+	         quotation.setCompany_name2(projectService.getCompanyByCompanynum(quotation.getCompany_num2()).getCompany_name());
+	      }
+	      
+	      model.addAttribute("quotationList", list);
+	      log.info("list", list);
+	      return "salesContract";
+	   }
 
 	// 모든 계약서들의 목록을 볼 수 있는 화면 이동
 	@GetMapping("allForm")
@@ -1368,8 +1406,9 @@ public class ProjectController {
 	@GetMapping("getFactoryDetail")
 	public ModelAndView getFactoryDetail(@RequestParam("pd_num") int pd_num,HttpSession session) {
 		
+		mv = new ModelAndView();
 		//추가된 부분 
-		
+				
 		MemberVO member = (MemberVO)session.getAttribute("user");
 		if(member ==null) {
 			mv.setViewName("login");
