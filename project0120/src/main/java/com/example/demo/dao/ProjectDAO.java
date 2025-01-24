@@ -131,6 +131,16 @@ public interface ProjectDAO {
 	// 원자재 번호로 가격 찾아오기
 	int getMaterialPrice(int inven_item_num);
 	
+	ProductionVO getProductionByPapernum(int paper_num);
+	
+	// 박나현이 김민성 부분 합치다가 추가한 것. 시작 -----------------------------------------------
+	
+	int setPdCheckUpdate(ProductionVO productionVO);
+	
+	ProductVO getfindProductNum(ProductVO productVO);
+	
+	// 박나현이 김민성 부분 합치다가 추가한 것. 끝 -----------------------------------------------
+	
 	// 나현. 끝.
 
 	// new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@윤호윤호윤호@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  시작
@@ -174,6 +184,8 @@ public interface ProjectDAO {
 	
 	int reduceInventoryAmount(InventoryVO inventoryVO);
 	
+	int insertProductionDetail(ProductionDetailVO pdd);
+	
 	// ---------------------김민성---------------------------------	
 	
 	
@@ -192,14 +204,6 @@ public interface ProjectDAO {
    
 	List<FileVO> getProductImages(int product_num);
 	
-	// 박나현이 김민성 부분 합치다가 추가한 것. 시작 -----------------------------------------------
-	
-	int setPdCheckUpdate(ProductionVO productionVO);
-	
-	ProductVO getfindProductNum(ProductVO productVO);
-	
-	// 박나현이 김민성 부분 합치다가 추가한 것. 끝 -----------------------------------------------
-
 	// new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 시작
 	   
 	   QuotationVO getQuotationByQuotnum(int quot_num);

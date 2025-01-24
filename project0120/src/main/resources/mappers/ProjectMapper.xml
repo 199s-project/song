@@ -386,11 +386,18 @@
 	</select>
 	
 	<!-- 생산 문서 번호로 정보 찾아오기 -->
-	<select id="getProductionByPapernum">
+	<select id="getProductionByPapernum" resultType="productionVO" parameterType="int">
 		SELECT *
 		FROM production
 		WHERE pd_num = #{paper_num};
 	</select>
+	
+	<!-- 생산 문서 detail -->
+	<insert id="insertProductionDetail" parameterType="ProductionDetailVO">
+		INSERT INTO productiondetail(pd_num, product_name, productiondetail_amount)
+		VALUES (#{pd_num}, #{product_name}, #{productiondetail_amount});		
+	</insert>
+	
 	
 	<!-- 나현. 끝. -->
 

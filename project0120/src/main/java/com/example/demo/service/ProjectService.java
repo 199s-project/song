@@ -411,6 +411,15 @@ public class ProjectService {
 			public int getMaterialPrice(int inven_item_num) {
 				return projectDAO.getMaterialPrice(inven_item_num);
 			};
+			
+			public ProductionVO getProductionByPapernum(int paper_num) {
+				return projectDAO.getProductionByPapernum(paper_num);
+			}
+			
+			public int insertProductionDetail(ProductionDetailVO pdd) {
+				return projectDAO.insertProductionDetail(pdd);
+			}
+			
 		// 나현. 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	// -----------------------------------------------------------------------------

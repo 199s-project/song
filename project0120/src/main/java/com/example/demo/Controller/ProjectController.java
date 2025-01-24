@@ -956,6 +956,7 @@ public class ProjectController {
 				
 				of.setOrderform_num(of_num);
 				of.setOrderform_name(of_name);
+				of.setOrderform_stat("진행중");
 				of.setOrderform_content(of_content);
 				
 				System.out.println("####################################### of 출력 #######" + of.toString());
@@ -981,17 +982,32 @@ public class ProjectController {
 			}
 			else if (inven_type == 1) {
 				
-				// 값 저장할 객체 생성
-				ProductionVO pd = new ProductionVO();
-				// production 값 가져오기
+				// 객체 생성 + 기존 정보 가져오기
+				ProductionVO pd = projectService.getProductionByPapernum(paper_num);
 				
-				// productiondetail 값 가져오기
+				int pd_num = projectService.getfindLastProductionNumber() + 1;
+				String pd_writer = user.getMember_name();
+				String pd_dept = user.getMember_dept();
+				String pd_name = "[재신청] " + pd.getPd_name();
+				String pd_content = "[재신청] " +  pd.getPd_content();		
 				
+				pd.setPd_num(pd_num);
+				pd.setPd_writedate(null);
+				pd.setPd_writer(pd_writer);
+				pd.setPd_dept(pd_dept);
+				pd.setPd_name(pd_name);
+				pd.setPd_content(pd_content);
+								
+				projectService.insertProduction(pd);
 				
+				// detail은 새로운 객체 생성
+				ProductionDetailVO pdd = new ProductionDetailVO();
 				
-				// set 해주기
+				pdd.setPd_num(pd_num);
+				pdd.setProduct_name(inven_name);
+				pdd.setProductiondetail_amount(inven_amount);
 				
-				// 등록하기
+				projectService.insertProductionDetail(pdd);
 				
 				
 			}
@@ -1159,7 +1175,8 @@ public class ProjectController {
 
 	@GetMapping("getFactoryDetail")
 	public ModelAndView getFactoryDetail(@RequestParam("pd_num") int pd_num, HttpSession session) {
-
+		
+		mv= new ModelAndView();
 		// 추가된 부분
 
 		MemberVO member = (MemberVO) session.getAttribute("user");
