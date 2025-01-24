@@ -335,8 +335,7 @@
 		UPDATE qc_detail
 		SET
 		qc_fail_quan = #{qc_fail_quan}
-		WHERE qc_num = #{qc_num} AND qcq_num =
-		#{qcq_num};
+		WHERE qc_num = #{qc_num} AND qcq_num = #{qcq_num};
 	</update>
 
 	<!-- QC 저장 버튼, 상태 : 검사 중 (1) -->
@@ -384,6 +383,13 @@
 		SELECT material_price
 		FROM material
 		WHERE material_num = #{inven_item_num};
+	</select>
+	
+	<!-- 생산 문서 번호로 정보 찾아오기 -->
+	<select id="getProductionByPapernum">
+		SELECT *
+		FROM production
+		WHERE pd_num = #{paper_num};
 	</select>
 	
 	<!-- 나현. 끝. -->

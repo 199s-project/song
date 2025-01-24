@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.dto.CompanyVO;
 import com.example.demo.dto.FileVO;
@@ -889,7 +890,7 @@ public class ProjectController {
 
 	// QC Test POST (1. 인벤토리 업데이트 2. qc 상태 업데이트 3. 필요 시 계약서 및 계획서 자동 작성 4. 완료 시 qcList로 이동)
 	@PostMapping("qcTest")
-	public String qcTest(@RequestParam Map<String, String> map, Model model, HttpSession session) {
+	public String qcTest(@RequestParam Map<String, String> map, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
 
 		// 인벤토리 업데이트 & qc 상태 업데이트
 		// 가져온 값 확인
@@ -978,16 +979,29 @@ public class ProjectController {
 				projectService.insertOrderformDetail(ofd);
 				
 			}
-//			else if (inven_type == 1) {
-//				
-//				projectService.insertproduction(user);
-//			}
+			else if (inven_type == 1) {
+				
+				// 값 저장할 객체 생성
+				ProductionVO pd = new ProductionVO();
+				// production 값 가져오기
+				
+				// productiondetail 값 가져오기
+				
+				
+				
+				// set 해주기
+				
+				// 등록하기
+				
+				
+			}
 		};
 		
 		
 		// QcList로 이동
 		List<QcVO> QcList = projectService.getQcList();
-		model.addAttribute("QcList", QcList);
+		redirectAttributes.addFlashAttribute("QcList", QcList);
+		redirectAttributes.addFlashAttribute("msg", "품질 검사서 제출 완료!");
 		log.info("qc 이동");
 
 		return "redirect:qc";
@@ -1000,6 +1014,11 @@ public class ProjectController {
 		return "qcTypeReg";
 	}
 
+	@GetMapping("ssong")
+	public String testssong() {
+		return "ssong";
+	}
+	
 // 박나현. 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	// ================ 김민성

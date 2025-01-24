@@ -111,7 +111,27 @@ function tab4(element) {
 	<div th:replace="~{/include/header}"></div>
 	<div class="mobile-menu-overlay"></div>
 	
-
+	<div th:if="${msg != null}">
+		<script th:inline="javascript">
+			const Toast = Swal.mixin({
+		        toast: true,
+		        position: 'center-center',
+		        showConfirmButton: false,
+		        timer: 2500, // 2.5초
+		        timerProgressBar: true,
+		        didOpen: (toast) => {
+		            toast.addEventListener('mouseenter', Swal.stopTimer),
+		            toast.addEventListener('mouseleave', Swal.resumeTimer)
+		        }
+		    })
+			var msg = [[${msg}]];
+			Toast.fire({
+	            icon: 'success',
+	            title: msg
+	        })
+			msg = null;
+		</script>
+	</div>
 
 	<div class="main-container">
 		<div class="pd-ltr-20 xs-pd-20-10">

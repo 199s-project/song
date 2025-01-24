@@ -75,100 +75,99 @@
       quanChange();
     });
   });
-</script>
+  
+  
+  <!-- 데이터 저장 ajax -->
+  
+  function saveData() {
+	    return new Promise((resolve, reject) => {
+	        const totalPass = parseInt(document.querySelector('#totalPass').value) || 0;
+	        if (totalPass < 0) {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '적격 수량이 0보다 작을 수 없습니다.'
+	            });
+	            reject('Invalid totalPass value'); // Promise reject
+	            return;
+	        }
 
-<!-- 데이터 저장 ajax -->
-<script type="text/javascript">
+	        const rows = document.querySelectorAll('#qcDetailTable tbody tr');
+	        const testerElement = document.querySelector('#qcTester');
+	        const testerName = testerElement.value;
 
-function saveData() {
-    return new Promise((resolve, reject) => {
-        const totalPass = parseInt(document.querySelector('#totalPass').value) || 0;
-        if (totalPass < 0) {
-            Swal.fire({
-                icon: 'error',
-                title: '적격 수량이 0보다 작을 수 없습니다.'
-            });
-            reject('Invalid totalPass value'); // Promise reject
-            return;
-        }
+	        const data = Array.from(rows).map(row => {
+	            const questnumElement = row.querySelector('.questrownum');
+	            const quantityElement = row.querySelector('.quantity');
+	            const qcnumElement = document.querySelector('.qcNum');
 
-        const rows = document.querySelectorAll('#qcDetailTable tbody tr');
-        const testerElement = document.querySelector('#qcTester');
-        const testerName = testerElement.value;
+	            return {
+	                qc_num: qcnumElement.value,
+	                qcq_num: questnumElement.textContent,
+	                qc_fail_quan: quantityElement.value,
+	                qc_tester: testerName
+	            };
+	        });
 
-        const data = Array.from(rows).map(row => {
-            const questnumElement = row.querySelector('.questrownum');
-            const quantityElement = row.querySelector('.quantity');
-            const qcnumElement = document.querySelector('.qcNum');
+	        console.log('saveData 데이터:', data);
 
-            return {
-                qc_num: qcnumElement.value,
-                qcq_num: questnumElement.textContent,
-                qc_fail_quan: quantityElement.value,
-                qc_tester: testerName
-            };
-        });
+	        fetch('/updateQcDetail', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json',
+	            },
+	            body: JSON.stringify(data)
+	        })
+	        .then(response => {
+	            if (response.ok) {
+	                Swal.fire({
+	                    icon: 'success',
+	                    title: '정상적으로 저장했습니다.'
+	                }).then(() => resolve()); // Promise 성공 처리
+	            } else {
+	                Swal.fire({
+	                    icon: 'error',
+	                    title: '저장에 실패했습니다.'
+	                }).then(() => reject('Failed to save data')); // Promise 실패 처리
+	            }
+	        })
+	        .catch(error => {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '저장 중 오류가 발생했습니다.'
+	            }).then(() => reject(error)); // 네트워크 에러 처리
+	        });
+	    });
+	}
 
-        console.log('saveData 데이터:', data);
+	function saveButton() {
+	    saveData();
+	}
 
-        fetch('/updateQcDetail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '정상적으로 저장했습니다.'
-                }).then(() => resolve()); // Promise 성공 처리
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: '저장에 실패했습니다.'
-                }).then(() => reject('Failed to save data')); // Promise 실패 처리
-            }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: 'error',
-                title: '저장 중 오류가 발생했습니다.'
-            }).then(() => reject(error)); // 네트워크 에러 처리
-        });
-    });
-}
-
-function saveButton() {
-    saveData();
-}
-
-function submitButton() {
-    saveData()
-        .then(() => {
-            return Swal.fire({
-                icon: 'warning',
-                title: '검사를 종료하고 제출하겠습니까?',
-                showCancelButton: true,
-                confirmButtonText: '제출',
-                cancelButtonText: '취소',
-                reverseButtons: true
-            });
-        })
-        .then(result => {
-            if (result.isConfirmed) {
-                const form = document.getElementById("qcForm");
-                form.submit(); // 폼 제출
-            } else {
-                location.reload(); // 페이지 리로드
-            }
-        })
-        .catch(error => {
-            console.error('Error in submitButton:', error);
-        });
-}
-</script>
+	function submitButton() {
+	    saveData()
+	        .then(() => {
+	            return Swal.fire({
+	                icon: 'warning',
+	                title: '검사를 종료하고 제출하겠습니까?',
+	                showCancelButton: true,
+	                confirmButtonText: '제출',
+	                cancelButtonText: '취소',
+	                reverseButtons: true
+	            });
+	        })
+	        .then(result => {
+	            if (result.isConfirmed) {
+	                const form = document.getElementById("qcForm");
+	                form.submit(); // 폼 제출	                
+	            } else {
+	                location.reload(); // 페이지 리로드
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error in submitButton:', error);
+	        });
+	}
+	</script>
 
 </head>
 <body>
@@ -320,7 +319,7 @@ function submitButton() {
 								<div>
 									<button type="button" class="btn btn-success m-2 rowbtn"
 										onclick="saveButton()">저장</button>
-									<button type="submit" class="btn btn-primary m-2 rowbtn"
+									<button type="button" class="btn btn-primary m-2 rowbtn"
 										onclick="submitButton()">저장 후 제출</button>
 								</div>
 							</div>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SONG</title>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- sweetalert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script type="text/javascript">
+
+function saveData() {
+   alert('2 제발 실행되었다고 해줘.');
+      Swal.fire({
+            icon: 'success',
+            title: '3 정상적으로 저장했습니다.'
+        });
+   alert('4 Swal 실행되었다고 해줘');
+   };
+
+function saveButton() {
+   alert('1 제발 눌렸다고 말해줘.');
+   saveData();
+   Swal.fire({
+        icon: 'error',
+        title: '5. 에러 메시지입니다.',
+        text: '사실 구라임.'
+    });
+}
+
+
+
+async function submitButton() {
+   await alert('1 제발 실행되었다고 해줘.');
+   await Swal.fire({
+        icon: 'success',
+        title: '2 정상적으로 저장했습니다.'
+    });
+   await alert('3 Swal 실행되었다고 해줘');
+   await Swal.fire({
+        icon: 'warning',
+        title: '4 검사를 종료하고 제출하겠습니까?',
+        showCancelButton: true,
+        confirmButtonText: '제출',
+        cancelButtonText: '취소',
+        reverseButtons: true
+    });
+   await alert('5 이거 나오기 전에 Swal 실행되었다고 말해줘.');
+}
+
+</script>
+
+</head>
+<body>
+
+<button onclick="saveButton()">저장</button>
+<button onclick="submitButton()">저장 및 전송</button>
+
+</body>
+</html>
