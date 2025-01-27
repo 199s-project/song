@@ -232,8 +232,8 @@ public class ProjectController {
 	
     // 구매계약서 등록 화면 이동
     @GetMapping("getOrderformRegister")
-    public ModelAndView getOrderformRegister() throws Exception {
-    	mv = projectService.getOrderformRegister();
+    public ModelAndView getOrderformRegister(HttpSession session) throws Exception {    	
+    	mv = projectService.getOrderformRegister(session);
         return mv;
     }
     
@@ -913,23 +913,20 @@ public class ProjectController {
     
 	@ResponseBody
 	@PostMapping("/orderformProceed")
-	public int orderformProceed(@RequestParam("orderform_num") int orderform_num){
+	public int orderformProceed(@RequestParam("orderform_num") int orderform_num, HttpSession session){
 	    List<OrderformDetailVO> orderformDetailList = projectService.getOrderformDetailListByOrderformnum(orderform_num);
 	    
-	    
+	    MemberVO user = (MemberVO) session.getAttribute("user");
 	    
 	    for (OrderformDetailVO orderformDetail : orderformDetailList) {
-	    	
 		
 			QcVO qcVO = new QcVO();
 			
 	    	qcVO.setQc_type("order");
 	    	qcVO.setPaper_num(orderform_num);
-	    	qcVO.setQc_writer("test");
+	    	qcVO.setQc_writer(user.getMember_name());
 	    	qcVO.setQc_item_num(orderformDetail.getProduct_num());
 	    	qcVO.setQc_quan(orderformDetail.getOrderdetail_amount());
-	    	
-	    	
 	    	
 	    	int result = projectService.insertqc(qcVO);
 	    }
@@ -938,6 +935,34 @@ public class ProjectController {
 	    
 		return result2;
 	}
+    
+//	@ResponseBody
+//	@PostMapping("/orderformProceed")
+//	public int orderformProceed(@RequestParam("orderform_num") int orderform_num){
+//	    List<OrderformDetailVO> orderformDetailList = projectService.getOrderformDetailListByOrderformnum(orderform_num);
+//	    
+//	    
+//	    
+//	    for (OrderformDetailVO orderformDetail : orderformDetailList) {
+//	    	
+//		
+//			QcVO qcVO = new QcVO();
+//			
+//	    	qcVO.setQc_type("order");
+//	    	qcVO.setPaper_num(orderform_num);
+//	    	qcVO.setQc_writer("test");
+//	    	qcVO.setQc_item_num(orderformDetail.getProduct_num());
+//	    	qcVO.setQc_quan(orderformDetail.getOrderdetail_amount());
+//	    	
+//	    	
+//	    	
+//	    	int result = projectService.insertqc(qcVO);
+//	    }
+//	    
+//	    int result2 = projectService.updateOrderformFinish(orderform_num);
+//	    
+//		return result2;
+//	}
     
  // -------------------------new 작업공간(이의재) -------------------------    
     
@@ -1245,7 +1270,9 @@ public class ProjectController {
 		return "ssong";
 	}
     
-
+	// index QC Top 5 (7일간)
+	
+	
 
 // 박나현. 끝. ------------------------------
 

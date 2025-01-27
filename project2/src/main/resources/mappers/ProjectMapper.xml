@@ -124,10 +124,10 @@
 		
 	<insert id="insertOrderform" parameterType="OrderformVO">
 		insert into orderform (
-			orderform_name, orderform_stat, company_num, company_num2, orderform_content, orderform_regdate, orderform_startDate, orderform_endDate
+			orderform_name, orderform_stat, company_num, company_num2, orderform_writer, orderform_content, orderform_regdate, orderform_startDate, orderform_endDate
 			) 
 			values (
-				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}
+				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_writer}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}
 				)
 	</insert>
 	
@@ -445,16 +445,15 @@
 	</select>
 	
 	<select id="getCompanyListWithSales" parameterType="java.lang.Integer" resultType="CompanyVO">
-		select company.*, B.totalsales from company, (
-			select product.product_brand, sum(A.quotdetail_price) totalsales from (
-				select * from quotationdetail
-				where quot_num in
-				(select quot_num from quotationrelease where datediff(now(),release_date) &lt; 7)
-			) A, product
-		    where A.product_num = product.product_num
-			group by product.product_brand
-		) B
-		where B.product_brand = company.company_name order by totalsales desc;
+		 select company.*, B.totalsales from company, (
+         select A.company_name, sum(A.quotdetail_price) totalsales from (
+            select quotationdetail.*, quotation.company_num2, company.company_name from quotationdetail, quotation, company
+            where quotationdetail.quot_num = quotation.quot_num and quotation.company_num2 = company.company_num and
+                quotation.quot_num in (select quot_num from quotationrelease where datediff(now(),release_date) &lt; #{day})
+         ) A
+         group by A.company_name
+      ) B
+      where B.company_name = company.company_name order by totalsales desc;
 	</select>
 	
 	

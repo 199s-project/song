@@ -129,12 +129,14 @@ public class ProjectService {
 	
 	
 	// 구매계약서 등록 화면 이동
-    public ModelAndView getOrderformRegister() throws Exception {
+	public ModelAndView getOrderformRegister(HttpSession session) throws Exception {
     	mv = new ModelAndView();
+    	MemberVO user = (MemberVO)session.getAttribute("user");
     	List<CompanyVO> companies = projectDAO.getCompanyList();
     	List<MaterialVO> products = projectDAO.getMaterialList();
     	String productsJson = new ObjectMapper().writeValueAsString(products);
     	mv.addObject("products", products);
+    	mv.addObject("user", user);
     	mv.addObject("productsJson", productsJson);
     	mv.addObject("companies", companies);
     	mv.setViewName("orderformRegister");
@@ -143,17 +145,17 @@ public class ProjectService {
     }
     
     // 구매계약서 등록
-    public ModelAndView postOrderformRegister(Map<String,Object> map) throws Exception {
+	public ModelAndView postOrderformRegister(Map<String,Object> map) throws Exception {
     	mv = new ModelAndView();
     	CompanyVO company1 = projectDAO.getCompanyByCompanyName((String)map.get("company1"));
     	CompanyVO company2 = projectDAO.getCompanyByCompanyName((String)map.get("company2"));
     	
-    	System.out.println(map);
     	OrderformVO orderformVO = new OrderformVO();
     	orderformVO.setOrderform_name((String)map.get("orderform_name"));
     	orderformVO.setOrderform_stat((String)map.get("orderform_stat"));
     	orderformVO.setCompany_num(company1.getCompany_num());
     	orderformVO.setCompany_num2(company2.getCompany_num());
+    	orderformVO.setOrderform_writer((String)map.get("orderform_writer"));
     	orderformVO.setOrderform_content((String)map.get("content"));
     	orderformVO.setOrderform_startDate((String)map.get("start_date"));
     	orderformVO.setOrderform_endDate((String)map.get("end_date"));
@@ -217,7 +219,6 @@ public class ProjectService {
 	    	int result2 = projectDAO.insertqc(qcVO);
 	    	
     	}
-    	
     	mv.addObject("msg", "계약서 등록 완료");
     	mv.setViewName("purchaseContract");
     	return mv;

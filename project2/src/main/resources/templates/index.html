@@ -140,8 +140,15 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 						<h5>자주 거래한 협력사 Top5 (최근 7일)</h5>
 						<div id="apexchart2"></div>
 					</div>
-				</div>
+				</div>	
 				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h5>부적격률 Top5 (최근 30일) </h5>
+						<div id="apexchart3"></div>
+					</div>
+				</div>	
+							
 			</div>
 			
 			<div class="card-box mb-30">
@@ -274,6 +281,8 @@ fetch('/getCompanyListWithSales') // 엔드포인트 호출
 .catch(error => {
     console.error('Error fetching company names:', error);
 });
+
+/* fetch.('/getTopQc') */
 
 
 </script>

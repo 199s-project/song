@@ -24,6 +24,9 @@ public class OrderformVO {
 	private String company_name1;
 	private String company_name2;
 	
+	// 25-01-27 추가
+	private String orderform_writer;
+	
 	//orderformDetailVO
 	private int orderdetail_num;
 	private int product_num;
