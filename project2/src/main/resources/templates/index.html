@@ -5,7 +5,7 @@
 
 <style>
 
-#DataTables_Table_0_wrapper {
+#DataTables_Table_1_wrapper {
 	width: 96% !important;
 	margin-left: 2% !important;
 }
@@ -37,9 +37,59 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 }
 
 
+#chart1 {
+	float: right;
+	padding-right: 10px;
+}
 
 
 
+</style>
+
+
+
+<style>
+
+.uiverse-button1 {
+  position: relative;
+  overflow: hidden;
+  height: 2rem;
+  width: 8.5rem;
+  margin-left: 3rem;
+  border-radius: .25rem;
+  background: blue;
+  background-size: 400%;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.uiverse-button1:hover::before {
+  transform: scaleX(1);
+}
+
+.button1-content {
+  position: relative;
+  z-index: 1;
+}
+
+.uiverse-button1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  width: 100%;
+  height: inherit;
+  border-radius: inherit;
+  background: linear-gradient(
+    82.3deg,
+    rgba(150, 93, 233, 1) 10.8%,
+    rgba(99, 88, 238, 1) 94.3%
+  );
+  transition: all 0.475s;
+}
 
 
 </style>
@@ -52,29 +102,21 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 
 	<div class="main-container">
 		<div class="pd-ltr-20">
-			<div class="card-box pd-20 height-100-p mb-30">
-				<div class="row align-items-center">
-					<div class="col-md-4">
-						<img src="vendors/images/banner-img.png" alt="">
-					</div>
-					<div class="col-md-8">
-						<h4 class="font-20 weight-500 mb-10 text-capitalize">
-							Welcome back <div class="weight-600 font-30 text-blue">Johnny Brown!</div>
-						</h4>
-						<p class="font-18 max-width-600">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde hic non repellendus debitis iure, doloremque assumenda. Autem modi, corrupti, nobis ea iure fugiat, veniam non quaerat mollitia animi error corporis.</p>
-					</div>
-				</div>
-			</div>
+
 			<div class="row">
 				<div class="col-xl-3 mb-30">
 					<div class="card-box height-100-p widget-style1">
 						<div class="d-flex flex-wrap align-items-center">
-							<div class="progress-data">
-								<div id="chart"></div>
-							</div>
 							<div class="widget-data">
-								<div class="h4 mb-0">2020</div>
-								<div class="weight-600 font-14">Contact</div>
+								<div class="weight-600 font-14" style="font-size: 16px;">Today Orders</div>
+								<div class="h2 mb-0" id="today-orderAmount" style="padding: 4px 0 2px 0;"></div>
+								<div class="weight-600 font-14">
+									<span id="today-orderAmount-changeRate" style="font-size: 18px;">↑4.63%</span>
+									<span id="additional-text-1" style="font-size: 13px;">전일 대비</span>
+								</div>
+							</div>
+							<div class="progress-data">
+								<span id="chart1"></span>
 							</div>
 						</div>
 					</div>
@@ -126,29 +168,72 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 						<div id="chart5"></div>
 					</div>
 				</div>
+				
+				
+				
 				<div class="col-xl-4 mb-30">
 					<div class="card-box height-100-p pd-20">
-						<h2 class="h4 mb-20">Lead Target</h2>
-						<div id="chart6"></div>
+						<h5 style="display: inline;">Upcoming Sales Contracts</h5>
+						<button class="uiverse-button1" th:onclick="|location.href='@{salesContract}'|"><span class="button1-content">Go To Release</span></button>
+						<table class="data-table table nowrap bestseller-table" style="padding-top: 13px;">
+							<thead>
+								<tr>
+									<th class="table-plus datatable-nosort">마감일</th>
+									<th>계약서 이름</th>
+									<th>비고</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="quotation,stat: ${quotationList}" th:if="${stat.index<5}">
+									<tr style="text-align: left;">
+										<td class="table-plus"><th:block th:text="${quotation.quot_enddate}"/></td>
+										<td><a th:href="@{getQuotationDetail(quot_num=${quotation.quot_num})}"><th:block th:text="${quotation.quot_name}"/></td>
+										<td>  
+											<th:block th:if="${quotation.diff > 0}">
+												<span style="color: red;"><th:block th:text="${quotation.diff}"/>일 경과!!</span>
+											</th:block>
+											<th:block th:if="${quotation.diff == 0}">
+												<span style="color: red;">오늘 마감</span>
+											</th:block>
+											<th:block th:if="${quotation.diff < 0}">
+												<span><th:block th:text="${quotation.diff * (-1)}"/>일 뒤 마감</span>
+											</th:block>
+										</td>
+										<td></td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
 					</div>
 				</div>
+				
+				
+				
 			</div>
-			
-			<div>
+			<div class="row">
 				<div class="col-xl-4 mb-30">
 					<div class="card-box height-100-p pd-20">
 						<h5>자주 거래한 협력사 Top5 (최근 7일)</h5>
 						<div id="apexchart2"></div>
 					</div>
-				</div>	
+				</div>
+				
+				
+				<!-- 나현 추가. 시작. -->
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h5 style="display: inline;">원자재 불량률 Top5 (최근 7일)</h5>						
+					</div>
+				</div>
 				
 				<div class="col-xl-4 mb-30">
 					<div class="card-box height-100-p pd-20">
-						<h5>부적격률 Top5 (최근 30일) </h5>
-						<div id="apexchart3"></div>
+						<h5 style="display: inline;">생상품 불량률 Top5 (최근 7일)</h5>						
 					</div>
-				</div>	
-							
+				</div>
+				<!-- 나현 추가. 끝. -->
+				
 			</div>
 			
 			<div class="card-box mb-30">
@@ -204,21 +289,7 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 	<script src="vendors/scripts/dashboard.js"></script>
 	
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	<script>
-		$().ready(function () {
-			  
-			$("#quotation-detail").click(function () {
-				Swal.fire({
-					icon: 'success',
-					title: 'Quotation-detail',
-					text: '계약서 작성 화면으로 이동합니다.',
-				}).then(function() {
-					location.href="quotation-detail";
-				});
-			});
-			  
-		});
-	</script>
+
 	
 <script>
 	
@@ -260,7 +331,7 @@ fetch('/getCompanyListWithSales') // 엔드포인트 호출
 		series: map.companyTotalSales,
 		chart: {
 	        width: 380,
-	        type: 'pie',
+	        type: 'donut',
 		},
 		labels: map.companyName,
 		responsive: [{
@@ -282,11 +353,112 @@ fetch('/getCompanyListWithSales') // 엔드포인트 호출
     console.error('Error fetching company names:', error);
 });
 
-/* fetch.('/getTopQc') */
-
 
 </script>
+
+
+<script>
+
+fetch('/getRecentSalesInformations') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	const label = map.dayname;
 	
+	var options = {
+		series: [
+			{
+				name: "Desktops",
+				data: map.recentTotalAmount
+			},
+		],
+		chart: {
+			height: 100,
+			width: 130,
+			type: 'line',
+			zoom: {
+				enabled: false
+			},
+			toolbar: {
+				show: false
+			},
+		},
+		dataLabels: {
+			enabled: false
+		},
+		stroke: {
+			curve: 'smooth',
+			width: 3
+		},
+		grid: {
+			show: false,
+		},
+		xaxis: {  
+			axisBorder: { show: false },
+			axisTicks: { show: false },
+			labels: { show: false },
+	        tooltip: {
+	            enabled: false,
+	        }
+		},
+		yaxis: {
+			show: false,
+		},
+		fill: {
+			  type: 'gradient',
+			  gradient: { gradientToColors: ['#0be881'], stops: [0, 100] },
+		},
+        tooltip: {
+            custom: function({ series, seriesIndex, dataPointIndex }) {
+				const value = series[seriesIndex][dataPointIndex];
+				const month = label[dataPointIndex];
+				return `<div style="padding: 5px; font-size: 10px; background: #f4f4f4; border-radius: 5px;">
+                            <strong>${month} : ${value}</strong>
+                        </div>`;
+            },
+            style: {
+                fontSize: '10px',
+                fontFamily: 'Arial, sans-serif'
+            }
+        },
+	};
+
+	var chart = new ApexCharts(document.querySelector("#chart1"), options);
+	chart.render();
+	
+	document.getElementById("today-orderAmount").textContent = map.recentTotalAmount[map.recentTotalAmount.length-1];
+	const element = document.getElementById("today-orderAmount-changeRate");
+	const element2 = document.getElementById("additional-text-1");
+	const today = map.recentTotalAmount[map.recentTotalAmount.length-1];
+	const yesterday = map.recentTotalAmount[map.recentTotalAmount.length-2];
+	
+	if (yesterday == 0) {
+		if (today == 0) {
+			element.textContent = "";
+			element2.textContent = "어제~금일 판매기록 없음";
+		} else {
+			element.textContent = "▲ 100%  ";
+			element.style.color = "red";
+		}
+	} else if (today/yesterday) {
+		if (today == 0) {
+			element.textContent = "";
+			element2.textContent = "금일 판매기록 없음";
+		} else if (today/yesterday<1) {
+			element.textContent = "▼ "+(100*(1-today/yesterday)).toFixed(2)+"%";
+			element.style.color = "blue";
+		} else {
+			element.textContent = "▲ "+(100*(today/yesterday-1)).toFixed(2)+"%";
+			element.style.color = "red";
+		}
+	}
+		
+})
+.catch(error => {
+	    console.error('Error fetching company names:', error);
+});
+
+</script>
+
 	
 </body>
 </html>

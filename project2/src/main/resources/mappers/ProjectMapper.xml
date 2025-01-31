@@ -375,6 +375,28 @@
 		VALUES (#{pd_num}, #{product_name}, #{productiondetail_amount});		
 	</insert>
 	
+	<!-- 2025.01.03 대시보드 -->
+	
+	<!-- 대시보드, 부적격률 내림차순 5위 (7일간) -->
+	<select id="dashQcTop5" resultType="dashQcVO">SELECT 
+	    qc.qc_item_num AS 원자재번호,
+	    m.material_name AS 원자재이름,
+	    ROUND((SUM(qd.QC_FAIL_QUAN) / qc.qc_quan) * 100, 2) AS 불량률,
+	    qc.qc_quan AS 총검사수량,
+	    SUM(qd.QC_FAIL_QUAN) AS 총불량수량
+	FROM qc
+	JOIN qc_detail qd ON qc.qc_num = qd.qc_num
+	JOIN material m ON qc.qc_item_num = m.material_num
+	WHERE 
+	    qc.qc_type = 'order'
+	    AND qc.qc_stat = 2
+	    AND DATEDIFF(NOW(), qc.qc_date) &lt; 7
+	GROUP BY 
+	    qc.qc_num, qc.qc_item_num, m.material_name, qc.qc_quan
+	ORDER BY 
+	    불량률 DESC
+	LIMIT 5;</select>	
+	
 <!-- 나현. 끝. -->
 	
 <!-- 김윤호 =========================================================김윤호================================ -->	
@@ -445,20 +467,48 @@
 	</select>
 	
 	<select id="getCompanyListWithSales" parameterType="java.lang.Integer" resultType="CompanyVO">
-		 select company.*, B.totalsales from company, (
-         select A.company_name, sum(A.quotdetail_price) totalsales from (
-            select quotationdetail.*, quotation.company_num2, company.company_name from quotationdetail, quotation, company
-            where quotationdetail.quot_num = quotation.quot_num and quotation.company_num2 = company.company_num and
+		select company.*, B.totalsales from company, (
+			select A.company_name, sum(A.quotdetail_price) totalsales from (
+				select quotationdetail.*, quotation.company_num2, company.company_name from quotationdetail, quotation, company
+				where quotationdetail.quot_num = quotation.quot_num and quotation.company_num2 = company.company_num and
                 quotation.quot_num in (select quot_num from quotationrelease where datediff(now(),release_date) &lt; #{day})
-         ) A
-         group by A.company_name
-      ) B
-      where B.company_name = company.company_name order by totalsales desc;
+			) A
+			group by A.company_name
+		) B
+		where B.company_name = company.company_name order by totalsales desc;
 	</select>
 	
 	
 
 <!-- 김윤호 =========================================================김윤호================================ -->	
+	
+<!-- 김윤호 25/01/27 부터 새로 작성 -->	
+	
+	<select id="getRecentSalesInformations" parameterType="java.lang.Integer" resultType="RecentSalesVO">
+		select sum(quotdetail_amount) totalamount, sum(quotdetail_price) totalsales, any_value(diff) diffdate, any_value(regdate) regdate, case C.dayname
+			WHEN '1' THEN '일'
+			WHEN '2' THEN '월'
+			WHEN '3' THEN '화'
+			WHEN '4' THEN '수'
+			WHEN '5' THEN '목'
+			WHEN '6' THEN '금'
+			WHEN '7' THEN '토'
+		end as dayname from (
+			select quotationdetail.*, B.diff, B.dayname, B.quot_regdate regdate from quotationdetail, (
+				select * from (
+					select *, datediff(now(),quot_regdate) diff, dayofweek(quot_regdate) dayname from quotation
+				) A 
+				where A.diff &lt; #{day}
+			) B
+			where quotationdetail.quot_num = B.quot_num
+		) C
+		group by dayname order by diffdate
+	</select>
+	
+	<select id="getUnreleasedQuotationList" resultType="QuotationVO">
+		select *, datediff(now(),quot_enddate) diff from quotation 
+		where quot_stat = "진행중" order by diff desc
+	</select>
 	
 	
 	

@@ -45,4 +45,6 @@ public class QuotationVO {
 	
 	private String company_name1;
 	private String company_name2;
+	
+	private int diff;
 }

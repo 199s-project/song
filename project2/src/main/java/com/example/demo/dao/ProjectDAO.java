@@ -13,7 +13,6 @@ import com.example.demo.dto.MaterialVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
-import com.example.demo.dto.PaymentMaterialVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionDetailVO;
 import com.example.demo.dto.ProductionVO;
@@ -21,8 +20,10 @@ import com.example.demo.dto.QcDetailVO;
 import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
+import com.example.demo.dto.RecentSalesVO;
 import com.example.demo.dto.RecipeDetailVO;
 import com.example.demo.dto.RecipeVO;
+import com.example.demo.dto.dashQcVO;
 
 @Mapper
 public interface ProjectDAO {
@@ -141,6 +142,8 @@ public interface ProjectDAO {
 	
 	// 박나현이 김민성 부분 합치다가 추가한 것. 끝 -----------------------------------------------
 	
+	List<dashQcVO> dashQcTop5();
+	
 	// 나현. 끝.
 
 
@@ -169,6 +172,15 @@ public interface ProjectDAO {
 	List<ProductVO> getProductListWithSales(int day);
 	
 	List<CompanyVO> getCompanyListWithSales(int day);
+	
+	
+	// 김윤호 25/01/27 부터 새로 작성
+	
+	List<RecentSalesVO> getRecentSalesInformations(int day);
+	
+	List<QuotationVO> getUnreleasedQuotationList();
+	
+	
 	
 	
  

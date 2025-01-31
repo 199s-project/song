@@ -26,8 +26,10 @@ import com.example.demo.dto.QcDetailVO;
 import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
 import com.example.demo.dto.QuotationVO;
+import com.example.demo.dto.RecentSalesVO;
 import com.example.demo.dto.RecipeDetailVO;
 import com.example.demo.dto.RecipeVO;
+import com.example.demo.dto.dashQcVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
@@ -210,13 +212,13 @@ public class ProjectService {
 	    	
 	    	int result = projectDAO.insertOrderformDetail(orderformDetailVO);
 	    	
-	    	qcVO.setQc_type("order");
-	    	qcVO.setPaper_num(OrderformLastNum);
-	    	qcVO.setQc_writer("test");
-	    	qcVO.setQc_item_num(materialVO.getMaterial_num());
-	    	qcVO.setQc_quan(Integer.parseInt(amountvalue));
-	    	
-	    	int result2 = projectDAO.insertqc(qcVO);
+//	    	qcVO.setQc_type("order");
+//	    	qcVO.setPaper_num(OrderformLastNum);
+//	    	qcVO.setQc_writer("test");
+//	    	qcVO.setQc_item_num(materialVO.getMaterial_num());
+//	    	qcVO.setQc_quan(Integer.parseInt(amountvalue));
+//	    	
+//	    	int result2 = projectDAO.insertqc(qcVO);
 	    	
     	}
     	mv.addObject("msg", "계약서 등록 완료");
@@ -443,110 +445,127 @@ public class ProjectService {
 		public int insertProductionDetail(ProductionDetailVO pdd) {
 			return projectDAO.insertProductionDetail(pdd);
 		}
+		
+		// 25.01.31. 대시보드 추가
+		
+		public List<dashQcVO> dashQcTop5() {
+			return projectDAO.dashQcTop5();
+		}
 			
 		// 나현. 끝.
 
 
 
-	// -----------------------------------------------------------------------------
+		// -----------------------------------------------------------------------------
 
-	public int companyNameValidation(String company_name) {
-		return projectDAO.companyNameValidation(company_name);
-	}
-	public int companyCodeValidation(String company_code) {
-		return projectDAO.companyCodeValidation(company_code);
-	}
+		public int companyNameValidation(String company_name) {
+			return projectDAO.companyNameValidation(company_name);
+		}
+		public int companyCodeValidation(String company_code) {
+			return projectDAO.companyCodeValidation(company_code);
+		}
 
-	public List<ProductVO> productList() {
-		return projectDAO.productList();
-	}
-	
-	
-	public int fileAmount(int product_num) {
-		return projectDAO.fileAmount(product_num);
-	}
-	
-	public FileVO findFirstImage(int product_num) {
-		return projectDAO.findFirstImage(product_num);
-	}
-	
-	public ProductVO getProductDetail (int product_num) {
-		return projectDAO.getProductDetail(product_num);
-	}
+		public List<ProductVO> productList() {
+			return projectDAO.productList();
+		}
+		
+		
+		public int fileAmount(int product_num) {
+			return projectDAO.fileAmount(product_num);
+		}
+		
+		public FileVO findFirstImage(int product_num) {
+			return projectDAO.findFirstImage(product_num);
+		}
+		
+		public ProductVO getProductDetail (int product_num) {
+			return projectDAO.getProductDetail(product_num);
+		}
 
-	public List<FileVO> getProductImages(int product_num) {
-		return projectDAO.getProductImages(product_num);
-	}
-	
-	public List<CompanyVO> getCompanyList() {
-		return projectDAO.getCompanyList();
-	}
-	
-	public List<ProductVO> getProductList() {
-		return projectDAO.getProductList();
-	}
-	
-// NEW 작업 윤호자리 @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@  @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@
-	
-	public int updateCompany(CompanyVO companyVO) {
-		return projectDAO.updateCompany(companyVO);
-	}
-	
-	public List<QuotationDetailVO> getQuotationDetailList(int quot_num) {
-		return projectDAO.getQuotationDetailList(quot_num);
-	}
-	
-	public InventoryVO getInventory(int product_num) {
-		return projectDAO.getInventory(product_num);
-	}
-	
-	public int updateInventoryAmount(int product_num, int amount) {
-		return projectDAO.updateInventoryAmount(product_num, amount);
-	}
-	
-	public int updateQuotationStat(int quot_num) {
-		return projectDAO.updateQuotationStat(quot_num);
-	}
-	
-	public QuotationVO getQuotationByQuotnum(int quot_num) {
-		return projectDAO.getQuotationByQuotnum(quot_num);
-	}
-	
-	public int insertQuotationCode(int quot_num, String code) {
-		return projectDAO.insertQuotationCode(quot_num, code);
-	}
-	
-	public List<QuotationDetailVO> getQuotationDetailListByQuotnum(int quot_num) {
-		return projectDAO.getQuotationDetailListByQuotnum(quot_num);
-	}
-	
-	public CompanyVO getCompanyByCompanynum(int company_num) {
-		return projectDAO.getCompanyByCompanynum(company_num);
-	}
-	
-	public List<InventoryVO> getInventoryMaterialList() {
-		return projectDAO.getInventoryMaterialList();
-	}
-	
-	public List<InventoryVO> getInventoryProductList() {
-		return projectDAO.getInventoryProductList();
-	}
-	
-	public int uploadReleaseDate(int quot_num) {
-		return projectDAO.uploadReleaseDate(quot_num);
-	}
-	
-	public List<ProductVO> getProductListWithSales(int day) {
-		return projectDAO.getProductListWithSales(day);
-	}
-	
-	public List<CompanyVO> getCompanyListWithSales(int day) {
-		return projectDAO.getCompanyListWithSales(day);
-	}
-	
-	
-	
-// 윤호자리 @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@  @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@
+		public List<FileVO> getProductImages(int product_num) {
+			return projectDAO.getProductImages(product_num);
+		}
+		
+		public List<CompanyVO> getCompanyList() {
+			return projectDAO.getCompanyList();
+		}
+		
+		public List<ProductVO> getProductList() {
+			return projectDAO.getProductList();
+		}
+		
+	// NEW 작업 윤호자리 @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@  @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@
+		
+		public int updateCompany(CompanyVO companyVO) {
+			return projectDAO.updateCompany(companyVO);
+		}
+		
+		public List<QuotationDetailVO> getQuotationDetailList(int quot_num) {
+			return projectDAO.getQuotationDetailList(quot_num);
+		}
+		
+		public InventoryVO getInventory(int product_num) {
+			return projectDAO.getInventory(product_num);
+		}
+		
+		public int updateInventoryAmount(int product_num, int amount) {
+			return projectDAO.updateInventoryAmount(product_num, amount);
+		}
+		
+		public int updateQuotationStat(int quot_num) {
+			return projectDAO.updateQuotationStat(quot_num);
+		}
+		
+		public QuotationVO getQuotationByQuotnum(int quot_num) {
+			return projectDAO.getQuotationByQuotnum(quot_num);
+		}
+		
+		public int insertQuotationCode(int quot_num, String code) {
+			return projectDAO.insertQuotationCode(quot_num, code);
+		}
+		
+		public List<QuotationDetailVO> getQuotationDetailListByQuotnum(int quot_num) {
+			return projectDAO.getQuotationDetailListByQuotnum(quot_num);
+		}
+		
+		public CompanyVO getCompanyByCompanynum(int company_num) {
+			return projectDAO.getCompanyByCompanynum(company_num);
+		}
+		
+		public List<InventoryVO> getInventoryMaterialList() {
+			return projectDAO.getInventoryMaterialList();
+		}
+		
+		public List<InventoryVO> getInventoryProductList() {
+			return projectDAO.getInventoryProductList();
+		}
+		
+		public int uploadReleaseDate(int quot_num) {
+			return projectDAO.uploadReleaseDate(quot_num);
+		}
+		
+		public List<ProductVO> getProductListWithSales(int day) {
+			return projectDAO.getProductListWithSales(day);
+		}
+		
+		public List<CompanyVO> getCompanyListWithSales(int day) {
+			return projectDAO.getCompanyListWithSales(day);
+		}
+		
+		
+		// 김윤호 25/01/27 부터 새로 작성	
+		
+		public List<RecentSalesVO> getRecentSalesInformations(int day) {
+			return projectDAO.getRecentSalesInformations(day);
+		}
+		
+		public List<QuotationVO> getUnreleasedQuotationList() {
+			return projectDAO.getUnreleasedQuotationList();
+		}
+		
+		
+		
+	// 윤호자리 @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@  @@@@@@@@@@@@@@윤호윤호@@@@@@@@@@
 	
 	
 
