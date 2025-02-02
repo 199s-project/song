@@ -15,6 +15,7 @@ import com.example.demo.dto.FileVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.QuotationVO;
 import com.example.demo.dto.RecentSalesVO;
+import com.example.demo.dto.dashQcVO;
 import com.example.demo.service.ProjectService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -148,6 +149,34 @@ public class HomeController {
     
 // 나현. 시작. --------------------------------------------------------------------
 
+    @ResponseBody
+    @GetMapping("/getQcTopMaterial")
+    public Map<String,Object> getQcTopMaterial() {
+    	
+    	int barSize = 5;
+    	
+    	List<dashQcVO> dashQcList = projectService.dashQcTop5();
+    	Map<String,Object> map = new HashMap<>();
+    	
+    	if(dashQcList.size() < barSize) {
+    		barSize = dashQcList.size();
+    	}
+    	
+    	String[] itemName = new String[barSize];
+    	float[] itemQcPer = new float[barSize];
+    	
+    	int i = 0;
+    	for (dashQcVO qc:dashQcList) {
+    		itemName[i] = qc.getItem_name();
+    		itemQcPer[i] = qc.getTotal_fail_per();
+    		i++;
+    	}
+
+    	map.put("itemName", itemName);
+    	map.put("itemQcPer", itemQcPer);
+    	
+    	return map;
+    }
     
     
 // 나현. 끝. --------------------------------------------------------------------

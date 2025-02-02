@@ -223,13 +223,15 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 				<!-- 나현 추가. 시작. -->
 				<div class="col-xl-4 mb-30">
 					<div class="card-box height-100-p pd-20">
-						<h5 style="display: inline;">원자재 불량률 Top5 (최근 7일)</h5>						
+						<h5 style="display: inline;">원자재 불량률 Top5 (최근 7일)</h5>
+						<div id="qcChart1"></div>			
 					</div>
 				</div>
 				
 				<div class="col-xl-4 mb-30">
 					<div class="card-box height-100-p pd-20">
-						<h5 style="display: inline;">생상품 불량률 Top5 (최근 7일)</h5>						
+						<h5 style="display: inline;">생상품 불량률 Top5 (최근 7일)</h5>
+						<div id="qcChart2"></div>						
 					</div>
 				</div>
 				<!-- 나현 추가. 끝. -->
@@ -459,6 +461,116 @@ fetch('/getRecentSalesInformations') // 엔드포인트 호출
 
 </script>
 
+
+<!-- 나현 시작. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<script>
+
+fetch('/getQcTopMaterial') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	var qcChart = {
+		    chart: {
+		        height: 350,
+		        type: 'bar',
+		        parentHeightOffset: 0,
+		        fontFamily: 'Poppins, sans-serif',
+		        toolbar: {
+		            show: false,
+		        },
+		    },
+		    colors: ['#1b00ff'], // 단일 데이터 색상
+		    grid: {
+		        borderColor: '#c7d2dd',
+		        strokeDashArray: 5,
+		    },
+		    plotOptions: {
+		        bar: {
+		            horizontal: false,
+		            columnWidth: '25%',
+		            endingShape: 'rounded'
+		        },
+		    },
+		    dataLabels: {
+		        enabled: false
+		    },
+		    stroke: {
+		        show: true,
+		        width: 2,
+		        colors: ['transparent']
+		    },
+		    series: [{
+		        // name: 'In Progress', // 단일 데이터 이름
+		        data: [2.07, 2.00, 1.50, 1.42, 1.10, 0.08] // 단일 데이터 값
+		    }],
+		    xaxis: {
+		        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // x축 카테고리
+		        labels: {
+		            style: {
+		                colors: ['#353535'],
+		                fontSize: '16px',
+		            },
+		        },
+		        axisBorder: {
+		            color: '#8fa6bc',
+		        }
+		    },
+		    yaxis: {
+		        title: {
+		            text: ''
+		        },
+		        labels: {
+		            style: {
+		                colors: '#353535',
+		                fontSize: '16px',
+		            },
+		        },
+		        axisBorder: {
+		            color: '#f00',
+		        }
+		    },
+		    legend: {
+		        horizontalAlign: 'right',
+		        position: 'top',
+		        fontSize: '16px',
+		        offsetY: 0,
+		        labels: {
+		            colors: '#353535',
+		        },
+		        markers: {
+		            width: 10,
+		            height: 10,
+		            radius: 15,
+		        },
+		        itemMargin: {
+		            vertical: 0
+		        },
+		    },
+		    fill: {
+		        opacity: 1
+		    },
+		    tooltip: {
+		        style: {
+		            fontSize: '15px',
+		            fontFamily: 'Poppins, sans-serif',
+		        },
+		        y: {
+		            formatter: function (val) {
+		                return val
+		            }
+		        }
+		    }
+		};
+	
+	var chart = new ApexCharts(document.querySelector("#qcChart1"), qcChart);
+	chart.render();
+})
+
+
+
+</script>
+
+<!-- 나현 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	
 </body>
 </html>
