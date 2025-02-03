@@ -13,9 +13,11 @@ import com.example.demo.dto.MaterialVO;
 import com.example.demo.dto.MemberVO;
 import com.example.demo.dto.OrderformDetailVO;
 import com.example.demo.dto.OrderformVO;
+import com.example.demo.dto.PaymentMaterialVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionDetailVO;
 import com.example.demo.dto.ProductionVO;
+import com.example.demo.dto.QcDashVO;
 import com.example.demo.dto.QcDetailVO;
 import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
@@ -23,7 +25,6 @@ import com.example.demo.dto.QuotationVO;
 import com.example.demo.dto.RecentSalesVO;
 import com.example.demo.dto.RecipeDetailVO;
 import com.example.demo.dto.RecipeVO;
-import com.example.demo.dto.QcDashVO;
 
 @Mapper
 public interface ProjectDAO {
@@ -140,6 +141,8 @@ public interface ProjectDAO {
 	
 	ProductVO getfindProductNum(ProductVO productVO);
 	
+	int insertProductionDetail(ProductionDetailVO pdd);
+	
 	// 박나현이 김민성 부분 합치다가 추가한 것. 끝 -----------------------------------------------
 	
 	// 25.01.31 대시보드
@@ -153,7 +156,7 @@ public interface ProjectDAO {
 
 	// new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@윤호윤호윤호@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  시작
 	
-	int updateCompany(CompanyVO companyVO);
+int updateCompany(CompanyVO companyVO);
 	
 	List<QuotationDetailVO> getQuotationDetailList(int quot_num);
 	
@@ -184,15 +187,21 @@ public interface ProjectDAO {
 	
 	List<QuotationVO> getUnreleasedQuotationList();
 	
+	List<QuotationVO> quotationListFinished();
+	
+	List<QuotationVO> quotationListUnfinished();
+	
 	
 	
 	
  
 	// new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@윤호윤호윤호@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  끝
 
-	// ---------------------김민성---------------------------------
+	// ---------------------김민성. 시작 ---------------------------------
 	
-	List<ProductionVO> getProductionList();
+List<ProductionVO> getProductionList();
+	
+	List<ProductionVO> getFatoryWorkList();
 
 	int insertProductiondetail(List<ProductionDetailVO> list);
 
@@ -200,7 +209,7 @@ public interface ProjectDAO {
 
 	int getfindLastProductionNumber();
 
-	List<ProductionVO> getFatoryWorkList();
+	
 
 	List<ProductionVO> getFactoryDetailList(int pd_num);
 
@@ -212,27 +221,12 @@ public interface ProjectDAO {
 	
 	List<RecipeDetailVO> getRecipeDetailListByRecipeNum(int recipe_num);
 	
-	int reduceInventoryAmount(InventoryVO inventoryVO);
+	int reduceInventoryAmount(InventoryVO lists);
 	
-	int insertProductionDetail(ProductionDetailVO pdd);
+	//0203
+	Map<String,Object> getPdCheckCounts();
 	
-	InventoryVO getInventoryByProductName(String product_name);
-
-	List<RecipeDetailVO> getTotalAmount(String product_name);
-
-	List<ProductionDetailVO> getProductionDetail(int pd_num);
-
-	List<RecipeDetailVO> getRecipeDetailList();
-
-	InventoryVO getInvenAmount(String Mname);
-
-	List<ProductionDetailVO> getProductionListByFactoryDetail(int pd_num);
-
-	int getFindRecipeNum(String product_name);
-
-	List<InventoryVO> getFindInvenList(String product_name);
-	
-	// ---------------------김민성---------------------------------	
+	// ---------------------김민성. 끝---------------------------------	
 	
 	
    
@@ -253,75 +247,75 @@ public interface ProjectDAO {
 
 // new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 시작
    
-   QuotationVO getQuotationByQuotnum(int quot_num);
-   
-   CompanyVO getCompanyByCompanynum(int company_num);
-   
-   List<QuotationDetailVO> getQuotationDetailListByQuotnum(int quot_num);
-   
-   OrderformVO getOrderformByOrderformnum(int orderform_num);
-   
-   List<OrderformDetailVO> getOrderformDetailListByOrderformnum(int orderform_num);
+	QuotationVO getQuotationByQuotnum(int quot_num);
+	   
+	   CompanyVO getCompanyByCompanynum(int company_num);
+	   
+	   List<QuotationDetailVO> getQuotationDetailListByQuotnum(int quot_num);
+	   
+	   OrderformVO getOrderformByOrderformnum(int orderform_num);
+	   
+	   List<OrderformDetailVO> getOrderformDetailListByOrderformnum(int orderform_num);
 
-   int materialCodeCheck(String material_code);
-   
-   int findMaxMaterialNum();
-   
-   int addMaterial(MaterialVO materialVO);
-   
-   List<MaterialVO> getMaterialList();
-   
-   int materialFileAmount(int material_num);
-   
-   FileVO materialFindFirstImage(int material_num);
-   
-   MaterialVO getMaterialDetail(int material_num);
-   
-   List<FileVO> getMaterialImages(int material_num);
-   
-   MaterialVO getMaterialByMaterialName(String product_name);  
-   
-   int insertqc (QcVO qcVO);
-   
-   List<MemberVO> getMemberList();
-   
-   MemberVO getMemberByMemberId(String member_id);
-   
-   int memberIdValidation(Map<String,Object> map);
-   
-   int updateMember(MemberVO memberVO);
-   
-   int addMaterialInventory(InventoryVO inventoryVO);
-   
-   int addProductInventory(InventoryVO inventoryVO);
-   
-   int productNameCheck(String product_name);
-   
-   String[] getProductCodeAndNameListConcat();
-   
-   int insertRecipe(RecipeVO recipeVO);
-   
-   int getLastRecipeNum();
-   
-   int insertRecipeDetail(RecipeDetailVO recipeDetailVO);
-   
-   int recipeProductCodeCheck(String product_code);
-   
-   List<RecipeVO> getRecipeList();
-   
-   int getProductNumByProductCode(String product_code);
-   
-   List<RecipeDetailVO> getRecipeDetailByProductNum(int product_num);
-   
-   RecipeVO getRecipeByRecipeNum(int recipe_num);
-   
-   int updateRecipe(RecipeVO recipeVO);
-   
-   int updateRecipeDetail(RecipeDetailVO recipeDetailVO);
-   
-   int updateOrderformFinish (int orderform_num);
-   
-   int insertOrderformCode(@Param("orderform_num")int orderform_num, @Param("code")String code);
+	   int materialCodeCheck(String material_code);
+	   
+	   int findMaxMaterialNum();
+	   
+	   int addMaterial(MaterialVO materialVO);
+	   
+	   List<MaterialVO> getMaterialList();
+	   
+	   int materialFileAmount(int material_num);
+	   
+	   FileVO materialFindFirstImage(int material_num);
+	   
+	   MaterialVO getMaterialDetail(int material_num);
+	   
+	   List<FileVO> getMaterialImages(int material_num);
+	   
+	   MaterialVO getMaterialByMaterialName(String product_name);  
+	   
+	   int insertInventoryMaterial (PaymentMaterialVO inventoryMaterialVO);
+	   
+	   int insertqc (QcVO qcVO);
+	   
+	   List<MemberVO> getMemberList();
+	   
+	   MemberVO getMemberByMemberId(String member_id);
+	   
+	   int memberIdValidation(Map<String,Object> map);
+	   
+	   int updateMember(MemberVO memberVO);
+	   
+	   int addMaterialInventory(InventoryVO inventoryVO);
+	   
+	   int addProductInventory(InventoryVO inventoryVO);
+	   
+	   int productNameCheck(String product_name);
+	   
+	   String[] getProductCodeAndNameListConcat();
+	   
+	   int insertRecipe(RecipeVO recipeVO);
+	   
+	   int getLastRecipeNum();
+	   
+	   int insertRecipeDetail(RecipeDetailVO recipeDetailVO);
+	   
+	   int recipeProductCodeCheck(String product_code);
+	   
+	   List<RecipeVO> getRecipeList();
+	   
+	   int getProductNumByProductCode(String product_code);
+	   
+	   List<RecipeDetailVO> getRecipeDetailByProductNum(int product_num);
+	   
+	   RecipeVO getRecipeByRecipeNum(int recipe_num);
+	   
+	   int updateRecipe(RecipeVO recipeVO);
+	   
+	   int updateRecipeDetail(RecipeDetailVO recipeDetailVO);
+	   
+	   int updateOrderformFinish (int orderform_num);
    
 // new 작업공간 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 끝   
    

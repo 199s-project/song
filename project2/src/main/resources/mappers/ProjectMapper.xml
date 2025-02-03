@@ -523,12 +523,53 @@
 		where quot_stat = "진행중" order by diff desc
 	</select>
 	
+	<select id="quotationListFinished" resultType="QuotationVO">
+	   SELECT 
+	        quotation.*,
+	        SUM(quotationdetail.quotdetail_price) AS total_price
+	    FROM 
+	        quotation
+	    JOIN 
+	        quotationdetail
+	    ON 
+	        quotation.quot_num = quotationdetail.quot_num
+	    where quot_stat = "완료"
+	    GROUP BY 
+	        quotation.quot_num
+	    order by quotation.quot_regdate desc;
+	</select>
+	
+	<select id="quotationListUnfinished" resultType="QuotationVO">
+	   SELECT 
+	        quotation.*,
+	        SUM(quotationdetail.quotdetail_price) AS total_price
+	    FROM 
+	        quotation
+	    JOIN 
+	        quotationdetail
+	    ON 
+	        quotation.quot_num = quotationdetail.quot_num
+	    where quot_stat = "진행중"
+	    GROUP BY 
+	        quotation.quot_num
+	    order by quotation.quot_regdate desc;
+	</select>
+	
 	
 	
 
 	
 <!-- 김민성 ========================================================================================= -->
 	
+	
+	<select id="getProductionList" resultType="ProductionVO">
+		select * from production;
+	</select>
+	
+	<select id="getFatoryWorkList" resultType="ProductionVO">
+		select * from production where pd_check = 0;
+	</select>
+		
 	<insert id="insertProduction" parameterType="ProductionVO">
 		insert into production (pd_writedate,pd_writer,pd_dept,pd_startdate,pd_enddate,pd_name,pd_content,pd_check)
 		values (now(),#{pd_writer},#{pd_dept},#{pd_startdate},#{pd_enddate},#{pd_name},#{pd_content},0)
@@ -542,9 +583,6 @@
 	 </foreach>
 	</insert> 
 	
-	<select id="getFatoryWorkList" resultType="ProductionVO">
-		select * from production where pd_check = 0;
-	</select>
 	
 	<select id="getFactoryDetail" parameterType="int" >
 		select * from production where pd_num = #{pd_num}
@@ -567,12 +605,13 @@
    	</select>
    
    
-	<update id="reduceInventoryAmount" parameterType="InventoryVO">
-		update inventory 
-		set inven_amount = inven_amount - #{inven_amount} where inven_name = #{inven_name}
-	</update>
-	
-	  <update id="setPdCheckUpdate" parameterType="ProductionVO"> 
+	  <!-- 원본 -->
+  <update id="reduceInventoryAmount" parameterType="InventoryVO">
+   update inventory 
+   set inven_amount = inven_amount - #{inven_amount} where inven_name = #{inven_name} and inven_amount >= #{inven_amount}
+   </update> 
+ 	
+  <update id="setPdCheckUpdate" parameterType="ProductionVO"> 
 	update 	production
 	set pd_check = 1 where pd_num = #{pd_num}
   </update>
@@ -596,6 +635,10 @@
 	select inven_amount from inventory where inven_type = 0 and inven_name = #{inven_name} ;
 	</select>
 	
+	<select id="getInventoryList" resultType="InventoryVO">
+		select * from inventory	where inven_type=0;
+	</select>
+	
 	<select id="getProductionVO" parameterType="ProductionVO" >
 		select * from production where pd_num = #{pd_num}
 	</select>
@@ -605,13 +648,14 @@
 	</select>
 	
 	
-	<select id="getRecipeDetailList" parameterType="RecipeDetailVO" >
+	<select id="getRecipeList" parameterType="RecipeDetailVO" >
 		select * from recipedetail
 	</select>
 	
+	<!-- ==============================추가분 -->
 	<select id="getProductionListByFactoryDetail" parameterType="ProductionDetailVO">
-		select product_name , productiondetail_amount from productiondetail where
-		pd_num = #{pd_num};
+	select product_name , productiondetail_amount from productiondetail where
+	pd_num = #{pd_num};
 	</select>
 	
 	<select id="getFindRecipeNum" parameterType="String">
@@ -674,8 +718,8 @@
 	
 	<select id="getQuotationDetailListByQuotnum" parameterType="int">
 		select *
-		from quotationdetail q, product p
-		where q.quot_num = #{quot_num} and q.product_num = p.product_num
+		from quotationdetail
+		where quot_num = #{quot_num}
 	</select>
 	
 	<select id="getOrderformByOrderformnum" parameterType="int">
@@ -684,7 +728,7 @@
 		where orderform_num = #{orderform_num}
 	</select>
 	
-	<select id="getOrderformDetailListByOrderformnum" parameterType="int">
+	<select id="getOrderformDetailListByOrderformnum" parameterType="int" resultType="OrderformDetailVO">
 		select *
 		from orderformdetail
 		where orderform_num = #{orderform_num}
@@ -773,7 +817,7 @@
 	    VALUES (1, #{inven_item_num}, #{inven_name}, 0, 0);
 	</insert>
 	
-		<select id="productNameCheck" parameterType="String" resultType="java.lang.Integer">
+	<select id="productNameCheck" parameterType="String" resultType="java.lang.Integer">
 		select count(*) from product where product_name = #{product_name}
 	</select>
 	
@@ -836,13 +880,6 @@
 		set orderform_stat = "완료"
 		where orderform_num = #{orderform_num}
 	</update>
-	
-   <update id="insertOrderformCode" parameterType="java.util.Map">
-      update orderform
-      set
-      orderform_code = #{code}
-      where orderform_num = #{orderform_num}
-   </update>
 	
 <!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재  끝 -->
 
