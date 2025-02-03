@@ -377,27 +377,40 @@
 	
 	<!-- 2025.01.03 대시보드 -->
 	
-	<!-- 대시보드, 부적격률 내림차순 5위 (7일간) -->
-	<select id="dashQcTop5" resultType="dashQcVO">SELECT 
-	    qc.qc_item_num AS 원자재번호,
-	    m.material_name AS 원자재이름,
-	    ROUND((SUM(qd.QC_FAIL_QUAN) / qc.qc_quan) * 100, 2) AS 불량률,
-	    qc.qc_quan AS 총검사수량,
-	    SUM(qd.QC_FAIL_QUAN) AS 총불량수량
-	FROM qc
-	JOIN qc_detail qd ON qc.qc_num = qd.qc_num
-	JOIN material m ON qc.qc_item_num = m.material_num
-	WHERE 
-	    qc.qc_type = 'order'
-	    AND qc.qc_stat = 2
-	    AND DATEDIFF(NOW(), qc.qc_date) &lt; 7
-	GROUP BY 
-	    qc.qc_num, qc.qc_item_num, m.material_name, qc.qc_quan
-	ORDER BY 
-	    불량률 DESC
-	LIMIT 5;</select>	
+	<!-- 대시보드, 원자재 부적격률 내림차순 5위 (7일간) -->
+	<select id="QcMDashTop5" resultType="QcDashVO">
+	select sub.qc_item_num as item_num, sub.item_name as item_name, sum(sub.total) as total, sum(sub.total_fail) as total_fail, ROUND(SUM(sub.total_fail) / SUM(sub.total) * 100, 2) as fail_per
+	from (select qc.qc_num, qc.qc_item_num, m.material_name as item_name, qc.qc_quan as total, sum(qd.qc_fail_quan) as total_fail, qc.qc_date
+			from qc
+			left join qc_detail qd on qc.qc_num = qd.qc_num
+	        left join material m on qc.qc_item_num = m.material_num
+			where qc.qc_type = "order"
+				and qc.qc_stat = 2
+	            and datediff(now(), qc.qc_date) &lt; 7
+			group by qc.qc_num) as sub
+	group by sub.qc_item_num
+	order by fail_per desc
+	limit 5;
+	</select>	
 	
-<!-- 나현. 끝. -->
+		<!-- 대시보드, 상품 부적격률 내림차순 5위 (7일간) -->
+	<select id="QcPDashTop5" resultType="QcDashVO">
+	select sub.qc_item_num as item_num, sub.item_name, sum(sub.total) as total, sum(sub.total_fail) as total_fail, ROUND(SUM(sub.total_fail) / SUM(sub.total) * 100, 2) as fail_per
+	from (select qc.qc_num, qc.qc_item_num, p.product_name as item_name, qc.qc_quan as total, sum(qd.qc_fail_quan) as total_fail, qc.qc_date
+			from qc
+			left join qc_detail qd on qc.qc_num = qd.qc_num
+	        left join product p on qc.qc_item_num = p.product_num
+			where qc.qc_type = "plan"
+				and qc.qc_stat = 2
+	            and datediff(now(), qc.qc_date) &lt; 7
+			group by qc.qc_num) as sub
+	group by sub.qc_item_num
+	order by fail_per desc
+	limit 5;
+	</select>	
+	
+<!-- 나현. 끝. -->	
+	
 	
 <!-- 김윤호 =========================================================김윤호================================ -->	
 

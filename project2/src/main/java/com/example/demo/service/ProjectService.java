@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import com.example.demo.dto.PaymentMaterialVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.ProductionDetailVO;
 import com.example.demo.dto.ProductionVO;
+import com.example.demo.dto.QcDashVO;
 import com.example.demo.dto.QcDetailVO;
 import com.example.demo.dto.QcVO;
 import com.example.demo.dto.QuotationDetailVO;
@@ -29,7 +31,6 @@ import com.example.demo.dto.QuotationVO;
 import com.example.demo.dto.RecentSalesVO;
 import com.example.demo.dto.RecipeDetailVO;
 import com.example.demo.dto.RecipeVO;
-import com.example.demo.dto.dashQcVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpSession;
@@ -448,8 +449,12 @@ public class ProjectService {
 		
 		// 25.01.31. 대시보드 추가
 		
-		public List<dashQcVO> dashQcTop5() {
-			return projectDAO.dashQcTop5();
+		public List<QcDashVO> QcMDashTop5() {
+			return projectDAO.QcMDashTop5();
+		}
+		
+		public List<QcDashVO> QcPDashTop5() {
+			return projectDAO.QcPDashTop5();
 		}
 			
 		// 나현. 끝.

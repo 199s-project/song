@@ -15,7 +15,7 @@ import com.example.demo.dto.FileVO;
 import com.example.demo.dto.ProductVO;
 import com.example.demo.dto.QuotationVO;
 import com.example.demo.dto.RecentSalesVO;
-import com.example.demo.dto.dashQcVO;
+import com.example.demo.dto.QcDashVO;
 import com.example.demo.service.ProjectService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -155,20 +155,21 @@ public class HomeController {
     	
     	int barSize = 5;
     	
-    	List<dashQcVO> dashQcList = projectService.dashQcTop5();
+    	List<QcDashVO> QcDashList = projectService.QcMDashTop5();
+//    	System.out.println("Qc 대시보드 테스트 :::::::::::::" + QcDashList);
     	Map<String,Object> map = new HashMap<>();
     	
-    	if(dashQcList.size() < barSize) {
-    		barSize = dashQcList.size();
+    	if(QcDashList.size() < barSize) {
+    		barSize = QcDashList.size();
     	}
     	
     	String[] itemName = new String[barSize];
     	float[] itemQcPer = new float[barSize];
     	
     	int i = 0;
-    	for (dashQcVO qc:dashQcList) {
+    	for (QcDashVO qc:QcDashList) {
     		itemName[i] = qc.getItem_name();
-    		itemQcPer[i] = qc.getTotal_fail_per();
+    		itemQcPer[i] = qc.getFail_per();
     		i++;
     	}
 
@@ -178,6 +179,36 @@ public class HomeController {
     	return map;
     }
     
+    
+    @ResponseBody
+    @GetMapping("/getQcTopProduct")
+    public Map<String,Object> getQcTopProduct() {
+    	
+    	int barSize = 5;
+    	
+    	List<QcDashVO> QcDashList = projectService.QcPDashTop5();
+//    	System.out.println("Qc 대시보드 테스트 :::::::::::::" + QcDashList);
+    	Map<String,Object> map = new HashMap<>();
+    	
+    	if(QcDashList.size() < barSize) {
+    		barSize = QcDashList.size();
+    	}
+    	
+    	String[] itemName = new String[barSize];
+    	float[] itemQcPer = new float[barSize];
+    	
+    	int i = 0;
+    	for (QcDashVO qc:QcDashList) {
+    		itemName[i] = qc.getItem_name();
+    		itemQcPer[i] = qc.getFail_per();
+    		i++;
+    	}
+
+    	map.put("itemName", itemName);
+    	map.put("itemQcPer", itemQcPer);
+    	
+    	return map;
+    }
     
 // 나현. 끝. --------------------------------------------------------------------
     

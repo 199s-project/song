@@ -220,7 +220,7 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 				</div>
 				
 				
-				<!-- 나현 추가. 시작. -->
+				<!-- 나현 추가. 시작. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 				<div class="col-xl-4 mb-30">
 					<div class="card-box height-100-p pd-20">
 						<h5 style="display: inline;">원자재 불량률 Top5 (최근 7일)</h5>
@@ -234,7 +234,7 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
 						<div id="qcChart2"></div>						
 					</div>
 				</div>
-				<!-- 나현 추가. 끝. -->
+				<!-- 나현 추가. 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 				
 			</div>
 			
@@ -462,13 +462,17 @@ fetch('/getRecentSalesInformations') // 엔드포인트 호출
 </script>
 
 
-<!-- 나현 시작. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- 나현 자바스크립트 시작. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 <script>
 
 fetch('/getQcTopMaterial') // 엔드포인트 호출
 .then(response => response.json()) // JSON 형식으로 변환
 .then(map => {
+	console.log("나현 QC 로그 찍어보는 중 ~~~~~~~~~~~~ ", map);
+	if (!map.itemName || map.itemName.length === 0) {
+        document.querySelector("#qcChart1").innerHTML = `<div class="pt-5 pb-5 align-self-center">7일 기준, 해당하는 데이터가 없습니다.</div>`;
+    } else {
 	var qcChart = {
 		    chart: {
 		        height: 350,
@@ -479,6 +483,7 @@ fetch('/getQcTopMaterial') // 엔드포인트 호출
 		            show: false,
 		        },
 		    },
+		    labels: [map.itemName[0], map.itemName[1], map.itemName[2], map.itemName[3], map.itemName[4]],
 		    colors: ['#1b00ff'], // 단일 데이터 색상
 		    grid: {
 		        borderColor: '#c7d2dd',
@@ -499,12 +504,13 @@ fetch('/getQcTopMaterial') // 엔드포인트 호출
 		        width: 2,
 		        colors: ['transparent']
 		    },
-		    series: [{
-		        // name: 'In Progress', // 단일 데이터 이름
-		        data: [2.07, 2.00, 1.50, 1.42, 1.10, 0.08] // 단일 데이터 값
-		    }],
+		    series: [
+		    	{
+		    		data:map.itemQcPer
+		    		}
+		    	],
 		    xaxis: {
-		        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // x축 카테고리
+		        categories: map.itemName,
 		        labels: {
 		            style: {
 		                colors: ['#353535'],
@@ -524,6 +530,9 @@ fetch('/getQcTopMaterial') // 엔드포인트 호출
 		                colors: '#353535',
 		                fontSize: '16px',
 		            },
+		            formatter: function (val) {
+		            	return val.toFixed(2) + '%'; // 소수점 2자리와 '%'
+		            }
 		        },
 		        axisBorder: {
 		            color: '#f00',
@@ -556,21 +565,150 @@ fetch('/getQcTopMaterial') // 엔드포인트 호출
 		        },
 		        y: {
 		            formatter: function (val) {
-		                return val
+		                return val + '%'
 		            }
+		        },
+		        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                    // 시리즈 이름을 제외하고 값만 표시
+                    const itemName = w.globals.labels[dataPointIndex];
+					const value = series[seriesIndex][dataPointIndex];
+					return `<div class="tooltip-custom p-1">
+					            <strong>${itemName}</strong>: ${value.toFixed(2)}%
+					        </div>`;
+                }
+		    }
+		};
+	var chart = new ApexCharts(document.querySelector("#qcChart1"), qcChart);
+	chart.render();
+}})
+
+.catch (error => {
+	console.error("데이터를 불러오는 중 오류가 발생했습니다. 오류 내용 :::::", error);
+})
+
+
+fetch('/getQcTopProduct') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	console.log("나현 QC 제품 로그 찍어보는 중 ~~~~~~~~~~~~ ", map);
+	var qcChart = {
+		    chart: {
+		        height: 350,
+		        type: 'bar',
+		        parentHeightOffset: 0,
+		        fontFamily: 'Poppins, sans-serif',
+		        toolbar: {
+		            show: false,
+		        },
+		    },
+		    labels: [map.itemName[0], map.itemName[1], map.itemName[2], map.itemName[3], map.itemName[4]],
+		    colors: ['#1b00ff'], // 단일 데이터 색상
+		    grid: {
+		        borderColor: '#c7d2dd',
+		        strokeDashArray: 5,
+		    },
+		    plotOptions: {
+		        bar: {
+		            horizontal: false,
+		            columnWidth: '25%',
+		            endingShape: 'rounded'
+		        },
+		    },
+		    dataLabels: {
+		        enabled: false
+		    },
+		    stroke: {
+		        show: true,
+		        width: 2,
+		        colors: ['transparent']
+		    },
+		    series: [
+		    	{
+		    		data:map.itemQcPer
+		    		}
+		    	],
+		    xaxis: {
+		        categories: map.itemName,
+		        labels: {
+		            style: {
+		                colors: ['#353535'],
+		                fontSize: '16px',
+		            },
+		        },
+		        axisBorder: {
+		            color: '#8fa6bc',
 		        }
+		    },
+		    yaxis: {
+		        title: {
+		            text: ''
+		        },
+		        labels: {
+		            style: {
+		                colors: '#353535',
+		                fontSize: '16px',
+		            },
+		            formatter: function (val) {
+		            	return val.toFixed(2) + '%'; // 소수점 2자리와 '%'
+		            }
+		        },
+		        axisBorder: {
+		            color: '#f00',
+		        }
+		    },
+		    legend: {
+		        horizontalAlign: 'right',
+		        position: 'top',
+		        fontSize: '16px',
+		        offsetY: 0,
+		        labels: {
+		            colors: '#353535',
+		        },
+		        markers: {
+		            width: 10,
+		            height: 10,
+		            radius: 15,
+		        },
+		        itemMargin: {
+		            vertical: 0
+		        },
+		    },
+		    fill: {
+		        opacity: 1
+		    },
+		    tooltip: {
+		        style: {
+		            fontSize: '15px',
+		            fontFamily: 'Poppins, sans-serif',
+		        },
+		        y: {
+		            formatter: function (val) {
+		                return val + '%'
+		            }
+		        },
+		        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                    // 시리즈 이름을 제외하고 값만 표시
+                    const itemName = w.globals.labels[dataPointIndex];
+					const value = series[seriesIndex][dataPointIndex];
+					return `<div class="tooltip-custom p-1">
+					            <strong>${itemName}</strong>: ${value.toFixed(2)}%
+					        </div>`;
+                }
 		    }
 		};
 	
-	var chart = new ApexCharts(document.querySelector("#qcChart1"), qcChart);
+	var chart = new ApexCharts(document.querySelector("#qcChart2"), qcChart);
 	chart.render();
+})
+.catch (error => {
+	console.error("데이터를 불러오는 중 오류가 발생했습니다. 오류 내용 :::::", error);
 })
 
 
 
 </script>
 
-<!-- 나현 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- 나현 자바스크립트 끝. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	
 </body>
 </html>

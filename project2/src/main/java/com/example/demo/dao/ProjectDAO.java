@@ -23,7 +23,7 @@ import com.example.demo.dto.QuotationVO;
 import com.example.demo.dto.RecentSalesVO;
 import com.example.demo.dto.RecipeDetailVO;
 import com.example.demo.dto.RecipeVO;
-import com.example.demo.dto.dashQcVO;
+import com.example.demo.dto.QcDashVO;
 
 @Mapper
 public interface ProjectDAO {
@@ -144,7 +144,9 @@ public interface ProjectDAO {
 	
 	// 25.01.31 대시보드
 	
-	List<dashQcVO> dashQcTop5();
+	List<QcDashVO> QcMDashTop5();
+	
+	List<QcDashVO> QcPDashTop5();
 	
 	// 나현. 끝.
 
