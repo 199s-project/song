@@ -1395,6 +1395,7 @@ public class ProjectController {
 		@GetMapping("factoryPlan")
 		public String factoryPlan(Model model) {
 			List<ProductionVO> list = projectService.getFatoryWorkList();
+			System.out.println("뭐가 나오는지 봅시다 factoryPlan GetMapping 입니더 :::::::::::: " + list);
 			model.addAttribute("getFatoryWorkList", list);
 			log.info("factoryPlan", list);
 			return "factoryPlan";
@@ -1410,8 +1411,7 @@ public class ProjectController {
 				mv.setViewName("login");
 				return mv;
 			}
-			if("생산".equals(member.getMember_dept())) {
-				
+			if("생산".equals(member.getMember_dept())) {				
 				ProductionVO productionVO = new ProductionVO();
 				productionVO = projectService.getFactoryDetail(pd_num);
 				List<ProductionVO> productionListVO = projectService.getFactoryDetailList(pd_num);

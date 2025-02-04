@@ -109,7 +109,7 @@ th.sorting, th.table-plus.datatable-nosort.sorting_asc {
                         </tr>
                      </thead>
                      <tbody>
-                        <th:block th:each="form,stat: ${getProductionPlanList}">
+                        <th:block th:each="form,stat: ${getFatoryWorkList}">
                            <tr>
                            	  <td class="hidden_row"></td>
                               <td><th:block th:text="${stat.size-stat.index}"></th:block></td> 
