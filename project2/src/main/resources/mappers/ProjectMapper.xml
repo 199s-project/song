@@ -125,10 +125,10 @@
 		
 	<insert id="insertOrderform" parameterType="OrderformVO">
 		insert into orderform (
-			orderform_name, orderform_stat, company_num, company_num2, orderform_writer, orderform_content, orderform_regdate, orderform_startDate, orderform_endDate
+			orderform_name, orderform_stat, company_num, company_num2, orderform_content, orderform_regdate, orderform_startDate, orderform_endDate
 			) 
 			values (
-				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_writer}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}
+				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}
 				)
 	</insert>
 	
