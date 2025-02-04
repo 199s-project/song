@@ -4,9 +4,11 @@ import org.apache.ibatis.type.Alias;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @Alias("MemberVO")
 public class MemberVO {
 	private int member_num;

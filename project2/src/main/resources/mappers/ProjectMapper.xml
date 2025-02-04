@@ -101,9 +101,10 @@
 	           orderform.orderform_num;
 	</select>
 	
-	<select id="getProductionList" resultType="ProductionVO">
+	<!-- 민성 부분에 있어서 제거함 -->
+	<!-- <select id="getProductionList" resultType="ProductionVO">
 	select * from production;
-	</select>
+	</select> -->
 	
 	<select id="getCompanyList" resultType="CompanyVO">
 		select *
@@ -451,9 +452,11 @@
 		where quot_num = #{quot_num}
 	</update>
 	
-	<select id="getInventoryList" resultType="InventoryVO">
+	
+	<!-- 민성 중복 삭제 -->
+	<!-- <select id="getInventoryList" resultType="InventoryVO">
 		select * from inventory
-	</select>
+	</select> -->
 	
 	<select id="getInventoryMaterialList" resultType="InventoryVO">
 		select * from inventory where inven_type = 0
@@ -648,7 +651,7 @@
 	</select>
 	
 	
-	<select id="getRecipeList" parameterType="RecipeDetailVO" >
+	<select id="getRecipeDetailList" parameterType="RecipeDetailVO" >
 		select * from recipedetail
 	</select>
 	
