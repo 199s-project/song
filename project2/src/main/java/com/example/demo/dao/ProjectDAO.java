@@ -151,6 +151,10 @@ public interface ProjectDAO {
 	
 	List<QcDashVO> QcPDashTop5();
 	
+	// 25-02-05 재업로드 pd_check = 2
+	
+	int ReinsertProduction(ProductionVO productionVO);
+	
 	// 나현. 끝.
 
 

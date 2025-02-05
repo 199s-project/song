@@ -408,7 +408,13 @@
 	group by sub.qc_item_num
 	order by fail_per desc
 	limit 5;
-	</select>	
+	</select>
+	
+	<!-- 25-02-05 재 업로드 시 pd_check 2로 재업로드 -->
+	<insert id="ReinsertProduction" parameterType="ProductionVO">
+		insert into production (pd_writedate, pd_writer, pd_dept, pd_startdate, pd_enddate, pd_name, pd_content, pd_check)
+		values (now(), #{pd_writer}, #{pd_dept}, #{pd_startdate}, #{pd_enddate}, #{pd_name}, #{pd_content}, 2)
+	</insert>
 	
 <!-- 나현. 끝. -->	
 	

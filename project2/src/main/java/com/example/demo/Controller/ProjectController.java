@@ -967,11 +967,14 @@ public class ProjectController {
 
 	// QC 상세 페이지로 이동
 	@GetMapping("qcDetail")
-	public String qcDetail(@RequestParam("qc_num") int qc_num, Model model) {
+	public String qcDetail(@RequestParam("qc_num") int qc_num, Model model, HttpSession session) {
 
+		
 		log.info("qcDetail 이동");
 		log.info("qc_num = " + qc_num);
 
+		MemberVO user = (MemberVO)session.getAttribute("user");
+		
 		QcVO qc = projectService.getOneQc(qc_num);
 
 		// 타입 저장, 이름 담아줄 변수 생성
@@ -1004,6 +1007,7 @@ public class ProjectController {
 		model.addAttribute("totalFail", totalFail);
 		model.addAttribute("totalPass", totalPass);
 		model.addAttribute("failRate", failRate);
+		model.addAttribute("user", user);
 
 		return "qcDetail";
 	}
@@ -1012,6 +1016,8 @@ public class ProjectController {
 	@GetMapping("qcTest")
 	public String qcTest(@RequestParam("qc_num") int qc_num, Model model, HttpSession session) {
 
+		MemberVO user = (MemberVO)session.getAttribute("user");
+		
 		log.info("qcTest 이동");
 		log.info("qc_num = " + qc_num);
 
@@ -1049,12 +1055,6 @@ public class ProjectController {
 		model.addAttribute("totalFail", totalFail);
 		model.addAttribute("totalPass", totalPass);
 		model.addAttribute("failRate", failRate);
-
-		MemberVO user = (MemberVO) session.getAttribute("user");
-
-		if (user == null) {
-			return "redirect:/login";
-		}
 
 		model.addAttribute("member_name", user.getMember_name());
 
@@ -1211,7 +1211,7 @@ public class ProjectController {
 					
 					System.out.println("####################################### pd 출력 #######" + pd.toString());
 					// 위 코드를 출력하고 싶으면 DTO에서 @ToString 추가해주면 나옴 
-					projectService.insertProduction(pd);
+					projectService.ReinsertProduction(pd);
 					
 					// detail은 새로운 객체 생성
 					ProductionDetailVO pdd = new ProductionDetailVO();
@@ -1224,8 +1224,6 @@ public class ProjectController {
 					System.out.println("####################################### pdd 출력 #######" + pdd.toString());
 					// 위 코드를 출력하고 싶으면 DTO에서 @ToString 추가해주면 나옴 
 					projectService.insertProductionDetail(pdd);
-					
-					
 				}
 			};
 			

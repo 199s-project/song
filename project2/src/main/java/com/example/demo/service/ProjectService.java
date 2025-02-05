@@ -456,10 +456,16 @@ public class ProjectService {
 		public List<QcDashVO> QcPDashTop5() {
 			return projectDAO.QcPDashTop5();
 		}
-			
+		
+		// 25-02-05 pd_check = 2
+		
+		public int ReinsertProduction(ProductionVO productionVO) {
+			return projectDAO.ReinsertProduction(productionVO);
+		}
+		
 		// 나현. 끝.
 
-
+		
 
 		// -----------------------------------------------------------------------------
 
