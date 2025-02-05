@@ -219,35 +219,40 @@ body {
 								<input type="text" placeholder="Name" name="member_name" required>
 								<input type="text" placeholder="Email" name="member_email" required>
 								<input type="text" placeholder="Phone" name="member_phone" required>
+								
+								<!-- 라디오 버튼. 시작.  -->
+								
 								<div class="radio-group">
-					    			<label class="radio">
-					      			  	<input type="radio" name="member_grade" value="팀장" checked />
-					        			<span class="custom-radio"></span>
-					        		팀장
-					    			</label>
-					    			<label class="radio">
-					     				<input type="radio" name="member_grade" value="사원" />
-					        			<span class="custom-radio"></span>
-					        		사원
-					    			</label>
+									<span class="custom-control custom-radio mb-5">
+										<input type="radio" id="grade01" name="member_grade" class="custom-control-input" value="팀장">
+										<label class="custom-control-label" for="grade01">팀장</label>
+									</span>
+					    			
+					    			<span class="custom-control custom-radio mb-5">
+										<input type="radio" id="grade02" name="member_grade" class="custom-control-input" value="사원">
+										<label class="custom-control-label" for="grade02">사원</label>
+									</span>
 								</div>
 								<div class="radio-group">
-					    			<label class="radio">
-					      			  	<input type="radio" name="member_dept" value="생산" checked />
-					        			<span class="custom-radio"></span>
-					        		생산
-					    			</label>
-					    			<label class="radio">
-					     				<input type="radio" name="member_dept" value="구매" />
-					        			<span class="custom-radio"></span>
-					        		구매
-					    			</label>
-					    			<label class="radio">
-					     				<input type="radio" name="member_dept" value="관리" />
-					        			<span class="custom-radio"></span>
-					        		관리
-					    			</label>
+								
+									<span class="custom-control custom-radio mb-5">
+										<input type="radio" id="dept01" name="member_dept" class="custom-control-input" value="생산">
+										<label class="custom-control-label" for="dept01">생산</label>
+									</span>
+									
+									<span class="custom-control custom-radio mb-5">
+										<input type="radio" id="dept02" name="member_dept" class="custom-control-input" value="구매">
+										<label class="custom-control-label" for="dept02">구매</label>
+									</span>
+									
+									<span class="custom-control custom-radio mb-5">
+										<input type="radio" id="dept03" name="member_dept" class="custom-control-input" value="관리">
+										<label class="custom-control-label" for="dept03">관리</label>
+									</span>
 								</div>
+								
+								<!-- 라디오 버튼. 끝 -->
+								
 								<button id="signupButton" type="submit" disabled><b>완료</b></button>
 							</form>
 						</div>

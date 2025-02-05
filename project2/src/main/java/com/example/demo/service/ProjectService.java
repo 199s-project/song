@@ -53,7 +53,7 @@ public class ProjectService {
 	   }
 	
 	// 로그인
-    public ModelAndView postLogin(@RequestParam Map<String,Object> map,HttpSession session) {
+    public ModelAndView postLogin(@RequestParam Map<String,Object> map, HttpSession session) {
     	mv = new ModelAndView();
     	MemberVO member = projectDAO.getMember(map);
     	
@@ -84,7 +84,7 @@ public class ProjectService {
     	
     	if (r == 1) {
     		mv.addObject("msg", "회원가입 성공");
-    		mv.setViewName("index");
+    		mv.setViewName("login");
     		return mv;
     	} 
     	

@@ -114,12 +114,6 @@ public class ProjectController {
    
    
 	
-	
-
-	
-
-	
-	
     // 비어있는 페이지
 	@GetMapping("notepad")
 	public String notepad(){

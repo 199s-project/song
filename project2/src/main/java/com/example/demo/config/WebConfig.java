@@ -17,6 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/**") // 모든 경로에 대해 적용
-                .excludePathPatterns("/login", "/register", "/css/**", "/js/**", "/images/**", "/fonts/**", "/vendors/**"); // 제외 경로
+                .excludePathPatterns("/login", "/register", "/check-member_id", "/css/**", "/js/**", "/images/**", "/fonts/**", "/vendors/**"); // 제외 경로
     }
 }
