@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<style>
+
+#bestseller-table-wrapper {
+	max-height: 400px;
+	width: 96% !important;
+	margin-left: 2% !important;
+	overflow-x: hidden;
+}
+
+table.bestseller-table {
+	text-align: center !important;
+	
+	th.sorting_asc, th.sorting {
+		padding-right: 16px !important;
+	}
+	
+	td.sorting_1 {
+		pointer-events: none;
+		padding-left: 16px !important;
+	}
+	
+	td.table-plus::before {
+		content: none !important;
+	}
+	
+}
+
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+	content: none !important;
+}
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+	pointer-events: none; /* 클릭 비활성화 */
+}
+
+
+#dashboard-chart1, #dashboard-chart2, #dashboard-chart3 {
+	float: right;
+	padding-right: 10px;
+}
+
+
+
+</style>
+
+
+
+<style>
+
+.uiverse-button1 {
+  position: relative;
+  overflow: hidden;
+  height: 2rem;
+  width: 8.5rem;
+  margin-left: 3rem;
+  border-radius: .25rem;
+  background: blue;
+  background-size: 400%;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.uiverse-button1:hover::before {
+  transform: scaleX(1);
+}
+
+.button1-content {
+  position: relative;
+  z-index: 1;
+}
+
+.uiverse-button1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  width: 100%;
+  height: inherit;
+  border-radius: inherit;
+  background: linear-gradient(
+    82.3deg,
+    rgba(150, 93, 233, 1) 10.8%,
+    rgba(99, 88, 238, 1) 94.3%
+  );
+  transition: all 0.475s;
+}
+
+
+</style>
+
+
+
+<style>
+
+.table-wrapper {
+    max-height: 300px; /* 최대 5개 행이 보이도록 설정 */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    
+    table.inventory-table {
+		width: 100%;
+	    border-collapse: collapse;
+	    text-align: center;
+    
+		th, td {
+		    padding: 10px;
+		    border: 1px solid #ddd;
+		}
+		
+		.low-stock {
+		    font-weight: bold;
+		    color: #ff4d4d;
+		}
+		
+		.no-stock {
+		    text-align: center;
+		    font-weight: bold;
+		    color: gray;
+		}
+	}
+}
+
+
+
+</style>
+
+
+
+<style>
+
+/* From Uiverse.io by akshat-patel28 */ 
+.card {
+  width: 280px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  flex-direction: column;
+  cursor: pointer;
+  overflow: hidden;
+  border: 0px solid black !important;
+  
+	.time-text {
+	  font-size: 45px;
+	  margin-top: 0px;
+	  margin-left: 15px;
+	  margin-bottom: 5px;
+	  font-weight: 600;
+	  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+	}
+	
+	.time-sub-text {
+	  font-size: 17px;
+	  margin-left: 5px;
+	}
+	
+	.day-text {
+	  font-size: 16px;
+	  margin-top: 0px;
+	  margin-left: 15px;
+	  font-weight: 500;
+	}
+	
+  
+}
+
+.clock-div {
+	background: white !important;
+}
+
+</style>
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20">
+
+			<div class="row">
+				<div class="col-xl-3 mb-30">
+					<div class="card-box height-100-p widget-style1">
+						<div class="d-flex flex-wrap align-items-center">
+							<div class="widget-data">
+								<div class="weight-600 font-14" style="font-size: 16px;">Today Orders</div>
+								<div class="h2 mb-0" id="today-orderAmount" style="padding: 4px 0 2px 0;"></div>
+								<div class="weight-600 font-14">
+									<span id="today-orderAmount-changeRate" style="font-size: 18px;">↑4.63%</span>
+									<span id="additional-text-1" style="font-size: 13px;">전일 대비</span>
+								</div>
+							</div>
+							<div class="progress-data">
+								<span id="dashboard-chart1"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-xl-3 mb-30">
+					<div class="card-box height-100-p widget-style1">
+						<div class="d-flex flex-wrap align-items-center">
+							<div class="widget-data">
+								<div class="weight-600 font-14" style="font-size: 16px;">Today Sales</div>
+								<div class="h2 mb-0" id="today-salesAmount" style="padding: 4px 0 2px 0;"></div>
+								<div class="weight-600 font-14">
+									<span id="today-salesAmount-changeRate" style="font-size: 18px;">↑4.63%</span>
+									<span id="additional-text-2" style="font-size: 13px;">전일 대비</span>
+								</div>
+							</div>
+							<div class="progress-data">
+								<span id="dashboard-chart2"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-xl-3 mb-30">
+					<div class="card-box height-100-p widget-style1 clock-div">
+						<div class="d-flex flex-wrap align-items-center">
+							<div class="widget-data">
+								<div class="weight-600 font-14" style="font-size: 16px;">Today Production</div>
+								<div class="h2 mb-0" id="today-productionAmount" style="padding: 4px 0 2px 0;"></div>
+								<div class="weight-600 font-14">
+									<span id="today-productionAmount-changeRate" style="font-size: 18px;">↑4.63%</span>
+									<span id="additional-text-3" style="font-size: 13px;">전일 대비</span>
+								</div>
+							</div>
+							<div class="progress-data">
+								<span id="dashboard-chart3"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="col-xl-3 mb-30">
+					<div class="card-box height-100-p widget-style1">
+							<div class="card">
+								<p class="time-text"><span id="hour-and-minute"></span><span class="time-sub-text" id="ampm"></span></p>
+								<p class="day-text"><span id="day-text"></span></p>
+							</div>
+					</div>
+				</div>
+				
+			</div>
+			<div class="row">
+
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h5 style="display: inline;">원자재 불량률 Top5 (최근 7일)</h5>
+						<div id="qcChart1"></div>			
+					</div>
+				</div>
+				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h5 style="display: inline;">생상품 불량률 Top5 (최근 7일)</h5>
+						<div id="qcChart2"></div>						
+					</div>
+				</div>
+				
+				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h5 style="display: inline;">출고 대기중인 판매 계약서  &nbsp;&nbsp;&nbsp;&nbsp;</h5>
+						<button class="uiverse-button1" th:onclick="|location.href='@{salesContract}'|"><span class="button1-content">출고하러 가기</span></button>
+						<table class="data-table table nowrap bestseller-table" style="padding-top: 13px;">
+							<thead>
+								<tr>
+									<th class="table-plus datatable-nosort">마감일</th>
+									<th>계약서 이름</th>
+									<th>비고</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="quotation,stat: ${quotationList}" th:if="${stat.index<5}">
+									<tr style="text-align: left;">
+										<td class="table-plus"><th:block th:text="${quotation.quot_enddate}"/></td>
+										<td><a th:href="@{getQuotationDetail(quot_num=${quotation.quot_num})}"><th:block th:text="${quotation.quot_name}"/></td>
+										<td>  
+											<th:block th:if="${quotation.diff > 0}">
+												<span style="color: red;"><th:block th:text="${quotation.diff}"/>일 경과!!</span>
+											</th:block>
+											<th:block th:if="${quotation.diff == 0}">
+												<span style="color: red;">오늘 마감</span>
+											</th:block>
+											<th:block th:if="${quotation.diff < 0}">
+												<span><th:block th:text="${quotation.diff * (-1)}"/>일 뒤 마감</span>
+											</th:block>
+										</td>
+										<td></td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+				
+				
+			</div>
+			<div class="row">
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h2 class="h4 mb-20">자주 거래한 협력사 Top5 (최근 7일)</h2>
+						<div id="apexchart2"></div>
+					</div>
+				</div>
+				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h2 class="h4 mb-20">생산진행 표</h2>
+						<div id="pdCheckCount"></div>
+					</div>
+				</div>
+				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h2 class="h4 mb-20">원자재 현황</h2>
+						<div class="low-stock-container">
+							<div class="table-wrapper">
+						    <table class="inventory-table">
+						        <thead>
+						            <tr>
+						                <th>품목명</th>
+						                <th>현재 재고</th>
+						                <th>권장 재고량</th>
+						            </tr>
+						        </thead>
+						        <tbody>
+						            <tr th:each="item : ${inventoryListVO}">
+						                <td th:text="${item.inven_name}"></td>
+						                <td th:text="${item.inven_amount}" th:class="${item.inven_amount &lt; item.inven_appropriate_amount} ? 'low-stock' : ''"></td>
+						                <td th:text="${item.inven_appropriate_amount}"></td>
+						            </tr>
+						            
+						            <!-- 재고 부족 품목이 없을 경우 -->
+						            <tr class="no-stock" style="display: none;">
+						                <td colspan="3">없음</td>
+						            </tr>
+						        </tbody>
+						    </table>
+						    </div>
+						</div>
+					</div>
+				</div>
+				
+				
+			</div>
+			
+			<div class="row">
+				<div class="col-xl-8 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h2 class="h4 mb-20">최근 작성된 생산 계획서 list5</h2>
+       
+						<!-- data-table table nowrap bestseller-table -->
+						<table class="data-table table nowrap bestseller-table">
+							<thead>
+				                <tr>
+				                    <th width="7%" class="table-plus datatable-nosort">No.</th>
+				                    <th>작성자</th>
+				                    <th>계약서 이름</th>
+				                    <th>작성일</th>
+				                    <th>진행여부</th>
+				                </tr>
+				            </thead>
+							<tbody>
+								<th:block th:each="list, stat : ${list}">
+									<tr>
+										<td>
+											<h5 class="font-16" th:text="${stat.index + 1}"></h5>
+										</td>
+										<!-- DB에서 가져온 pd_num -->
+										<td style="display: none;"></td>
+										<!-- 작성자 -->
+										<td th:text="${list.pd_writer}"></td>
+										<!-- 계약서 이름 -->
+										<!-- <td th:text="${list.pd_name}"></td> -->
+										<td><a th:href="factoryPlan"><th:block th:text="${list.pd_name}"></th:block></a></td>
+										<!--  <td th:text="${list.pd_name}"></td> -->
+										<td th:text="${list.pd_writedate}"></td>
+										<!-- 진행여부 -->
+										<td>
+											<th:block th:if="${list.pd_check == 0}">
+												<span class="badge badge-success" th:text="'추가된 업무'"></span>
+											</th:block>
+											<th:block th:if="${list.pd_check == 1}">
+												<span class="badge badge-primary" th:text="'생산 완료'"></span>
+											</th:block>
+											<th:block th:if="${list.pd_check == 2}">
+												<span class="badge badge-warning" th:text="'생산 요청'"></span>
+											</th:block>
+											<th:block th:if="${list.pd_check == 99}">
+												<span class="badge badge-danger" th:text="'휴지통'"></span>
+											</th:block>
+										</td>
+									</tr>
+								</th:block>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<h2 class="h4 mb-20">완제품 현황</h2>
+						<div class="low-stock-container">
+							<div class="table-wrapper">
+						    <table class="inventory-table">
+						        <thead>
+						            <tr>
+						                <th>품목명</th>
+						                <th>현재 재고</th>
+						                <th>권장 재고량</th>
+						            </tr>
+						        </thead>
+						        <tbody>
+						            <tr th:each="item : ${productListVO}">
+						                <td th:text="${item.inven_name}"></td>
+						                <td th:text="${item.inven_amount}" th:class="${item.inven_amount &lt; item.inven_appropriate_amount} ? 'low-stock' : ''"></td>
+						                <td th:text="${item.inven_appropriate_amount}"></td>
+						            </tr>
+						            
+						            <!-- 재고 부족 품목이 없을 경우 -->
+						            <tr class="no-stock" style="display: none;">
+						                <td colspan="3">없음</td>
+						            </tr>
+						        </tbody>
+						    </table>
+						    </div>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+				
+				
+			</div>
+			
+			
+			
+				<div class="card-box mb-30">
+					<h2 class="h4 pd-20">이번 주 인기상품 Top5 (최근 7일)</h2>
+					<div id="bestseller-table-wrapper">
+						<table class="data-table table nowrap bestseller-table">
+							<thead>
+								<tr>
+									<th width="7%" class="table-plus datatable-nosort">제품</th>
+									<th>제품명</th>
+									<th>제조사</th>
+									<th>카테고리</th>
+									<th>가격(원)</th>
+									<th>판매량</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								<th:block th:each="product,stat: ${productSales}" th:if="${stat.index<5}">
+									<tr>
+										<td class="table-plus">
+											<img th:src="${product.product_img}" width="70" height="70" alt="">
+										</td>
+										<td>
+											<h5 class="font-16"><th:block th:text="${product.product_name}"/></h5>
+											by <th:block th:text="${product.product_brand}"/>
+										</td>
+										<td><th:block th:text="${product.product_brand}"/></td>
+										<td><th:block th:text="${product.product_category}"/></td>
+										<td><th:block th:text="${#numbers.formatInteger(product.product_price,3,'COMMA')}"/></td>
+										<td><th:block th:text="${product.released}"/></td>
+										<td></td>
+									</tr>
+								</th:block>
+								
+							</tbody>
+						</table>
+						
+					</div>
+					
+				</div>
+				
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				DeskApp - Bootstrap 4 Admin Template By <a href="https://github.com/dropways" target="_blank">Ankit Hingarajiya</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/apexcharts/apexcharts.min.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<script src="vendors/scripts/dashboard.js"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	
+<script>
+	
+fetch('/getCompanyNameList') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(companyNameList => {
+    var options = {
+		series: [44, 55, 13, 43, 22],
+		chart: {
+	        width: 380,
+	        type: 'pie',
+		},
+		labels: [companyNameList[0],companyNameList[1],companyNameList[2],companyNameList[3],companyNameList[4]],
+		responsive: [{
+			breakpoint: 480,
+	        options: {
+				chart: {
+					width: 200
+				},
+				legend: {
+					position: 'bottom'
+				}
+			}
+		}]
+	};
+    var chart = new ApexCharts(document.querySelector("#apexchart1"), options);
+    chart.render();
+})
+.catch(error => {
+    console.error('Error fetching company names:', error);
+});
+
+
+fetch('/getCompanyListWithSales') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	
+    var options = {
+		series: map.companyTotalSales,
+		chart: {
+	        width: 380,
+	        type: 'donut',
+		},
+		labels: map.companyName,
+		responsive: [{
+			breakpoint: 480,
+	        options: {
+				chart: {
+					width: 200
+				},
+				legend: {
+					position: 'bottom'
+				}
+			}
+		}]
+	};
+    var chart = new ApexCharts(document.querySelector("#apexchart2"), options);
+    chart.render();
+})
+.catch(error => {
+    console.error('Error fetching company names:', error);
+});
+
+
+</script>
+
+
+<script>
+
+fetch('/getRecentSalesInformations') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	const label = map.dayname;
+	
+	var options = {
+		series: [
+			{
+				name: "Desktops",
+				data: map.recentTotalAmount
+			},
+		],
+		chart: {
+			height: 100,
+			width: 130,
+			type: 'line',
+			zoom: {
+				enabled: false
+			},
+			toolbar: {
+				show: false
+			},
+		},
+		dataLabels: {
+			enabled: false
+		},
+		stroke: {
+			curve: 'smooth',
+			width: 3
+		},
+		grid: {
+			show: false,
+		},
+		xaxis: {  
+			axisBorder: { show: false },
+			axisTicks: { show: false },
+			labels: { show: false },
+	        tooltip: {
+	            enabled: false,
+	        }
+		},
+		yaxis: {
+			show: false,
+		},
+		fill: {
+			  type: 'gradient',
+			  gradient: { gradientToColors: ['#0be881'], stops: [0, 100] },
+		},
+        tooltip: {
+            custom: function({ series, seriesIndex, dataPointIndex }) {
+				const value = series[seriesIndex][dataPointIndex];
+				const month = label[dataPointIndex];
+				return `<div style="padding: 5px; font-size: 10px; background: #f4f4f4; border-radius: 5px;">
+                            <strong>${month} : ${value}</strong>
+                        </div>`;
+            },
+            style: {
+                fontSize: '10px',
+                fontFamily: 'Arial, sans-serif'
+            }
+        },
+	};
+
+	var chart = new ApexCharts(document.querySelector("#dashboard-chart1"), options);
+	chart.render();
+	
+	document.getElementById("today-orderAmount").textContent = map.recentTotalAmount[map.recentTotalAmount.length-1];
+	const element = document.getElementById("today-orderAmount-changeRate");
+	const element2 = document.getElementById("additional-text-1");
+	const today = map.recentTotalAmount[map.recentTotalAmount.length-1];
+	const yesterday = map.recentTotalAmount[map.recentTotalAmount.length-2];
+	
+	if (yesterday == 0) {
+		if (today == 0) {
+			element.textContent = "";
+			element2.textContent = "어제~금일 판매기록 없음";
+		} else {
+			element.textContent = "▲ 100%  ";
+			element.style.color = "red";
+		}
+	} else if (today/yesterday) {
+		if (today == 0) {
+			element.textContent = "";
+			element2.textContent = "금일 판매기록 없음";
+		} else if (today/yesterday<1) {
+			element.textContent = "▼ "+(100*(1-today/yesterday)).toFixed(2)+"%";
+			element.style.color = "blue";
+		} else {
+			element.textContent = "▲ "+(100*(today/yesterday-1)).toFixed(2)+"%";
+			element.style.color = "red";
+		}
+	}
+	
+	var options2 = {
+			series: [
+				{
+					name: "Desktops",
+					data: map.recentTotalSales
+				},
+			],
+			chart: {
+				height: 100,
+				width: 130,
+				type: 'line',
+				zoom: {
+					enabled: false
+				},
+				toolbar: {
+					show: false
+				},
+			},
+			dataLabels: {
+				enabled: false
+			},
+			stroke: {
+				curve: 'smooth',
+				width: 3
+			},
+			grid: {
+				show: false,
+			},
+			xaxis: {  
+				axisBorder: { show: false },
+				axisTicks: { show: false },
+				labels: { show: false },
+		        tooltip: {
+		            enabled: false,
+		        }
+			},
+			yaxis: {
+				show: false,
+			},
+			fill: {
+				  type: 'gradient',
+				  gradient: { gradientToColors: ['#0be881'], stops: [0, 100] },
+			},
+	        tooltip: {
+	            custom: function({ series, seriesIndex, dataPointIndex }) {
+					const value = series[seriesIndex][dataPointIndex];
+					const month = label[dataPointIndex];
+					return `<div style="padding: 5px; font-size: 10px; background: #f4f4f4; border-radius: 5px;">
+	                            <strong>${month} : ￦${value.toLocaleString()}</strong>
+	                        </div>`;
+	            },
+	            style: {
+	                fontSize: '10px',
+	                fontFamily: 'Arial, sans-serif'
+	            }
+	        },
+		};
+	
+	var chart2 = new ApexCharts(document.querySelector("#dashboard-chart2"), options2);
+	chart2.render();
+
+	document.getElementById("today-salesAmount").textContent = '￦'+map.recentTotalSales[map.recentTotalSales.length-1].toLocaleString();
+	const chart2_element = document.getElementById("today-salesAmount-changeRate");
+	const chart2_element2 = document.getElementById("additional-text-2");
+	const chart2_today = map.recentTotalSales[map.recentTotalSales.length-1];
+	const chart2_yesterday = map.recentTotalSales[map.recentTotalSales.length-2];
+	
+	if (chart2_yesterday == 0) {
+		if (chart2_today == 0) {
+			chart2_element.textContent = "";
+			chart2_element2.textContent = "어제~금일 판매기록 없음";
+		} else {
+			chart2_element.textContent = "▲ 100%  ";
+			chart2_element.style.color = "red";
+		}
+	} else if (chart2_today/chart2_yesterday) {
+		if (chart2_today == 0) {
+			chart2_element.textContent = "";
+			chart2_element2.textContent = "금일 판매기록 없음";
+		} else if (chart2_today/chart2_yesterday<1) {
+			chart2_element.textContent = "▼ "+(100*(1-chart2_today/chart2_yesterday)).toFixed(2)+"%";
+			chart2_element.style.color = "blue";
+		} else {
+			chart2_element.textContent = "▲ "+(100*(chart2_today/chart2_yesterday-1)).toFixed(2)+"%";
+			chart2_element.style.color = "red";
+		}
+	}
+	
+})
+.catch(error => {
+	    console.error('Error fetching company names:', error);
+});
+
+
+
+
+fetch('/getRecentProduceInformations') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	const label = map.dayname;
+	
+	var options = {
+		series: [
+			{
+				name: "Desktops",
+				data: map.recentTotalProduce
+			},
+		],
+		chart: {
+			height: 100,
+			width: 130,
+			type: 'line',
+			zoom: {
+				enabled: false
+			},
+			toolbar: {
+				show: false
+			},
+		},
+		dataLabels: {
+			enabled: false
+		},
+		stroke: {
+			curve: 'smooth',
+			width: 3
+		},
+		grid: {
+			show: false,
+		},
+		xaxis: {  
+			axisBorder: { show: false },
+			axisTicks: { show: false },
+			labels: { show: false },
+	        tooltip: {
+	            enabled: false,
+	        }
+		},
+		yaxis: {
+			show: false,
+		},
+		fill: {
+			  type: 'gradient',
+			  gradient: { gradientToColors: ['#0be881'], stops: [0, 100] },
+		},
+        tooltip: {
+            custom: function({ series, seriesIndex, dataPointIndex }) {
+				const value = series[seriesIndex][dataPointIndex];
+				const month = label[dataPointIndex];
+				return `<div style="padding: 5px; font-size: 10px; background: #f4f4f4; border-radius: 5px;">
+                            <strong>${month} : ${value}</strong>
+                        </div>`;
+            },
+            style: {
+                fontSize: '10px',
+                fontFamily: 'Arial, sans-serif'
+            }
+        },
+	};
+
+	var chart = new ApexCharts(document.querySelector("#dashboard-chart3"), options);
+	chart.render();
+	
+	document.getElementById("today-productionAmount").textContent = map.recentTotalProduce[map.recentTotalProduce.length-1];
+	const element = document.getElementById("today-productionAmount-changeRate");
+	const element2 = document.getElementById("additional-text-3");
+	const today = map.recentTotalProduce[map.recentTotalProduce.length-1];
+	const yesterday = map.recentTotalProduce[map.recentTotalProduce.length-2];
+	
+	if (yesterday == 0) {
+		if (today == 0) {
+			element.textContent = "";
+			element2.textContent = "어제~금일 생산기록 없음";
+		} else {
+			element.textContent = "▲ 100%  ";
+			element.style.color = "red";
+		}
+	} else if (today/yesterday) {
+		if (today == 0) {
+			element.textContent = "";
+			element2.textContent = "금일 생산기록 없음";
+		} else if (today/yesterday<1) {
+			element.textContent = "▼ "+(100*(1-today/yesterday)).toFixed(2)+"%";
+			element.style.color = "blue";
+		} else {
+			element.textContent = "▲ "+(100*(today/yesterday-1)).toFixed(2)+"%";
+			element.style.color = "red";
+		}
+	}
+	
+	
+})
+.catch(error => {
+	    console.error('Error fetching company names:', error);
+});
+
+</script>
+
+
+<script>
+
+function updateClock() {
+    const now = new Date();
+    const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+    const dayOfWeek = daysOfWeek[now.getDay()];
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    
+    let ampm = ' AM';
+    let displayHours = hours;
+    
+    if (hours >= 12) {
+        ampm = ' PM';
+        displayHours = hours % 12;
+        if (displayHours === 0) {
+        	displayHours = 12;
+        }
+    }
+    
+    const timeString = `${year}년 ${month}월 ${day}일 ${dayOfWeek}요일`;
+    const hour_to_sec = `${displayHours}:${minutes}:${seconds}`;
+    document.getElementById('day-text').textContent = timeString;
+    document.getElementById('hour-and-minute').textContent = hour_to_sec;
+    document.getElementById('ampm').textContent = ampm;
+}
+
+// 매 초마다 시계 업데이트
+setInterval(updateClock, 1000);
+
+// 페이지 로드 시에도 시계 업데이트
+updateClock();
+
+</script>
+
+
+
+
+<!-- 민성 스크립트 -->
+<script>
+
+//fetchChartData 함수를 수정하여 chartdata 값을 차트에 반영
+fetch('/chartdata')
+    .then(response => response.json()) // JSON 데이터로 변환
+    .then(data => {
+        console.log("받은 데이터:", data); // 데이터를 콘솔에서 확인
+
+        // ApexCharts 옵션 설정
+        var options = {
+            series: [data.black, data.white], // Spring Boot에서 받은 데이터 (변수명 변경)
+            chart: {
+                width: 410,
+                type: 'pie',
+            },
+            labels: ['생산 예정', '생산 됨'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }]
+        };
+   
+        // 차트 렌더링
+        var chart = new ApexCharts(document.querySelector("#pdCheckCount"), options);
+        chart.render();
+    })
+    .catch(error => {
+        console.error('Error fetching chart data:', error); // 에러 처리
+    });
+
+
+</script>
+
+
+
+<!-- 나현 스크립트 -->
+<script>
+
+fetch('/getQcTopMaterial') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	console.log("나현 QC 로그 찍어보는 중 ~~~~~~~~~~~~ ", map);
+	if (!map.itemName || map.itemName.length === 0) {
+        document.querySelector("#qcChart1").innerHTML = `<div class="pt-5 pb-5 align-self-center">7일 기준, 해당하는 데이터가 없습니다.</div>`;
+    } else {
+	var qcChart = {
+		    chart: {
+		        height: 350,
+		        type: 'bar',
+		        parentHeightOffset: 0,
+		        fontFamily: 'Poppins, sans-serif',
+		        toolbar: {
+		            show: false,
+		        },
+		    },
+		    labels: [map.itemName[0], map.itemName[1], map.itemName[2], map.itemName[3], map.itemName[4]],
+		    colors: ['#1b00ff'], // 단일 데이터 색상
+		    grid: {
+		        borderColor: '#c7d2dd',
+		        strokeDashArray: 5,
+		    },
+		    plotOptions: {
+		        bar: {
+		            horizontal: false,
+		            columnWidth: '25%',
+		            endingShape: 'rounded'
+		        },
+		    },
+		    dataLabels: {
+		        enabled: false
+		    },
+		    stroke: {
+		        show: true,
+		        width: 2,
+		        colors: ['transparent']
+		    },
+		    series: [
+		    	{
+		    		data:map.itemQcPer
+		    		}
+		    	],
+		    xaxis: {
+		        categories: map.itemName,
+		        labels: {
+		            style: {
+		                colors: ['#353535'],
+		                fontSize: '16px',
+		            },
+		        },
+		        axisBorder: {
+		            color: '#8fa6bc',
+		        }
+		    },
+		    yaxis: {
+		        title: {
+		            text: ''
+		        },
+		        labels: {
+		            style: {
+		                colors: '#353535',
+		                fontSize: '16px',
+		            },
+		            formatter: function (val) {
+		            	return val.toFixed(2) + '%'; // 소수점 2자리와 '%'
+		            }
+		        },
+		        axisBorder: {
+		            color: '#f00',
+		        }
+		    },
+		    legend: {
+		        horizontalAlign: 'right',
+		        position: 'top',
+		        fontSize: '16px',
+		        offsetY: 0,
+		        labels: {
+		            colors: '#353535',
+		        },
+		        markers: {
+		            width: 10,
+		            height: 10,
+		            radius: 15,
+		        },
+		        itemMargin: {
+		            vertical: 0
+		        },
+		    },
+		    fill: {
+		        opacity: 1
+		    },
+		    tooltip: {
+		        style: {
+		            fontSize: '15px',
+		            fontFamily: 'Poppins, sans-serif',
+		        },
+		        y: {
+		            formatter: function (val) {
+		                return val + '%'
+		            }
+		        },
+		        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                    // 시리즈 이름을 제외하고 값만 표시
+                    const itemName = w.globals.labels[dataPointIndex];
+					const value = series[seriesIndex][dataPointIndex];
+					return `<div class="tooltip-custom p-1">
+					            <strong>${itemName}</strong>: ${value.toFixed(2)}%
+					        </div>`;
+                }
+		    }
+		};
+	var chart = new ApexCharts(document.querySelector("#qcChart1"), qcChart);
+	chart.render();
+}})
+
+.catch (error => {
+	console.error("데이터를 불러오는 중 오류가 발생했습니다. 오류 내용 :::::", error);
+})
+
+
+fetch('/getQcTopProduct') // 엔드포인트 호출
+.then(response => response.json()) // JSON 형식으로 변환
+.then(map => {
+	console.log("나현 QC 제품 로그 찍어보는 중 ~~~~~~~~~~~~ ", map);
+	var qcChart = {
+		    chart: {
+		        height: 350,
+		        type: 'bar',
+		        parentHeightOffset: 0,
+		        fontFamily: 'Poppins, sans-serif',
+		        toolbar: {
+		            show: false,
+		        },
+		    },
+		    labels: [map.itemName[0], map.itemName[1], map.itemName[2], map.itemName[3], map.itemName[4]],
+		    colors: ['#1b00ff'], // 단일 데이터 색상
+		    grid: {
+		        borderColor: '#c7d2dd',
+		        strokeDashArray: 5,
+		    },
+		    plotOptions: {
+		        bar: {
+		            horizontal: false,
+		            columnWidth: '25%',
+		            endingShape: 'rounded'
+		        },
+		    },
+		    dataLabels: {
+		        enabled: false
+		    },
+		    stroke: {
+		        show: true,
+		        width: 2,
+		        colors: ['transparent']
+		    },
+		    series: [
+		    	{
+		    		data:map.itemQcPer
+		    		}
+		    	],
+		    xaxis: {
+		        categories: map.itemName,
+		        labels: {
+		            style: {
+		                colors: ['#353535'],
+		                fontSize: '16px',
+		            },
+		        },
+		        axisBorder: {
+		            color: '#8fa6bc',
+		        }
+		    },
+		    yaxis: {
+		        title: {
+		            text: ''
+		        },
+		        labels: {
+		            style: {
+		                colors: '#353535',
+		                fontSize: '16px',
+		            },
+		            formatter: function (val) {
+		            	return val.toFixed(2) + '%'; // 소수점 2자리와 '%'
+		            }
+		        },
+		        axisBorder: {
+		            color: '#f00',
+		        }
+		    },
+		    legend: {
+		        horizontalAlign: 'right',
+		        position: 'top',
+		        fontSize: '16px',
+		        offsetY: 0,
+		        labels: {
+		            colors: '#353535',
+		        },
+		        markers: {
+		            width: 10,
+		            height: 10,
+		            radius: 15,
+		        },
+		        itemMargin: {
+		            vertical: 0
+		        },
+		    },
+		    fill: {
+		        opacity: 1
+		    },
+		    tooltip: {
+		        style: {
+		            fontSize: '15px',
+		            fontFamily: 'Poppins, sans-serif',
+		        },
+		        y: {
+		            formatter: function (val) {
+		                return val + '%'
+		            }
+		        },
+		        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                    // 시리즈 이름을 제외하고 값만 표시
+                    const itemName = w.globals.labels[dataPointIndex];
+					const value = series[seriesIndex][dataPointIndex];
+					return `<div class="tooltip-custom p-1">
+					            <strong>${itemName}</strong>: ${value.toFixed(2)}%
+					        </div>`;
+                }
+		    }
+		};
+	
+	var chart = new ApexCharts(document.querySelector("#qcChart2"), qcChart);
+	chart.render();
+})
+.catch (error => {
+	console.error("데이터를 불러오는 중 오류가 발생했습니다. 오류 내용 :::::", error);
+})
+
+
+
+</script>
+
+
+
+
+<!-- 의재 스크립트 -->
+<script th:src="@{https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js}"></script>
+
+<script>
+
+
+
+</script>
+
+	
+</body>
+</html>

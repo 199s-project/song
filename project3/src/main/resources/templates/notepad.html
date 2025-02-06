@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+
+
+<style>
+
+
+</style>
+
+
+</head>
+<body>
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>DataTable</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index.html">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">DataTable</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<div class="dropdown">
+								<a class="btn btn-primary dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+									January 2018
+								</a>
+								<div class="dropdown-menu dropdown-menu-right">
+									<a class="dropdown-item" href="#">Export List</a>
+									<a class="dropdown-item" href="#">Policies</a>
+									<a class="dropdown-item" href="#">View Assets</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+				
+				<!-- Export Datatable start -->
+				
+
+				
+				
+				<div class="col-xl-4 mb-30">
+					<div class="card-box height-100-p pd-20">
+						<div id="chart1"></div>
+					</div>
+				</div>
+				
+				
+				
+
+				<!-- Export Datatable End -->
+				
+				
+				
+			</div>
+			
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script>
+	<script src="src/plugins/apexcharts/apexcharts.min.js"></script>
+	
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	
+	
+	
+<script>
+
+
+var options = {
+	series: [{
+		name: "Desktops",
+		data: [10, 41, 35, 51, 49, 62, 69, 91, 148]
+	}],
+	chart: {
+		height: 150,
+		width: 150,
+		type: 'line',
+		zoom: {
+			enabled: false
+		},
+		toolbar: {
+			show: false
+		},
+	},
+	dataLabels: {
+		enabled: false
+	},
+	stroke: {
+		curve: 'smooth',
+		width: 3
+	},
+	grid: {
+		show: false,
+	},
+	xaxis: {  
+		axisBorder: { show: false },
+		axisTicks: { show: false },
+		labels: { show: false },
+		categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+	},
+	yaxis: {
+		show: false,
+	},
+	fill: {
+		  type: 'gradient',
+		  gradient: { gradientToColors: ['#0be881'], stops: [0, 100] },
+	},
+	
+};
+
+var chart = new ApexCharts(document.querySelector("#chart1"), options);
+chart.render();
+
+</script>
+	
+	</body>
+
+</html>

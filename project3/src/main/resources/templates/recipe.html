@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html>
+<title>레시피 목록</title>
+<head>
+
+   
+
+
+<style>
+
+div.dataTables_filter {
+   width: 500px;
+   float: right;
+   margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+   margin: 0 0 10px 16px;
+}
+
+table.multiple-select-row {
+	border-collapse: collapse !important; /* 테두리 중첩 방지 */
+	width: 100%; /* 테이블의 너비를 100%로 설정 */
+	border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	width: 96% !important;
+	margin-left: 2%;
+	
+    th, td {
+	    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	    padding: 8px; /* 셀 내부 간격 */
+	    text-align: center; /* 텍스트 정렬 */
+	    height: 37px;
+	}
+	
+	th {
+	    background-color: #f4f4f4; /* 헤더 배경색 */
+	    font-weight: bold; /* 헤더 강조 */
+	    height: 30px;
+	}
+	
+	tr:hover {
+	    background-color: #f9f9f9; /* 마우스 오버 효과 */
+	}
+	
+	.hidden_row {
+		display: none;
+	}
+	
+}
+
+
+
+
+#kakao-map > div div div {
+	> div:first-child {
+		display: none;
+		box-shadow: 0 0 gray !important;
+	}
+	> div {
+		border-radius:5px !important;
+		width: 130px !important;
+		box-shadow: 2px 2px 2px gray;
+		padding: 6px;
+	
+		> div:first-child {
+			display: none;
+			box-shadow: 0 0 gray !important;
+		}
+	}
+}
+
+.kakaomap-indicator {
+	display: inline !important;
+	box-shadow: 0 0 gray !important;
+	width:100px; 
+	text-align:center !important; 
+	padding: 10px;
+	position: static !important;
+	font-weight: bold;
+}
+
+#register-table {
+	width: 450px;
+	tr {
+		height: 55px;
+		border-bottom: 1px solid lightgray;
+	}
+	thead {
+		tr {
+			height: 120px !important;
+			font-weight: bold;
+			font-size: 40px;
+		}
+	}
+}
+.table-title {
+	border: 1px;
+	border-radius: 10px;
+	color: #8d8d8d;
+	padding: 10px;
+}
+.swal2-input {
+	height: 30px !important;
+	margin: 0;
+}
+#fileVO {
+	height: 32px !important;
+	padding: 2px 0 0 2px;
+}
+.heading-td {
+	width: 20% !important;
+	text-align: left !important;
+	font-size: 15px;
+	font-weight: bold;
+}
+.input-auto-size td {
+	input {
+		width: 90%;
+		font-size: 15px;
+	}
+	#product-input2, #product-input3, #company-input1 {
+		width: 44%;
+		float: left;
+		margin-left: 18px;
+	}
+	#recipe-input1 {
+		width: 54%;
+		float: left;
+		margin-left: 18px;
+	}
+	.material-name-input, .material-amount-input {
+		width: 44%;
+		float: left;
+		margin-left: 18px;
+	}
+	.code-validation-result, .company-validation-result, .company-name-validation-result, .company-code-validation-result {
+		width: 44%;
+		float: right;
+		margin-right: 18px;
+	}
+	.product-code-result {
+		width: 33%;
+		float: right;
+		margin-right: 18px;
+	}
+}
+#zipcode {
+	width: 50% !important;
+	float: left;
+	margin-left: 5% !important;
+}
+#daumaddress {
+	width: 38% !important;
+	margin-right: 3% !important;
+	background-color: lightgray;
+	font-weight: bold;
+	text-align: center;
+}
+.swal2-actions {
+	margin: 0.75em 0 0 0 !important;
+}
+
+.btn-recipe {
+	text-align:center;
+	font-weight: 500;
+	padding: 3px 15px;
+	background-color: #6C757D;
+	color: #fff;
+	border-radius: .3rem;
+	border:none;
+	outline:none;
+}
+
+	.ui-menu {
+		z-index: 2000 !important;
+		max-height: 130px !important;
+		overflow-y: auto !important;
+		overflow-x: hidden !important;
+	}
+
+</style>
+
+  
+    
+<style>
+
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+	content: none !important;
+}
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+	pointer-events: none; /* 클릭 비활성화 */
+}
+.buttons-pdf{
+	display: none !important;
+}
+</style>
+
+
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+
+
+<script>
+
+
+async function recipeDetail(event) {
+	const button = event.target;
+	const row = button.closest('tr');
+	const productCodeElement = row.querySelector('.product-code');
+	const product_code = productCodeElement?.textContent.trim();
+	
+	//이미 상세 정보 행이 있는지 확인
+	const existingDetailRow = row.nextElementSibling;
+	if (existingDetailRow && existingDetailRow.classList.contains('detail-row')) {
+		// 상세 정보가 이미 있으면 제거
+		existingDetailRow.remove();
+		return;
+	}
+	
+	//레시피 정보 가져오기
+	const response = await fetch(`/getRecipeDetailByProductcode?product_code=${product_code}`);
+	const RecipeDetailList = await response.json();
+	
+	// 새로운 행 생성
+	const detailRow = document.createElement('tr');
+	detailRow.classList.add('detail-row');
+	
+	
+	
+	let detailHTML = `
+	    <td colspan="6" style="text-align: center; padding: 10px;">
+	    <div style="display: flex; justify-content: center; padding: 20px;">
+        <table style="width: 50%; border: 1px solid #ccc; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f5f5f5;">
+                    <th style="width: 200px; height: 15px; border: 1px solid #ccc; padding: 8px;">원재료 이름</th>
+                    <th style="width: 200px; height: 15px; border: 1px solid #ccc; padding: 8px;">필요 수량</th>
+                </tr>
+            </thead>
+            <tbody>
+	`;
+	
+	RecipeDetailList.forEach(recipeDetailVO => {
+		detailHTML += `
+			<tr>
+	            <td style="width: 200px; height: 15px; border: 1px solid #ccc; padding: 8px;">${recipeDetailVO.material_name}</td>
+	            <td style="width: 200px; height: 15px; border: 1px solid #ccc; padding: 8px;">${recipeDetailVO.material_amount}</td>
+	        </tr>
+		`;
+	});
+	
+	detailHTML += `
+        	</tbody>
+        </table>
+        </div>
+    </td>
+	`;
+                
+	
+	detailRow.innerHTML = detailHTML;
+	
+	row.insertAdjacentElement('afterend', detailRow);
+}
+
+
+
+
+async function updateRecipe(recipe_num) {
+	
+	const recipeVOResponse = await fetch(`/getRecipeByRecipeNum?recipe_num=${recipe_num}`);
+	const recipeVO = await recipeVOResponse.json();
+
+	const recipeDetailVOListResponse = await fetch(`/getRecipeDetailListByRecipeNum?recipe_num=${recipe_num}`);
+	const recipeDetailVOList = await recipeDetailVOListResponse.json();
+	console.log(recipeDetailVOList);
+	
+	let detailHTML = ``;
+	let count = 1;
+	recipeDetailVOList.forEach(recipeDetailVO => {
+		detailHTML += `
+			<tr>
+				<td class="heading-td"> 레시피${count} </td>
+				<td><input type="text" id="material-name-input` + count + `" class="swal2-input material-name-input" value="${recipeDetailVO.material_name}" onblur="rowmaterialChange(event)" autocomplete="off" required>
+					<input type="text" id="material-amount-input` + count + `" class="swal2-input material-amount-input" placeholder="레시피 수량" value="${recipeDetailVO.material_amount}" autocomplete="off" required>
+					<input type="hidden" id="recipedetail-num` + count + `" value="${recipeDetailVO.rd_num}">
+				</td>
+			</tr>
+		`;
+		count++;
+	});
+	
+	Swal.fire({
+		html: `
+			<table id="register-table" class="input-auto-size">
+	  			<thead>
+	  				<tr>
+	  					<td colspan="2" style="text-align:left"> <div class="table-title"><i class="fa-solid fa-users"></i> &nbsp; 레시피 정보 수정</div> </td>
+	  				</tr>
+	  			</thead>
+	  			<tbody>
+	  				<tr>
+	  					<td class="heading-td"> 제품코드 </td>
+	  					<td> <input id="recipe-input1" class="swal2-input" value="${recipeVO.product_code}" placeholder="아이디" readonly></td>
+	  				</tr>
+	  				<tr>
+	  					<td class="heading-td"> 제품명 </td>
+	  					<td> <input id="recipe-input2" class="swal2-input" value="${recipeVO.product_name}" placeholder="이름" readonly></td>
+	  				</tr>	  					
+	  				<tr>
+	  					<td class="heading-td"> 생산단가 </td>
+	  					<td> <input id="recipe-input3" class="swal2-input" value="${recipeVO.recipe_price}" placeholder="생산단가"> 
+	  						 <input type="hidden" id="recipe-input4" value="${recipeVO.recipe_num}" /></td>
+	  				</tr>
+	  					${detailHTML}
+	  			</tbody>
+	  		</table>
+	    `,
+		showCancelButton: true,
+	    confirmButtonColor: "#2BC783",
+	    cancelButtonColor: "#d33",
+	    confirmButtonText: "Submit",
+	    cancelButtonText: "Cancel",
+	    allowOutsideClick: false,
+	    focusConfirm: false,
+	    preConfirm: () => {
+	        const formElements = document.querySelectorAll('#register-table input');
+	        const formData = new Map();
+			let isValid = true;
+	        
+	        formElements.forEach(input => {
+	        	const value = input.value.trim(); // 값 확인
+	        	if (!value && input.required) { // 값이 없는 경우
+	        		isValid = false;
+	        		input.style.borderColor = "red"; // 경고
+	        		input.focus(); // 필드로 포커스 변경
+	        	} else {
+	        		input.style.borderColor = ""; // 경고제거
+	        		formData.set(input.id, value);
+	        	}
+	        });
+	        
+	        if (!isValid) {
+	        	Swal.showValidationMessage("입력란을 채워주세요.")
+	        	return false;
+	        }
+	        
+			return Object.fromEntries(formData);
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			fetch('/updateRecipe', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(result.value),
+			})
+			.then(response => {
+				if (response.ok) {
+					Swal.fire("성공", "레시피 정보가 성공적으로 수정되었습니다.", "success");
+				} else {
+					Swal.fire("실패", "레시피 정보를 수정하지 못했습니다.", "error");
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire("오류", "요청 중 오류가 발생했습니다.", "error");
+			});
+	    }
+	});
+}
+
+</script>
+
+
+<script>
+
+function rowmaterialChange(event) {
+	const currentInput = event.target;
+	const currentId = currentInput.id;
+	const currentValue = currentInput.value.trim();
+	const allInputs = document.querySelectorAll('.material-name-input');
+	
+	const k = currentId.replace('material-name-input', '');
+	const materialAmountInput = document.getElementById(`material-amount-input${k}`);
+	
+	let isDuplicate = false;
+	allInputs.forEach(input => {
+		if (input !== currentInput && input.value.trim() === currentValue) {
+			isDuplicate = true;
+		}
+	});
+	
+	if (isDuplicate) {
+		alert('이미 동일한 값이 입력되어 있습니다.');
+		currentInput.value= '';
+		if (materialAmountInput) materialAmountInput.value = '';
+	}
+}
+
+$(document).on("focus", ".material-name-input", function() {
+	const $this = $(this);
+	$.ajax({
+		url: "/getMaterialNameList",
+		type: "POST",
+		dataType: "json",
+		success: function(data) {
+			$this.autocomplete({
+				source: data,
+				minLength: 0,	
+				select: function(event, ui) {
+					$this.val(ui.item.value);
+					return false;
+				},
+				position: {
+					my: "left top",
+					at: "left bottom",
+					of: $this,
+				},	
+			});
+			
+			$this.autocomplete("search", "");
+			
+		},
+		error: function (xhr, status, error) {
+			console.error("에러: ", error);
+		},
+	});
+});
+
+</script>
+
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY&libraries=services"></script>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
+<script>
+
+
+
+
+var count = 2;
+
+function addrow() {
+	
+	const elem = document.createElement("tr");
+	elem.classList.add('added-row'+count);
+	elem.innerHTML = `
+		<tr>
+			<td class="heading-td"> 레시피${count} </td>
+			<td> <input type="text" id="material-name-input` + count + `" class="swal2-input material-name-input" placeholder="레시피 종류" autocomplete="off" required onblur="rowmaterialChange(event)"> <input type="text" id="material-amount-input` + count + `" class="swal2-input material-amount-input" placeholder="레시피 수량" autocomplete="off" required></td>
+		</tr> 
+	`;
+	count++;
+	document.querySelector(".register-table").appendChild(elem);
+}
+
+function deleterow() {
+	if (count>=3) {
+	    const table = document.getElementById('register-table');
+	    count--;
+	    table.deleteRow(count+4);
+	}
+}
+
+function addrecipe() {
+	Swal.fire({
+		html: `
+			<table id="register-table" class="register-table input-auto-size">
+				<thead>
+					<tr>
+						<td colspan="2" style="text-align:left"> 
+							<div class="table-title"><i class="fa-solid fa-gift"></i> &nbsp; 레시피 정보 등록 </div> 
+						<td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="heading-td"> 제품코드 </td>
+						<td> <input id="recipe-input1" class="swal2-input" placeholder="제품코드" autocomplete="new-password" onclick="productcodeAutocomplete()" onblur="product_codeValidation()" required> <input id="product-code-validation-result" class="swal2-input product-code-result" readonly placeholder="사용가능여부"> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 제품명 </td>
+						<td> <input id="recipe-input2" class="swal2-input" placeholder="제품명" autocomplete="new-password" readonly> </td>
+					</tr>
+					<tr>
+						<td class="heading-td"> 생산단가 </td>
+						<td> <input id="recipe-input3" class="swal2-input" placeholder="생산단가" autocomplete="new-password" required> </td>
+					</tr>
+					<tr>
+						<td class="heading-td">열 추가/삭제</td>
+						<td class="btn-td">
+						<button type="button" class="btn btn-primary m-2 rowbtn" onclick="addrow()">열 추가</button>
+			        	<button type="button" class="btn btn-primary m-2 rowbtn" onclick="deleterow()">열 제거</button>
+						</td>
+			        </tr>
+					<tr>
+						<td class="heading-td"> 레시피1 </td>
+						<td> <input type="text" id="material-name-input1" class="swal2-input material-name-input" placeholder="레시피 종류" autocomplete="off" required onblur="rowmaterialChange(event)"> <input type="text" id="material-amount-input1" class="swal2-input material-amount-input" placeholder="레시피 수량" autocomplete="new-password" required></td>
+					</tr>            
+				</tbody>
+			</table>
+		`,
+		showCancelButton: true,
+		confirmButtonColor: "#2BC783",
+		cancelButtonColor: "#d33",
+		confirmButtonText: "Submit",
+		cancelButtonText: "Cancel",
+		allowOutsideClick: false,
+		focusConfirm: false,
+		preConfirm: () => {
+			const formElements = document.querySelectorAll('#register-table input');
+			const codevalidation = document.querySelector('#product-code-validation-result');
+			const codevalue = codevalidation.value;
+			const formData = new Map();
+			let isValid = true; // 입력 값 검증 상태
+			
+			if (codevalue === "사용불가") {
+				isValid = false;
+			} else {
+				isValid = true;
+			}
+			
+			formElements.forEach(input => {
+				const value = input.value.trim(); // 값 확인
+				if (!value && input.required) { // 값이 없는 경우
+					isValid = false;
+					input.style.borderColor = "red"; // 경고
+					input.focus(); // 필드로 포커스 변경
+				} else {
+					input.style.borderColor = ""; // 경고제거
+					formData.set(input.id, value);
+				}
+			});
+	      
+			if (!isValid) {
+				Swal.showValidationMessage("입력란을 채워주세요.")
+				return false;
+			}
+			
+			return Object.fromEntries(formData);
+		},
+	})
+	.then((result) => {
+		if (result.isConfirmed) {
+			fetch(`/addRecipe`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(result.value),
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error(`Error: 다시해~!`);
+				}
+				return response.json();
+			})
+			.then(data => {
+				Swal.fire("성공", "레시피 정보 추가완료", "success");
+			})
+			.catch(error=> {
+				console.error('Error:', error);
+				Swal.fire("오류", error.message, "error");
+			});
+		}
+		count = 2;
+	});
+}
+
+function productcodeAutocomplete() {
+	$.ajax({
+		url: "/getProductCodeAndNameListConcat",
+		type: "GET",
+		dataType: "json",
+		success: function(data) {
+			$("#recipe-input1").autocomplete({
+				source: data,
+				minLength: 0,
+	            select: function(event, ui) {
+	                $("#recipe-input1").val(ui.item.value);
+	                return false;
+	            },
+	            position: {
+	            	my: "left top",
+	            	at: "left bottom",
+	            	of: "#recipe-input1"
+	            }
+			});
+			$("#recipe-input1").on("focus", function() {
+				$(this).autocomplete("search", "");
+			});
+		},
+		error: function(xhr, status, error) {
+			console.error("에러: ", error);
+		}
+	});
+}
+
+
+
+$(document).on("focus", ".material-name-input", function() {
+	const $this = $(this);
+	$.ajax({
+		url: "/getMaterialNameList",
+		type: "POST",
+		dataType: "json",
+		success: function(data) {
+			$this.autocomplete({
+				source: data,
+				minLength: 0,	
+				select: function(event, ui) {
+					$this.val(ui.item.value);
+					return false;
+				},
+				position: {
+					my: "left top",
+					at: "left bottom",
+					of: $this,
+				},
+			});
+			$this.autocomplete("search", "");
+		},
+		error: function (xhr, status, error) {
+			console.error("에러: ", error);
+		},
+	});
+});
+
+function product_codeValidation() {
+	var product_codeAndName = $("#recipe-input1").val();
+	var product_code = product_codeAndName.replace(/\(.*\)$/, "");
+	var product_name = product_codeAndName.replace(/.*\(|\)/g, "");
+	if (!product_code) {
+		$('.product-code-validation-result').attr('value', '');
+	} else {
+		$.ajax({
+			url: "/productCodeCheck",
+			type: "POST",
+			data: {product_code : product_code},
+			success: function(cnt) {
+				if (cnt > 0) {
+					console.log("cnt:",cnt);
+					//여기 사이에 recipe에 존재하는지 여부 확인하는 함수
+					$.ajax({
+						url: "/recipeProductCodeCheck",
+						type: "GET",
+						data: {product_code : product_code},
+						success: function(cntcode) {
+							if (cntcode > 0) {
+								console.log("cntcode: ",cntcode);
+								$('.product-code-result').attr('value', '레시피존재');
+								$('.product-code-result').css({
+									"color" : "red",
+								});
+								alert("이미 존재하는 레시피입니다.");
+								$("#recipe-input2").val("");
+							} else {
+								$('.product-code-result').attr('value', '사용가능');
+								$('.product-code-result').css({
+									"color" : "green",
+								});
+								$("#recipe-input2").val(product_name);
+							}
+						}
+					});
+				} else {
+					$('.product-code-result').attr('value', '사용불가');
+					$('.product-code-result').css({
+						"color" : "red",
+					});
+					alert("존재하지 않는 제품입니다.");
+					$("#recipe-input2").val("");
+				}
+			}
+		});
+	}
+}
+
+function rowmaterialChange(event) {
+    const currentInput = event.target;
+    const currentId = currentInput.id;
+    const currentValue = currentInput.value.trim();
+    const allInputs = document.querySelectorAll('.material-name-input');
+
+    // Extract k from the id (itemk)
+    const k = currentId.replace('material-name-input', '');
+    const materialAmountInput = document.getElementById(`material-amount-input${k}`);
+
+    // Check if the value exists in other inputs
+    let isDuplicate = false;
+    allInputs.forEach(input => {
+        if (input !== currentInput && input.value.trim() === currentValue) {
+            isDuplicate = true;
+        }
+    });
+
+    if (isDuplicate) {
+        alert('이미 동일한 값이 입력되어 있습니다.');
+        currentInput.value = ''; // Clear the current input
+        if (materialAmountInput) materialAmountInput.value = ''; // Clear associated unit price
+    }
+}
+
+
+
+
+
+</script>
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=2dd2d56701b1014424c03e264ce110c1&libraries=services"></script>
+</head>
+<body>
+ <div th:replace="~{/include/header}"></div>
+   <div class="mobile-menu-overlay"></div>
+
+   <div class="main-container">
+      <div class="pd-ltr-20 xs-pd-20-10">
+         <div class="min-height-200px">
+            <div class="page-header">
+               <div class="row">
+                  <div class="col-md-6 col-sm-12">
+                     <div class="title">
+                        <h4>직원 관리</h4>
+                     </div>
+                     <nav aria-label="breadcrumb" role="navigation">
+                        <ol class="breadcrumb">
+                           <li class="breadcrumb-item"><a href="index">Home</a></li>
+                           <li class="breadcrumb-item active" aria-current="page">레시피 목록</li>
+                        </ol>
+                     </nav>
+                  </div>
+                  <div class="col-md-6 col-sm-12 text-right">
+                     오후 4:54 2025-01-13
+                  </div>
+                     
+
+               </div>
+            </div>
+            
+            <!-- Export Datatable start -->
+            <div class="card-box mb-30">
+            
+               <div class="pd-20">
+                  <button class="btn btn-primary m-2" onclick="addrecipe()">레시피 정보 등록</button>
+               </div>
+               
+               <div class="pb-20">
+               
+            
+                  <table class="table hover multiple-select-row data-table-export nowrap company-list-table">
+							<thead>
+								<tr style="text-align: center;">
+									<td class="hidden_row"></td>
+									<th class="table-plus datatable-nosort" width="4%">번호</th>
+									<th style="width: 20%;">제품명</th>
+									<th style="width: 20%;">제품코드</th>
+									<th width="10%">생산단가</th>
+									<th width="10%">레시피보기</th>
+									<th width="5%">수정</th>
+								</tr>
+							</thead>
+							<tbody>
+									<th:block th:each="form,stat: ${recipeVOList}">
+										<tr>
+											<td class="hidden_row"></td>
+											<td style="text-align: center;"><th:block th:text="${stat.size-stat.index}"></th:block></td>  
+											<td><th:block th:text="${form.product_name}"></th:block></td>
+											<td class="product-code"><th:block th:text="${form.product_code}"></th:block></td>
+											<td><th:block th:text="${form.recipe_price}"></th:block></td>
+											<td><button type="button" th:text="'레시피보기'" 
+												 onclick="recipeDetail(event)"
+												style="cursor:pointer;" class="btn-recipe"></button></td>
+											<td><button type="button" th:text="'수정'" 
+												 th:onclick="updateRecipe([[${form.recipe_num}]])"
+												style="cursor:pointer;" class="btn-recipe"></button></td>
+										</tr>
+									</th:block>
+							</tbody>
+						</table>
+						
+					</div>
+				</div>
+            
+            <!-- Export Datatable End -->
+         </div>
+         
+         
+         
+         
+         
+         
+         <div class="footer-wrap pd-20 mb-20 card-box">
+           we are all 1995's  <a href="" target="_blank">Suit</a>
+         </div>
+      </div>
+   </div>
+
+   
+   
+   
+   <!-- js -->
+   <script src="vendors/scripts/core.js"></script>
+   <script src="vendors/scripts/script.min.js"></script>
+   <script src="vendors/scripts/process.js"></script>
+   <script src="vendors/scripts/layout-settings.js"></script>
+   <script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+   <script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+   <script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+   <script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+   <!-- buttons for Export datatable -->
+   <script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+   <script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+   <script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+   <script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+   <!-- Datatable Setting js -->
+   <script src="vendors/scripts/datatable-setting.js"></script>
+   
+   	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+   
+
+   
+   <style>
+table.dataTable tbody tr.selected, table.dataTable.display tbody tr:hover.selected, table.dataTable.hover tbody tr:hover.selected {
+    background-color: #ffffff !important;
+    color: black !important;
+}
+
+
+</style>
+
+
+
+   </body>
+
+</html>

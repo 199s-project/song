@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.dao.ProjectDAO">
+
+
+	<select id="getMember" parameterType="java.util.Map" resultType="MemberVO">
+		SELECT *
+		FROM member
+		WHERE member_id = #{member_id} and member_pwd = #{member_pwd} and member_grade = #{member_grade}
+	</select>
+
+	<insert id="postRegister" parameterType="java.util.Map">
+		insert into member (
+			member_id, member_pwd, member_name, member_email, member_phone, member_grade, member_dept
+			) 
+			values (
+				#{member_id}, #{member_pwd}, #{member_name}, #{member_email}, #{member_phone}, #{member_grade}, #{member_dept}
+				)
+	</insert>
+	
+	<select id="checkMember_id" parameterType="string" resultType="int">
+		select count(*)
+		from member
+		where member_id = #{member_id}	
+	</select>
+	
+	<insert id="addCompany" parameterType="CompanyVO">
+	    INSERT INTO company (company_name, company_busnum, company_ceo, company_phone, company_email, company_address)
+	    VALUES (#{company_name}, #{company_busnum}, #{company_ceo}, #{company_phone}, #{company_email}, #{company_address});
+	</insert>
+	
+	<insert id="addProduct" parameterType="ProductVO">
+	    INSERT INTO product (product_name, product_code, product_brand, product_category, product_price)
+	    VALUES (#{product_name}, #{product_code}, #{product_brand}, #{product_category}, #{product_price});
+	</insert>
+	
+	<select id="findMaxProductNum" resultType="int">
+		select max(product_num) from product
+	</select>
+	
+	<insert id="fileUpload" parameterType="FileVO">
+		INSERT INTO file (file_name, file_path, file_subject, file_pk)
+	    VALUES (#{file_name}, #{file_path}, #{file_subject}, #{file_pk});
+	</insert>
+	
+	<select id="productCodeCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from product where product_code = #{product_code}
+	</select>
+	
+	<select id="companyNameCheck" parameterType="String" resultType="String">
+		select company_name from company where company_name like #{company_name} order by company_name asc limit 1;
+	</select>
+	
+	
+	
+	<select id="orderList" resultType="OrderformVO">
+	    SELECT 
+	        orderform.*,
+	        SUM(orderformdetail.orderdetail_price) AS total_price
+	    FROM 
+	        orderform
+	    JOIN 
+	        orderformdetail
+	    ON 
+	        orderform.orderform_num = orderformdetail.orderform_num
+	    GROUP BY 
+	        orderform.orderform_num;
+	</select> 
+	<!-- 물품 판매 리스트 -->
+	<select id="quotationList" resultType="QuotationVO">
+	   SELECT 
+	        quotation.*,
+	        SUM(quotationdetail.quotdetail_price) AS total_price
+	    FROM 
+	        quotation
+	    JOIN 
+	        quotationdetail
+	    ON 
+	        quotation.quot_num = quotationdetail.quot_num
+	    GROUP BY 
+	        quotation.quot_num
+	    order by quotation.quot_regdate desc;
+	</select>	
+	
+
+	
+	<select id="getCompanyList" resultType="CompanyVO">
+		select *
+		from company
+		order by company_num desc
+	</select>
+		
+	<select id="getProductList" resultType="ProductVO">
+		select *
+		from product
+	</select>
+		
+	<select id="getCompanyByCompanyName" resultType="CompanyVO">
+		select *
+		from company
+		where company_name = #{company_name}
+	</select>
+		
+	<insert id="insertOrderform" parameterType="OrderformVO">
+		insert into orderform (
+			orderform_name, orderform_stat, company_num, company_num2, orderform_content, orderform_regdate, orderform_startDate, orderform_endDate
+			) 
+			values (
+				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}
+				)
+	</insert>
+	
+	<select id="getLastOrderformNum" resultType="int">
+		select *
+		from orderform
+		order by orderform_num desc
+		limit 1;
+	</select>
+		
+	<select id="getProductByProductName" resultType="ProductVO">
+		select *
+		from product
+		where product_name = #{product_name}
+	</select>	
+		
+		
+	<insert id="insertOrderformDetail" parameterType="OrderformDetailVO">
+		insert into orderformdetail (
+			orderform_num, product_num, orderdetail_amount, orderdetail_price
+		)
+		values (
+			#{orderform_num}, #{product_num}, #{orderdetail_amount}, #{orderdetail_price}			
+		)
+	</insert>
+
+	<insert id="insertQuotation" parameterType="QuotationVO">
+		insert into quotation (
+			quot_name, quot_stat, company_num, company_num2, quot_content, quot_regdate, quot_startdate, quot_enddate
+		)
+		values (
+			#{quot_name}, #{quot_stat}, #{company_num}, #{company_num2}, #{quot_content}, now(), #{quot_startdate}, #{quot_enddate}
+		)
+	</insert>
+	
+	<select id="getLastQuotationNum" resultType="int">
+		select *
+		from quotation
+		order by quot_num desc
+		limit 1;
+	</select>
+	
+	<insert id="insertQuotationDetail" parameterType="QuotationDetailVO">
+		insert into quotationdetail (
+			quot_num, product_num, quotdetail_amount, quotdetail_price
+		) values (
+			#{quot_num}, #{product_num}, #{quotdetail_amount}, #{quotdetail_price}
+		)
+	</insert>
+
+
+
+
+<!-- 나현. 시작. -->
+
+	<!-- 품질 관리 리스트 전체 select -->
+	<select id="getQcList" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		ORDER BY qc.qc_num DESC;		
+	</select>
+		
+	<!-- QC 리스트 중 검사 전 -->
+	<select id="getQcList0" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		WHERE qc.qc_stat = 0
+		ORDER BY qc.qc_num DESC;		
+	</select>
+		
+	<!-- QC 리스트 중 작성 중 -->
+	<select id="getQcList1" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		WHERE qc.qc_stat = 1
+		ORDER BY qc.qc_num DESC;
+	</select>
+	
+	<!-- QC 리스트 중 검사 완료 -->
+	<select id="getQcList2" resultType="QcVO">
+		SELECT qc.*,
+				CASE
+				WHEN qc.qc_type = 'plan' THEN p.product_name
+				WHEN qc.qc_type = 'order' THEN m.material_name
+				END AS qc_item_name
+		FROM qc
+			LEFT JOIN product p ON qc.qc_item_num = p.product_num AND qc.qc_type = 'plan'
+			LEFT JOIN material m ON qc.qc_item_num = m.material_num AND qc.qc_type = 'order'
+		WHERE qc.qc_stat = 2
+		ORDER BY qc.qc_num DESC;		
+	</select>	
+
+	<!-- QC 1건 기본 정보 가져오기 -->
+	<select id="getOneQc" parameterType="java.lang.Integer"
+		resultType="QcVO">
+		SELECT *
+		FROM qc
+		WHERE qc.qc_num = #{qc_num};
+	</select>
+
+	<!-- 원자재 이름 가져오기 -->
+	<select id="getQcMName" parameterType="java.lang.Integer"
+		resultType="String">
+		SELECT material_name
+		FROM qc
+		LEFT JOIN material m ON
+		m.material_num = qc.qc_item_num
+		WHERE qc.qc_num = #{qc_num}
+	</select>
+
+	<!-- 제품 이름 가져오기 -->
+	<select id="getQcPName" parameterType="java.lang.Integer"
+		resultType="String">
+		SELECT product_name
+		FROM qc
+		LEFT JOIN product p ON
+		p.product_num = qc.qc_item_num
+		WHERE qc.qc_num = #{qc_num}
+	</select>
+
+	<!-- QC 1건 질문-응답 상세 정보 (질문 번호, 질문 내용, 부적격 수량) -->
+	<select id="getOneQcDetail" parameterType="java.lang.Integer"
+		resultType="QcVO">
+		SELECT qq.qcq_num, qq.qcquest, qd.qc_fail_quan
+		FROM qc q
+		LEFT JOIN qc_quest qq ON q.qc_type = qq.qc_type
+		LEFT JOIN qc_detail qd
+		ON qq.qcq_num = qd.qcq_num and q.qc_num = qd.qc_num
+		WHERE q.qc_num =
+		#{qc_num};
+	</select>
+
+	<!-- QC 1건 부적격 총 수량 -->
+	<select id="getTotalFail" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		SELECT COALESCE(SUM(qd.qc_fail_quan), 0)
+		FROM qc q
+		LEFT JOIN
+		qc_quest qq ON q.qc_type = qq.qc_type
+		LEFT JOIN qc_detail qd ON
+		qq.qcq_num = qd.qcq_num AND qd.qc_num = q.qc_num
+		WHERE q.qc_num=
+		#{qc_num};
+	</select>
+
+	<!-- QC Detail 기존 값 존재 확인 -->
+	<select id="isQcDetail" parameterType="QcDetailVO">
+		SELECT EXISTS
+		(SELECT qcd_num
+		FROM qc_detail
+		WHERE qc_num = #{qc_num} and qcq_num = #{qcq_num})
+	</select>
+
+	<!-- (기존 값 없음) QC 저장 버튼, 수량 추가 -->
+	<insert id="insertQcDetail" parameterType="QcDetailVO">
+		INSERT INTO
+		qc_detail(qc_num, qcq_num, qc_fail_quan)
+		VALUES (#{qc_num}, #{qcq_num},
+		#{qc_fail_quan})
+	</insert>
+
+	<!-- (기존 값 있음) QC 저장 버튼, 수량 업데이트 -->
+	<update id="updateQcDetail" parameterType="QcDetailVO">
+		UPDATE qc_detail
+		SET
+		qc_fail_quan = #{qc_fail_quan}
+		WHERE qc_num = #{qc_num} AND qcq_num = #{qcq_num};
+	</update>
+
+	<!-- QC 저장 버튼, 상태 : 검사 중 (1) -->
+	<update id="updateQcStat1" parameterType="int">
+		UPDATE qc
+		SET
+		qc_date = now(), qc_stat = 1
+		WHERE qc_num = #{qc_num}
+	</update>
+
+	<!-- QC 제출 버튼, 상태 : 검사 완료 (2) -->
+	<update id="updateQcStat2" parameterType="int">
+		UPDATE qc
+		SET
+		qc_date = now(),
+		qc_stat = 2
+		WHERE qc_num = #{qc_num}
+	</update>
+
+	<!-- QC 제출 버튼, 제출자 session -->
+	<update id="updateQcTester" parameterType="QcVO">
+		UPDATE qc
+		SET
+		qc_tester = #{qc_tester}
+		WHERE qc_num = #{qc_num}
+	</update>
+
+	<!-- QC 제출, inventory 업데이트 -->
+	<insert id="updateInven" parameterType="InventoryVO">
+		INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount)
+		VALUE (#{inven_type}, #{inven_item_num}, #{inven_name}, #{inven_amount})
+		ON DUPLICATE KEY UPDATE
+		inven_amount = inven_amount + #{inven_amount};
+	</insert>
+	
+	<!-- 원자재 문서 번호로 정보 찾아오기 -->
+	<select id="getOrderformByPapernum" resultType="OrderformVO" parameterType="int">
+		SELECT *
+		FROM orderform
+		WHERE orderform_num = #{paper_num};
+	</select>
+	
+	<!-- 원자재 번호로 가격 찾아오기 -->
+	<select id="getMaterialPrice" resultType="int" parameterType="int">
+		SELECT material_price
+		FROM material
+		WHERE material_num = #{inven_item_num};
+	</select>
+	
+	<!-- 생산 문서 번호로 정보 찾아오기 -->
+	<select id="getProductionByPapernum" resultType="productionVO" parameterType="int">
+		SELECT *
+		FROM production
+		WHERE pd_num = #{paper_num};
+	</select>
+	
+	
+	<!-- 2025.01.03 대시보드 -->
+	
+	<!-- 대시보드, 원자재 부적격률 내림차순 5위 (7일간) -->
+	<select id="QcMDashTop5" resultType="QcDashVO">
+	select sub.qc_item_num as item_num, sub.item_name as item_name, sum(sub.total) as total, sum(sub.total_fail) as total_fail, ROUND(SUM(sub.total_fail) / SUM(sub.total) * 100, 2) as fail_per
+	from (select qc.qc_num, qc.qc_item_num, m.material_name as item_name, qc.qc_quan as total, sum(qd.qc_fail_quan) as total_fail, qc.qc_date
+			from qc
+			left join qc_detail qd on qc.qc_num = qd.qc_num
+	        left join material m on qc.qc_item_num = m.material_num
+			where qc.qc_type = "order"
+				and qc.qc_stat = 2
+	            and datediff(now(), qc.qc_date) &lt; 7
+			group by qc.qc_num) as sub
+	group by sub.qc_item_num
+	order by fail_per desc
+	limit 5;
+	</select>	
+	
+		<!-- 대시보드, 상품 부적격률 내림차순 5위 (7일간) -->
+	<select id="QcPDashTop5" resultType="QcDashVO">
+	select sub.qc_item_num as item_num, sub.item_name, sum(sub.total) as total, sum(sub.total_fail) as total_fail, ROUND(SUM(sub.total_fail) / SUM(sub.total) * 100, 2) as fail_per
+	from (select qc.qc_num, qc.qc_item_num, p.product_name as item_name, qc.qc_quan as total, sum(qd.qc_fail_quan) as total_fail, qc.qc_date
+			from qc
+			left join qc_detail qd on qc.qc_num = qd.qc_num
+	        left join product p on qc.qc_item_num = p.product_num
+			where qc.qc_type = "plan"
+				and qc.qc_stat = 2
+	            and datediff(now(), qc.qc_date) &lt; 7
+			group by qc.qc_num) as sub
+	group by sub.qc_item_num
+	order by fail_per desc
+	limit 5;
+	</select>	
+	
+<!-- 나현. 끝. -->	
+	
+<!-- 김윤호 =========================================================김윤호================================ -->	
+
+	<update id="updateCompany" parameterType="CompanyVO">
+		update company
+		set
+		company_name = #{company_name}, company_ceo = #{company_ceo}, company_phone = #{company_phone},
+		company_email = #{company_email}, company_address = #{company_address}
+		where company_busnum = #{company_busnum}
+	</update>
+	
+	<select id="getQuotationDetailList" parameterType="java.lang.Integer" resultType="QuotationDetailVO">
+		select * from quotationdetail where quot_num = #{quot_num}
+	</select>
+	
+	<select id="getInventory" parameterType="java.lang.Integer" resultType="InventoryVO">
+		select * from inventory where inven_type = 1 and inven_item_num = #{product_num}
+	</select>
+	
+	<update id="updateInventoryAmount" parameterType="java.util.Map">
+		update inventory
+		set
+		inven_amount = inven_amount - #{amount}
+		where inven_item_num = #{product_num}
+	</update>
+	
+	<update id="updateQuotationStat" parameterType="java.lang.Integer">
+		update quotation
+		set
+		quot_stat = "완료"
+		where quot_num = #{quot_num}
+	</update>
+	
+	<update id="insertQuotationCode" parameterType="java.util.Map">
+		update quotation
+		set
+		quot_code = #{code}
+		where quot_num = #{quot_num}
+	</update>
+	
+	
+	<select id="getInventoryMaterialList" resultType="InventoryVO">
+		select * from inventory where inven_type = 0
+	</select>
+	
+	<select id="getInventoryProductList" resultType="InventoryVO">
+		select * from inventory where inven_type = 1
+	</select>
+
+	<insert id="uploadReleaseDate" parameterType="java.lang.Integer">
+		insert into quotationrelease (quot_num) values (#{quot_num})
+	</insert>
+	
+	<select id="getProductListWithSales" parameterType="java.lang.Integer" resultType="ProductVO">
+		select product.*, B.released from product, (
+			select product_num, sum(quotdetail_amount) released from (
+				select * from quotationdetail
+				where quot_num in
+				(select quot_num from quotationrelease where datediff(now(),release_date) &lt; #{day})
+			) A
+			group by product_num
+		) B
+		where B.product_num = product.product_num order by released desc;
+	</select>
+	
+	<select id="getCompanyListWithSales" parameterType="java.lang.Integer" resultType="CompanyVO">
+		select company.*, B.totalsales from company, (
+			select A.company_name, sum(A.quotdetail_price) totalsales from (
+				select quotationdetail.*, quotation.company_num2, company.company_name from quotationdetail, quotation, company
+				where quotationdetail.quot_num = quotation.quot_num and quotation.company_num2 = company.company_num and
+                quotation.quot_num in (select quot_num from quotationrelease where datediff(now(),release_date) &lt; #{day})
+			) A
+			group by A.company_name
+		) B
+		where B.company_name = company.company_name order by totalsales desc;
+	</select>
+	
+	
+
+<!-- 김윤호 =========================================================김윤호================================ -->	
+	
+<!-- 김윤호 25/01/27 부터 새로 작성 -->	
+	
+	<select id="getRecentSalesInformations" parameterType="java.lang.Integer" resultType="RecentSalesVO">
+		select sum(quotdetail_amount) totalamount, sum(quotdetail_price) totalsales, any_value(diff) diffdate, any_value(regdate) regdate, case C.dayname
+			WHEN '1' THEN '일'
+			WHEN '2' THEN '월'
+			WHEN '3' THEN '화'
+			WHEN '4' THEN '수'
+			WHEN '5' THEN '목'
+			WHEN '6' THEN '금'
+			WHEN '7' THEN '토'
+		end as dayname from (
+			select quotationdetail.*, B.diff, B.dayname, B.quot_regdate regdate from quotationdetail, (
+				select * from (
+					select q.*, datediff(now(),r.release_date) diff, dayofweek(r.release_date) dayname from quotation q, quotationrelease r
+					where r.quot_num = q.quot_num
+				) A 
+				where A.diff &lt; #{day}
+			) B
+			where quotationdetail.quot_num = B.quot_num
+		) C
+		group by dayname order by diffdate
+	</select>
+	
+	<select id="getUnreleasedQuotationList" resultType="QuotationVO">
+		select *, datediff(now(),quot_enddate) diff from quotation 
+		where quot_stat = "진행중" order by diff desc
+	</select>
+	
+	<select id="quotationListFinished" resultType="QuotationVO">
+	   SELECT 
+	        quotation.*,
+	        SUM(quotationdetail.quotdetail_price) AS total_price
+	    FROM 
+	        quotation
+	    JOIN 
+	        quotationdetail
+	    ON 
+	        quotation.quot_num = quotationdetail.quot_num
+	    where quot_stat = "완료"
+	    GROUP BY 
+	        quotation.quot_num
+	    order by quotation.quot_regdate desc;
+	</select>
+	
+	<select id="quotationListUnfinished" resultType="QuotationVO">
+	   SELECT 
+	        quotation.*,
+	        SUM(quotationdetail.quotdetail_price) AS total_price
+	    FROM 
+	        quotation
+	    JOIN 
+	        quotationdetail
+	    ON 
+	        quotation.quot_num = quotationdetail.quot_num
+	    where quot_stat = "진행중"
+	    GROUP BY 
+	        quotation.quot_num
+	    order by quotation.quot_regdate desc;
+	</select>
+	
+	<select id="product_totalRecord" resultType="int">
+		select count(*) from product
+	</select>
+	
+	<select id="productListForPaging" parameterType="java.util.Map" resultType="ProductVO">
+		select *, 0 as file_amount, 'file_name' as file_name, 'file_path' as file_path from product
+		order by product_num desc
+		LIMIT #{start}, #{productPageSIZE}
+	</select>
+	
+	<select id="getRecentProduceInformations" parameterType="java.lang.Integer" resultType="RecentSalesVO">
+		select any_value(regdate) regdate, any_value(diff) diffdate, sum(final) as totalproduce, case dayname
+			WHEN '1' THEN '일'
+			WHEN '2' THEN '월'
+			WHEN '3' THEN '화'
+			WHEN '4' THEN '수'
+			WHEN '5' THEN '목'
+			WHEN '6' THEN '금'
+			WHEN '7' THEN '토'
+		end as dayname from (
+			select qc_date as regdate, qc_item_num, final, diff, dayname from (
+				select q.*, A.totalfail, (q.qc_quan - A.totalfail) final, datediff(now(),q.qc_date) diff, dayofweek(q.qc_date) dayname from qc q, (
+					select qc_num, sum(qc_fail_quan) totalfail from qc_detail group by qc_num
+				) A 
+				where q.qc_num = A.qc_num and qc_type = "plan" and qc_stat = 2 
+			) B
+			where B.diff &lt; #{day} 
+		) C
+		group by dayname order by diffdate;
+	
+	</select>
+	
+	
+	
+<!-- 김민성 ========================================================================================= -->
+	
+
+	
+<!-- 0204 김민성 -->
+	<select id="allFormList" resultType="QuotationVO">
+	SELECT 
+    quotation.*,
+    concat('quot', quotation.quot_num) as this_num,
+    concat('quot', quotation.quot_code) as discord
+		FROM 
+    quotation
+		GROUP BY 
+    quotation.quot_num, quotation.quot_code
+
+	UNION ALL
+
+	SELECT
+    orderform.*,
+    concat('order', orderform.orderform_num) as this_num,
+    concat('order', orderform.orderform_code) as discord
+		FROM 
+    orderform
+		GROUP BY 
+    orderform.orderform_num, orderform.orderform_code;
+	</select>
+	
+	<select id="getProductionList" resultType="ProductionVO">
+		select * from production;
+	</select>
+	
+	<select id="getFatoryWorkList" resultType="ProductionVO">
+		select * from production where pd_check = 0;
+	</select>
+	
+	<select id="getFatoryWorkList1" resultType="ProductionVO">
+		select * from production where pd_check = 2;
+	</select>	
+	
+	
+	<select id="getFatoryWorkList2" resultType="ProductionVO">
+		select * from production where pd_check = 99;
+	</select>	
+	<insert id="insertProduction" parameterType="ProductionVO">
+		insert into production (pd_writedate,pd_writer,pd_dept,pd_startdate,pd_enddate,pd_name,pd_content,pd_check)
+		values (now(),#{pd_writer},#{pd_dept},#{pd_startdate},#{pd_enddate},#{pd_name},#{pd_content},0)
+	</insert>
+	
+	<insert id="insertproductiondetail" parameterType="ProductionDetailVO">
+		insert into productiondetail (pd_num,product_name,productiondetail_amount)
+		values
+	 <foreach collection="list" item="planVO" separator=",">
+	 (#{planVO.pd_num},#{planVO.product_name},#{planVO.productiondetail_amount})
+	 </foreach>
+	</insert> 
+	
+	
+	<select id="getFactoryDetail" parameterType="int" >
+		select * from production where pd_num = #{pd_num}
+	</select>
+	
+	<select id="getFactoryDetailList" parameterType="int" >
+		select * from productiondetail where pd_num = #{pd_num}
+	</select>
+	
+	<select id="getfindLastProductionNumber" resultType="int">
+		select pd_num from production order by pd_num desc limit 1;
+	</select>
+	
+   	<select id="getRecipeNumByProductName" resultType="int">
+   		select recipe_num  from  recipe  where product_name = #{product_name};
+   	</select>
+   
+  	<select id="getRecipeDetailListByRecipeNum" resultType="RecipeDetailVO">
+  		 select * from recipedetail where recipe_num = #{recipe_num};
+   	</select>
+   
+   
+	  <!-- 원본 -->
+  <update id="reduceInventoryAmount" parameterType="InventoryVO">
+   update inventory 
+   set inven_amount = #{inven_amount} 
+   where inven_name = #{inven_name} 
+   and inven_amount >= #{inven_amount}
+   </update> 
+ 	
+  <update id="setPdCheckUpdate" parameterType="ProductionVO"> 
+	update 	production
+	set pd_check = 1 where pd_num = #{pd_num}
+  </update>
+  
+   <update id="setPdCheckUpdate4" parameterType="ProductionVO"> 
+	update 	production
+	set pd_check = 0 where pd_num = #{pd_num}
+  </update>
+  
+   <update id="setDeleteProduction" parameterType="ProductionVO"> 
+	delete from production where pd_num = #{pd_num}
+  </update>
+  <update id="setDeleteProduction2" parameterType="ProductionVO"> 
+	delete from productiondetail where pd_num = #{pd_num}
+  </update>
+  <!-- 0204 김민성 -->
+  <update id="setPdCheckUpdate3" parameterType="ProductionVO"> 
+	update 	production
+	set pd_check = 99 where pd_num = #{pd_num}
+  </update>
+  <!-- 0204 김민성 -->
+  <update id="setPdCheckUpdate2" parameterType="ProductionVO"> 
+	update 	production
+	set pd_check = 2 where pd_num = #{pd_num}
+  </update>
+	<select id="getfindProductNum" parameterType="ProductVO" resultType="ProductVO">
+		SELECT 
+    	product.product_num FROM product
+		INNER JOIN productiondetail ON product.product_name = productiondetail.product_name
+		where productiondetail.product_name = #{product_name} LIMIT 1;
+	</select>
+	<!-- 윤호 가 짠거 -->
+	<select id="getInventoryByProductName" parameterType="InventoryVO">
+	select inven_amount from inventory where inven_name = #{product_name}
+	</select>
+	<!-- 김민성 버젼 -->
+	<select id="getTotalAmount" parameterType="RecipeDetailVO">
+	select material_name, material_amount from recipe,recipedetail where recipe.recipe_num = recipedetail.recipe_num and recipe.product_name = #{product_name};
+	</select>
+	
+	<select id="getInvenAmount" parameterType="InventoryVO">
+	select inven_amount from inventory where inven_type = 0 and inven_name = #{inven_name} ;
+	</select>
+	
+	<select id="getInventoryList" resultType="InventoryVO">
+		select * from inventory	where inven_type=0;
+	</select>
+	
+	<select id="getProductionVO" parameterType="ProductionVO" >
+		select * from production where pd_num = #{pd_num}
+	</select>
+	
+	<select id="getProductionDetail" parameterType="ProductionDetailVO" >
+		select * from productiondetail where pd_num = #{pd_num}
+	</select>
+	
+	
+	<select id="getRecipeList" parameterType="RecipeDetailVO" >
+		select * from recipedetail
+	</select>
+	
+	<!-- ==============================추가분 -->
+	<select id="getProductionListByFactoryDetail" parameterType="int" resultType="ProductionDetailVO">
+	select product_name , productiondetail_amount from productiondetail where
+	pd_num = #{pd_num}
+	</select>
+	
+	<select id="getFindRecipeNum" parameterType="String">
+		select recipe_num from recipe where product_name = #{product_name}	
+	</select>
+	
+	<select id="getFindInvenList" parameterType="InventoryVO">
+		   SELECT * FROM inventory
+	</select>
+	
+	<!-- 0203 -->
+    <select id = "getPdCheckCount1" resultType="int">
+    	select 
+    	 count(pd_check) AS black
+    	 from production where pd_check = 1;
+    </select>
+    
+        <select id = "getPdCheckCount2" resultType="int">
+    	select 
+    	 count(pd_check) AS white
+    	 from production where pd_check = 0;
+    </select>
+    
+    <select id="getLastProduction" resultType="ProductionVO">
+    	SELECT * FROM production ORDER BY pd_num DESC limit 5;
+    </select>
+	
+	
+<!-- 김민성 ========================================================================================= -->	
+	
+	
+
+	<select id="companyNameValidation" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from company where company_name = #{company_name}
+	</select>
+	
+	<select id="companyCodeValidation" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from company where company_busnum = #{company_code}
+	</select>
+	
+	<select id="productList" resultType="ProductVO">
+		select *, 0 as file_amount, 'file_name' as file_name, 'file_path' as file_path from product
+		order by product_num desc
+	</select>
+	
+	<select id="fileAmount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from file where file_pk = #{product_num} and file_subject = "product"
+	</select>	
+	
+	<select id="findFirstImage" parameterType="java.lang.Integer" resultType="FileVO">
+		select * from file where file_pk = #{product_num} and file_subject = "product" order by file_num desc limit 1
+	</select>
+	
+	<select id="getProductDetail" parameterType="java.lang.Integer" resultType="ProductVO"> 
+		select * from product where product_num = #{product_num}
+	</select>
+
+	<select id="getProductImages" parameterType="java.lang.Integer" resultType="FileVO"> 
+		select * from file where file_pk = #{product_num} and file_subject = "product" order by file_num desc
+	</select>
+
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재 시작 -->
+
+	<select id="getQuotationByQuotnum" parameterType="int">
+		select *
+		from quotation
+		where quot_num = #{quot_num}
+	</select>
+	
+	<select id="getCompanyByCompanynum" parameterType="int">
+		select *
+		from company
+		where company_num = #{company_num}
+	</select>
+	
+	<select id="getQuotationDetailListByQuotnum" parameterType="int">
+		select *
+		from quotationdetail q, product p
+		where q.quot_num = #{quot_num} and q.product_num = p.product_num
+	</select>
+	
+	<select id="getOrderformByOrderformnum" parameterType="int">
+		select *
+		from orderform
+		where orderform_num = #{orderform_num}
+	</select>
+	
+	<select id="getOrderformDetailListByOrderformnum" parameterType="int">
+		select *
+		from orderformdetail o, material m
+		where o.orderform_num = #{orderform_num} and o.product_num = m.material_num;
+	</select>
+	
+	<select id="materialCodeCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from material where material_code = #{material_code}
+	</select>
+
+	<select id="findMaxMaterialNum" resultType="int">
+		select max(material_num) from material
+	</select>
+	
+	<insert id="addMaterial" parameterType="MaterialVO">
+	    INSERT INTO material (material_name, material_code, material_brand, material_category, material_price)
+	    VALUES (#{material_name}, #{material_code}, #{material_brand}, #{material_category}, #{material_price});
+	</insert>
+	
+	<select id="getMaterialList" resultType="MaterialVO">
+		select *
+		from material
+	</select>
+	
+	<select id="materialFileAmount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(*) from file where file_pk = #{material_num} and file_subject = "material"
+	</select>	
+
+	<select id="materialFindFirstImage" parameterType="java.lang.Integer" resultType="FileVO">
+		select * from file where file_pk = #{material_num} and file_subject = "material" order by file_num desc limit 1
+	</select>
+	
+	<select id="getMaterialDetail" parameterType="java.lang.Integer" resultType="MaterialVO"> 
+		select * from material where material_num = #{material_num}
+	</select>
+	
+	<select id="getMaterialImages" parameterType="java.lang.Integer" resultType="FileVO"> 
+		select * from file where file_pk = #{material_num} and file_subject = "material" order by file_num desc
+	</select>
+	
+	<select id="getMaterialByMaterialName" resultType="MaterialVO">
+		select *
+		from material
+		where material_name = #{material_name}
+	</select>	
+	
+	<insert id="insertqc" parameterType="QcVO">
+	    INSERT INTO qc (qc_type, paper_num, qc_reg, qc_writer, qc_item_num, qc_quan)
+	    VALUES (#{qc_type}, #{paper_num}, now(), #{qc_writer}, #{qc_item_num}, #{qc_quan});
+	</insert>
+	
+	<select id="getMemberList" resultType="MemberVO">
+		select *
+		from member
+	</select>
+	
+	<select id="getMemberByMemberId" resultType="MemberVO">
+		select *
+		from member
+		where member_id = #{member_id}
+	</select>
+	
+	<select id="memberIdValidation" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from member where member_id = #{member_id} and member_num != #{member_num}
+	</select>
+	
+	<update id="updateMember" parameterType="MemberVO">
+		update member
+		set	member_num = #{member_num}, 
+			member_id = #{member_id}, 
+			member_pwd = #{member_pwd},
+			member_name = #{member_name},
+			member_email = #{member_email},
+			member_phone = #{member_phone},
+			member_grade = #{member_grade},
+			member_dept = #{member_dept}
+		where member_num = #{member_num}
+	</update>
+	
+	<insert id="addMaterialInventory" parameterType="InventoryVO">
+	    INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount, inven_price)
+	    VALUES (0, #{inven_item_num}, #{inven_name}, 0, 0);
+	</insert>
+	
+	<insert id="addProductInventory" parameterType="InventoryVO">
+	    INSERT INTO inventory (inven_type, inven_item_num, inven_name, inven_amount, inven_price)
+	    VALUES (1, #{inven_item_num}, #{inven_name}, 0, 0);
+	</insert>
+	
+		<select id="productNameCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from product where product_name = #{product_name}
+	</select>
+	
+	<select id="getProductCodeAndNameListConcat" resultType="String">
+		select concat(product_code, '(', product_name, ')') AS product_code
+		from product
+	</select>
+	
+	<insert id="insertRecipe" parameterType="RecipeVO">
+	    INSERT INTO recipe (product_name, product_code, recipe_price)
+	    VALUES (#{product_name}, #{product_code}, #{recipe_price});
+	</insert>
+	
+	<select id="getLastRecipeNum" resultType="int">
+		select *
+		from recipe
+		order by recipe_num desc
+		limit 1;
+	</select>
+	
+	<insert id="insertRecipeDetail" parameterType="RecipeDetailVO">
+	    INSERT INTO recipedetail (recipe_num, product_num, material_name, material_amount, material_price)
+	    VALUES (#{recipe_num}, #{product_num}, #{material_name}, #{material_amount}, 0);
+	</insert>
+	
+	<select id="recipeProductCodeCheck" parameterType="String" resultType="int">
+		select count(*) from recipe where product_code = #{product_code}
+	</select>
+	
+	<select id="getRecipeList1" resultType="RecipeVO">
+		select * from Recipe
+	</select>
+	
+	<select id="getProductNumByProductCode" parameterType="String">
+		select product_num from product where product_code = #{product_code}
+	</select>
+	
+	<select id="getRecipeDetailByProductNum" resultType="RecipeDetailVO">
+		select * from recipedetail where product_num = #{product_num}	
+	</select>
+	
+	<select id="getRecipeByRecipeNum" resultType="RecipeVo">
+		select * from recipe where recipe_num = #{recipe_num}	
+	</select>
+	
+	<update id="updateRecipe" parameterType="RecipeVO">
+		update recipe
+		set	recipe_price = #{recipe_price}
+		where recipe_num = #{recipe_num}
+	</update>
+	
+	<update id="updateRecipeDetail" parameterType="RecipeDetailVO">
+		update recipedetail
+		set	material_name = #{material_name}, material_amount = #{material_amount}
+		where rd_num = #{rd_num}
+	</update>
+	
+	<update id="updateOrderformFinish" parameterType="int">
+		update orderform
+		set orderform_stat = "완료"
+		where orderform_num = #{orderform_num}
+	</update>
+	
+	<update id="insertOrderformCode" parameterType="java.util.Map">
+		update orderform
+		set
+		orderform_code = #{code}
+		where orderform_num = #{orderform_num}
+	</update>
+	
+	<update id="updateInventoryAppropriateAmount" parameterType="InventoryVO">
+		update inventory
+		set inven_appropriate_amount = {inven_appropriate_amount}
+		where inven_num = {inven_num}
+	</update>
+	
+	<select id="materialNameCheck" parameterType="String" resultType="java.lang.Integer">
+		select count(*) from material where material_name = #{material_name}
+	</select>
+	
+	<select id="getInventoryAppropriateAmount" resultType="InventoryAppropriateAmountVO">
+		select rd.material_name, 
+		SUM(qd.quotdetail_amount * rd.material_amount) AS total_material_amount,
+		round(SUM(qd.quotdetail_amount * rd.material_amount) * 0.1)  AS appropriate_amount
+		
+		from quotation q ,  quotationdetail qd, product p, recipe r, recipedetail rd
+		where q.quot_enddate &gt;= DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+		AND q.quot_enddate &lt; DATE_FORMAT(NOW(), '%Y-%m-01')
+		AND q.quot_num = qd.quot_num
+		ANd qd.product_num = p.product_num
+		AND p.product_code = r.product_code
+		AND r.recipe_num = rd.recipe_num
+		group by rd.material_name;
+	</select>
+	
+	<update id="addAppropriateAmount" parameterType="java.util.Map">
+		UPDATE inventory
+		SET
+		inven_appropriate_amount = #{recipe-input2}
+		WHERE inven_name = #{recipe-input1}
+	</update>
+	
+	<select id="getAllAvgMaterialprice" resultType="AvgMaterialpriceVO">
+		select product_num,
+		round(avg(orderdetail_price / orderdetail_amount)) AS average_material_price
+		from orderformdetail
+		group by product_num
+	</select>
+	
+	<select id="getOneAvgMaterialprice" parameterType="int" resultType="AvgMaterialpriceVO">
+		select product_num,
+		round(avg(orderdetail_price / orderdetail_amount)) AS average_material_price
+		from orderformdetail
+		where product_num = #{product_num}
+		group by product_num
+	</select>
+	
+	<select id="getOrderformWriter" parameterType="int" resultType="String">
+		select orderform_writer
+		from orderform
+		where orderform_num = #{orderform_num}
+	</select>
+	
+	<update id="updateMaterialInvenPrice" parameterType="AvgMaterialpriceVO">
+		UPDATE inventory
+		SET
+		inven_price = #{average_material_price}
+		WHERE inven_item_num = #{product_num}
+		AND inven_type = 0
+	</update>
+	
+	
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@new 작업공간@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 이의재  끝 -->
+
+	<delete id="deleteOrderform" parameterType="int">
+		delete from orderform
+		where orderform_num = #{orderform_num}
+	</delete>
+	
+	<delete id="deleteOrderformDetail" parameterType="int">
+		delete from orderformdetail
+		where orderform_num = #{orderform_num}
+	</delete>
+
+	<select id="getInventoryProductAppropriateAmount" resultType="InventoryProductAppropriateAmountVO">
+		select p.product_name, 
+		SUM(qd.quotdetail_amount) AS total_amount,
+		round(SUM(qd.quotdetail_amount) * 0.1)  AS appropriate_amount
+		
+		from quotation q ,  quotationdetail qd, product p, recipe r, recipedetail rd
+		where q.quot_enddate &gt;= DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+		AND q.quot_enddate &lt; DATE_FORMAT(NOW(), '%Y-%m-01')
+		AND q.quot_num = qd.quot_num
+		ANd qd.product_num = p.product_num
+		AND p.product_code = r.product_code
+		AND r.recipe_num = rd.recipe_num
+		group by p.product_name;
+	</select>
+
+
+
+</mapper>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<title>물품 구매 계약서</title>
+<head>
+<style>
+table.orderform-list-table {
+    border-collapse: collapse !important; /* 테두리 중첩 방지 */
+    width: 100%; /* 테이블의 너비를 100%로 설정 */
+	border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+    width: 96% !important;
+	margin-left: 2%;
+	
+    th, td {
+	    border: 1px solid #ddd !important; /* 얇은 테두리 설정 */
+	    padding: 8px; /* 셀 내부 간격 */
+	    text-align: left; /* 텍스트 정렬 */
+	    height: 37px;
+	}
+	td {
+		text-indent: 8px;
+	}
+	th {
+	    background-color: #f4f4f4; /* 헤더 배경색 */
+	    font-weight: bold; /* 헤더 강조 */
+	    vertical-align: middle !important;
+	    padding-bottom: 5px;
+	}
+	
+	th.heading-th {
+	    padding: 0 !important;
+	    text-align: center;
+	}
+	    
+	tr:hover {
+	    background-color: #f9f9f9; /* 마우스 오버 효과 */
+	}
+	
+    .hidden_row {
+		display: none;
+	}
+	
+	td.heading-td {
+		text-align: center !important;
+		text-indent: 0;
+	}
+}
+
+span.badge {
+	text-align: center !important;
+	padding: 12px 18px 10px 12px;
+}
+
+span.badge-reject {
+	background: lightgray;
+	margin-left: 6px;
+}
+
+th.table-plus.datatable-nosort.sorting_asc::before, 
+th.table-plus.datatable-nosort.sorting_asc::after,
+th.sorting::before, th.sorting::after {
+   content: none !important;
+}
+
+th.sorting, th.table-plus.datatable-nosort.sorting_asc {
+   pointer-events: none; /* 클릭 비활성화 */
+}
+
+.buttons-pdf{
+	display: none !important;
+}
+
+div.dataTables_filter {
+	width: 500px;
+	float: right;
+	margin: 0 16px 10px 0;
+}
+
+div.btn-group {
+	margin: 0 0 10px 16px;
+}
+</style>
+
+<script>
+function orderformProceed(orderform_num) {
+	Swal.fire({
+		title: "다시 한번 더 확인하세요.",
+		text: "다시 되돌릴 수 없습니다.",
+		icon: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#3085d6",
+		cancelButtonColor: "#d33",
+		confirmButtonText: "입고",
+		preconfirm:() => {
+			return {
+				orderform_num : orderform_num
+			}
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			$.ajax({
+				url: "/orderformProceed",
+				type: "POST",
+				data: {orderform_num : orderform_num},
+				success: function(cnt) {
+					if (cnt == 0) {
+						Swal.fire("실패", "오류가 발생했습니다.", "error");
+					} else {
+						Swal.fire("성공", "정상적으로 입고처리 되었습니다.", "success")
+						.then(result => {
+							location.reload();
+						});
+					}
+				}
+			});
+		} else {
+			Swal.fire("실패", "다시 시도해주세요.", "error");
+		}
+		
+	});
+}
+
+function orderformDelete(orderform_num) {
+	Swal.fire({
+		title: "다시 한번 더 확인하세요.",
+		text: "다시 되돌릴 수 없습니다.",
+		icon: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#3085d6",
+		cancelButtonColor: "#d33",
+		confirmButtonText: "삭제",
+		preconfirm:() => {
+			return {
+				orderform_num : orderform_num
+			}
+		}
+	}).then((result) => {
+		if (result.isConfirmed) {
+			$.ajax({
+				url: "/orderformDelete",
+				type: "POST",
+				data: {orderform_num : orderform_num},
+				success: function(cnt) {
+					if (cnt == 0) {
+						Swal.fire("실패", "오류가 발생했습니다.", "error");
+					} else {
+						Swal.fire("성공", "정상적으로 삭제처리 되었습니다.", "success")
+						.then(result => {
+							location.reload();
+						});
+					}
+				}
+			});
+		} else {
+			Swal.fire("실패", "다시 시도해주세요.", "error");
+		}
+		
+	});
+}
+
+
+</script>
+
+
+
+</head>
+<body>
+<div th:if="${msg != null}">
+	<script th:inline="javascript">
+		var msg = [[${msg}]];
+		alert(msg);
+		msg = null;
+	</script>
+</div>
+
+
+	<div th:replace="~{/include/header}"></div>
+	<div class="mobile-menu-overlay"></div>
+
+	<div class="main-container">
+		<div class="pd-ltr-20 xs-pd-20-10">
+			<div class="min-height-200px">
+				<div class="page-header">
+					<div class="row">
+						<div class="col-md-6 col-sm-12">
+							<div class="title">
+								<h4>서류 관리</h4>
+							</div>
+							<nav aria-label="breadcrumb" role="navigation">
+								<ol class="breadcrumb">
+									<li class="breadcrumb-item"><a href="index">Home</a></li>
+									<li class="breadcrumb-item active" aria-current="page">물품
+										구매 계약서</li>
+								</ol>
+							</nav>
+						</div>
+						<div class="col-md-6 col-sm-12 text-right">
+							<button onclick="location.href='getOrderformRegister'" value="구매 계약서 작성" class="btn btn-primary m-2 rowbtn">구매 계약서 작성</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Export Datatable start -->
+				<div class="card-box mb-30">
+
+					<div class="pd-20 d-flex align-items-center justify-content-between">
+               			<h4 class="text-blue h4"></h4>
+               			
+            		</div>
+					<div class="pb-20">
+
+
+						<table class="table hover data-table-export nowrap orderform-list-table">
+							<thead>
+								<tr>
+									<th class="hidden_row"></th>
+									<th class="heading-th" width="8%">번호</th>
+									<th width="13%" class="table-plus datatable-nosort">계약서 번호</th>
+									<th>계약서 이름</th>
+									<th width="5%">주문자 명</th>
+									<th width="5%">계약 대상 명</th>
+									<th width="10%">계약일</th>
+									<th width="10%">마감일</th>
+									<th width="5%">상태</th>
+									<th width="11%"></th>
+								</tr>
+							</thead>
+							<tbody>
+									<th:block th:each="form,stat: ${orderList}">
+										<tr th:style="${form.orderform_stat == '완료' ? 'color: #a9a9a9;' : ''}">
+											<td class="hidden_row"></td>
+											<td class="heading-td"><th:block th:text="${stat.size-stat.index}"></th:block></td> 
+											<td><th:block th:text="${form.orderform_code}"></th:block></td>
+											<td><a th:href="@{getOrderformDetail(orderform_num=${form.orderform_num})}"><th:block th:text="${form.orderform_name}"></th:block></a></td>
+											<td><th:block th:text="${form.company_name1}"></th:block></td>
+											<td><th:block th:text="${form.company_name2}"></th:block></td>
+											<td><th:block th:text="${form.orderform_startDate}"></th:block></td>
+											<td><th:block th:text="${form.orderform_endDate}"></th:block></td>
+											<td><th:block th:text="${form.orderform_stat}"></th:block></td>
+											<td>
+												<th:block th:if="${form.orderform_stat == '진행중'}">
+													<span class="badge badge-warning" th:onclick="orderformProceed([[${form.orderform_num}]])" style="cursor:pointer;">입고</span>
+													<span class="badge badge-reject" th:onclick="orderformDelete([[${form.orderform_num}]])" style="cursor:pointer;">취소</span>
+												</th:block>
+											</td>
+										</tr>
+									</th:block>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Export Datatable End -->
+			</div>
+
+
+
+
+
+
+			<div class="footer-wrap pd-20 mb-20 card-box">
+				we are all 1995's <a href="index" target="_blank">Suit</a>
+			</div>
+		</div>
+	</div>
+	<!-- js -->
+	<script src="vendors/scripts/core.js"></script>
+	<script src="vendors/scripts/script.min.js"></script>
+	<script src="vendors/scripts/process.js"></script>
+	<script src="vendors/scripts/layout-settings.js"></script>
+	<script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+	<script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+	<!-- buttons for Export datatable -->
+	<script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+	<script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+	<script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+	<script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+	<!-- Datatable Setting js -->
+	<script src="vendors/scripts/datatable-setting.js"></script>
+	   <style>
+table.dataTable tbody tr.selected, table.dataTable.display tbody tr:hover.selected, table.dataTable.hover tbody tr:hover.selected {
+    background-color: #ffffff !important;
+    color: black !important;
+}
+</style>
+</body>
+</html>
