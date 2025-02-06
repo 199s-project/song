@@ -1399,25 +1399,52 @@ public class ProjectController {
  	
  	
  	// 구매계약서 목록 화면 이동
- 	@GetMapping("purchaseContract")
- 	public String purchaseContract(Model model) {
+    @GetMapping("purchaseContract")
+    public String purchaseContract(Model model) {
 
- 		List<OrderformVO> list = projectService.orderList();
- 		model.addAttribute("orderList", list);
- 		log.info("list", list);
- 		return "purchaseContract";
+       List<OrderformVO> list = projectService.orderList();
+       
+      for (OrderformVO orderform : list) {
+            orderform.setCompany_name1(projectService.getCompanyByCompanynum(orderform.getCompany_num()).getCompany_name());
+            orderform.setCompany_name2(projectService.getCompanyByCompanynum(orderform.getCompany_num2()).getCompany_name());
+         }
+       
+       model.addAttribute("orderList", list);
+       return "purchaseContract";
 
- 	}
+    }
 
  	// 판매계약서 목록 화면 이동
- 	@GetMapping("salesContract")
- 	public String salesContractList(Model model) {
+    @GetMapping("salesContract")
+    public String salesContractList(Model model) {
 
- 		List<QuotationVO> list = projectService.quotationList();
- 		model.addAttribute("quotationList", list);
- 		log.info("list", list);
- 		return "salesContract";
- 	}
+       List<QuotationVO> list = projectService.quotationList();
+       
+       for (QuotationVO quotation : list) {
+          quotation.setCompany_name1(projectService.getCompanyByCompanynum(quotation.getCompany_num()).getCompany_name());
+          quotation.setCompany_name2(projectService.getCompanyByCompanynum(quotation.getCompany_num2()).getCompany_name());
+       }
+       
+       List<QuotationVO> list2 = projectService.quotationListFinished();
+       
+       for (QuotationVO quotation : list2) {
+          quotation.setCompany_name1(projectService.getCompanyByCompanynum(quotation.getCompany_num()).getCompany_name());
+          quotation.setCompany_name2(projectService.getCompanyByCompanynum(quotation.getCompany_num2()).getCompany_name());
+       }
+       
+       List<QuotationVO> list3 = projectService.quotationListUnfinished();
+       
+       for (QuotationVO quotation : list3) {
+          quotation.setCompany_name1(projectService.getCompanyByCompanynum(quotation.getCompany_num()).getCompany_name());
+          quotation.setCompany_name2(projectService.getCompanyByCompanynum(quotation.getCompany_num2()).getCompany_name());
+       }
+       
+       model.addAttribute("quotationList", list);
+       model.addAttribute("quotationListFinished", list2);
+       model.addAttribute("quotationListUnfinished", list3);
+       
+       return "salesContract";
+    }
 
  	// 모든 계약서들의 목록을 볼 수 있는 화면 이동
  	@GetMapping("allForm")

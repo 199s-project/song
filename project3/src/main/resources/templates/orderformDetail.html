@@ -182,7 +182,7 @@ window.addEventListener('DOMContentLoaded', function onload() {
 					    </tr>
 					    <tr th:each="orderformDetailVO : ${orderformDetailListVO}">
 					        <td class="rownum" style="text-align: right; padding-right: 15px;"><th:block th:text="${orderformDetailVOStat.count}"></th:block></td>
-					        <td><th:block th:text="${orderformDetailVO.product_num}"></th:block></td>
+					        <td><th:block th:text="${orderformDetailVO.material_name}"></th:block></td>
 					        <td class="unit_price"><span id="unit_price" onload="onload()"></span></td>
 					        <td class="quantity"><th:block id="quantity" name="quantity" th:text="${orderformDetailVO.orderdetail_amount}"></th:block></td>
 					        <td class="total_price"><th:block id="total_price" name="total_price" th:text="${orderformDetailVO.orderdetail_price}"></th:block></td>
