@@ -1049,11 +1049,13 @@ public class ProjectController {
 
    	// QC 상세 페이지로 이동
    	@GetMapping("qcDetail")
-   	public String qcDetail(@RequestParam("qc_num") int qc_num, Model model) {
+   	public String qcDetail(@RequestParam("qc_num") int qc_num, Model model, HttpSession session) {
 
    		log.info("qcDetail 이동");
    		log.info("qc_num = " + qc_num);
 
+   		MemberVO user = (MemberVO)session.getAttribute("user");
+   		
    		QcVO qc = projectService.getOneQc(qc_num);
 
    		// 타입 저장, 이름 담아줄 변수 생성
@@ -1086,6 +1088,7 @@ public class ProjectController {
    		model.addAttribute("totalFail", totalFail);
    		model.addAttribute("totalPass", totalPass);
    		model.addAttribute("failRate", failRate);
+   		model.addAttribute("user", user);
 
    		return "qcDetail";
    	}
@@ -1097,6 +1100,8 @@ public class ProjectController {
    		log.info("qcTest 이동");
    		log.info("qc_num = " + qc_num);
 
+   		MemberVO user = (MemberVO)session.getAttribute("user");
+   		
    		// qc_num으로 qc 기본 정보 불러오기
    		QcVO qc = projectService.getOneQc(qc_num);
 
@@ -1131,13 +1136,6 @@ public class ProjectController {
    		model.addAttribute("totalFail", totalFail);
    		model.addAttribute("totalPass", totalPass);
    		model.addAttribute("failRate", failRate);
-
-   		MemberVO user = (MemberVO) session.getAttribute("user");
-
-   		if (user == null) {
-   			return "redirect:/login";
-   		}
-
    		model.addAttribute("member_name", user.getMember_name());
 
    		return "qcTest";
@@ -1252,6 +1250,10 @@ public class ProjectController {
    					of.setOrderform_stat("진행중");
    					of.setOrderform_content(of_content);
    					
+   					String codenum = projectService.getOrderformCode(paper_num);
+   					
+   					of.setOrderform_code(codenum);
+   					
    					System.out.println("####################################### of 출력 #######" + of.toString());
    					
    					projectService.insertOrderform(of);
@@ -1293,7 +1295,7 @@ public class ProjectController {
    					
    					System.out.println("####################################### pd 출력 #######" + pd.toString());
    					// 위 코드를 출력하고 싶으면 DTO에서 @ToString 추가해주면 나옴 
-   					projectService.insertProduction(pd);
+   					projectService.ReinsertProduction(pd);
    					
    					// detail은 새로운 객체 생성
    					ProductionDetailVO pdd = new ProductionDetailVO();

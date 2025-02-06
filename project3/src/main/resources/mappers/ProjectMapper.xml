@@ -105,9 +105,9 @@
 	<insert id="insertOrderform" parameterType="OrderformVO">
 		insert into orderform (
 			orderform_name, orderform_stat, company_num, company_num2, orderform_content, orderform_regdate, orderform_startDate, orderform_endDate
-			) 
+			, orderform_code) 
 			values (
-				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}
+				#{orderform_name}, #{orderform_stat}, #{company_num}, #{company_num2}, #{orderform_content}, now(), #{orderform_startDate}, #{orderform_endDate}, #{orderform_code}
 				)
 	</insert>
 	
@@ -158,7 +158,11 @@
 		)
 	</insert>
 
-
+	<!-- 25-02-05 재 업로드 시 pd_check 2로 재업로드 -->
+	<insert id="ReinsertProduction" parameterType="ProductionVO">
+		insert into production (pd_writedate, pd_writer, pd_dept, pd_startdate, pd_enddate, pd_name, pd_content, pd_check)
+		values (now(), #{pd_writer}, #{pd_dept}, #{pd_startdate}, #{pd_enddate}, #{pd_name}, #{pd_content}, 2)
+	</insert>
 
 
 <!-- 나현. 시작. -->
@@ -383,6 +387,13 @@
 	order by fail_per desc
 	limit 5;
 	</select>	
+	
+	<!-- 문서번호를 통해 문서코드 받아오기 -->
+	<select id="getOrderformCode" parameterType="int">
+	SELECT orderform_code
+	FROM orderform
+	WHERE orderform_num = #{orderform_num}
+	</select>
 	
 <!-- 나현. 끝. -->	
 	

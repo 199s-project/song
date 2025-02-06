@@ -456,6 +456,16 @@ public class ProjectService {
 		return projectDAO.QcPDashTop5();
 	}
 		
+	// 25-02-05 pd_check = 2
+	
+	public int ReinsertProduction(ProductionVO productionVO) {
+		return projectDAO.ReinsertProduction(productionVO);
+	}
+	
+	public String getOrderformCode(int orderform_num) {
+		return projectDAO.getOrderformCode(orderform_num);
+	}
+	
 	// 나현. 끝.
 
 
