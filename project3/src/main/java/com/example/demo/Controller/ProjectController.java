@@ -4,6 +4,7 @@ package com.example.demo.Controller;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -1452,6 +1453,11 @@ public class ProjectController {
  	@GetMapping("allForm")
  	public String allFormList(Model model) {
  		List<QuotationVO> list = projectService.allFormList();
+ 		
+ 	      for (QuotationVO orderform : list) {
+ 	            orderform.setCompany_name1(projectService.getCompanyByCompanynum(orderform.getCompany_num()).getCompany_name());
+ 	            orderform.setCompany_name2(projectService.getCompanyByCompanynum(orderform.getCompany_num2()).getCompany_name());
+ 	         }
  		model.addAttribute("AllFormList", list);
  		log.info("allFormList", list);
  		return "allForm";
@@ -1561,131 +1567,158 @@ public class ProjectController {
  	
  	}
  	//0204 김민성
- 	@ResponseBody
- 	@PostMapping("postFactoryDetail")
- 	public int postFactoryDetail(@RequestParam("pd_num")int pd_num,HttpSession session)throws Exception  {
- 		log.info("pd_num: {}", pd_num);
- 		MemberVO member = (MemberVO)session.getAttribute("user");//session
- 		
- 		QcVO qc = new QcVO();
- 		ProductVO productVO = new ProductVO();
- 		ProductionVO productionVO = new ProductionVO(); 
- 		
- 		
- 		List<InventoryVO> FinalInven = new ArrayList<>();
- 		InventoryVO inven1 = new InventoryVO();
- 		List<ProductionDetailVO> ProductionList = projectService.getProductionListByFactoryDetail(pd_num);
- 		int ProductionListSize = ProductionList.size();
- 		
- 		System.out.println("ProductionListSize"+ProductionListSize);
- 		for(int i = 0; i< ProductionListSize;i++) {
- 			String product_name = ProductionList.get(i).getProduct_name(); 
- 			int productiondetail_amount = ProductionList.get(i).getProductiondetail_amount();
- 			int recipe_num = projectService.getFindRecipeNum(product_name);
- 			
- 			List<InventoryVO> RecipeTotalList = new ArrayList<>();
- 			System.out.println("recipe_num"+recipe_num);
- 			List<RecipeDetailVO> RecipeList = projectService.getRecipeDetailListByRecipeNum(recipe_num);
- 			int RecipeListSize = RecipeList.size();
- 			log.info("RecipeList size for product {}: {}", product_name, RecipeListSize);
- 			
- 			
- 			for(int l =0; l < RecipeListSize;l++) {
- 				int Material_amount = RecipeList.get(l).getMaterial_amount();
- 				String Material_name = RecipeList.get(l).getMaterial_name();
- 				
- 				int TotalAmount = Material_amount * productiondetail_amount;
- 				InventoryVO inven = new InventoryVO();
- 				
- 				inven.setInven_amount(TotalAmount);
- 				inven.setInven_name(Material_name);
- 				RecipeTotalList.add(inven);
- 			}	
- 				List<InventoryVO> list = projectService.getFindInvenList();
- 				log.info(product_name);
- 				int listSize = list.size();
- 				for(int k =0; k < listSize; k++) {
- 					int Inven_amount =list.get(k).getInven_amount();
- 					String Inven_name = list.get(k).getInven_name();
- 					inven1.setInven_amount(Inven_amount);
- 						
- 						for(int j = 0; j<RecipeListSize; j++ ) {
- 							String Mname = RecipeTotalList.get(j).getInven_name();
- 							int totalamount = RecipeTotalList.get(j).getInven_amount();
- 							System.out.println("3");
- 							if(Mname.equals(Inven_name)) {
- 								
- 								int Total = Inven_amount - totalamount;
- 								
- 								System.out.println("4");
- 								if( Total < 0) {
- 									return 1; //재고 부족
- 								}else {
- 									
- 									inven1.setInven_amount(Total);
- 									inven1.setInven_name(Inven_name);
- 									System.out.println("5");
- 									FinalInven.add(inven1);
- 								}
- 						}
- 				}
- 			}// for 끝나는 부분 원자재 수 기준
- 		}//for 끝나는부분 제품 수 기준
- 		List<InventoryVO> exam = projectService.getFindInvenList();
- 		for (InventoryVO lists : exam) { 
- 		    for (InventoryVO finalInven : FinalInven) { 
- 		        // 두 배열의 inven_name이 같은 경우 처리
- 		        if (finalInven.getInven_name().equals(lists.getInven_name())) { 
- 		        	
- 		        	
- 		            // 최신화: exam의 inven_amount에서 FinalInven의 inven_amount를 빼기
- 		            int updatedAmount = lists.getInven_amount() - finalInven.getInven_amount(); 
- 		            // 음수 방지
- 		            if (updatedAmount < 0) {
- 		                System.out.println("Error: Insufficient inventory for " + finalInven.getInven_name());
- 		                return 1;
- 		            } 
- 		            // exam 리스트의 inven_amount를 최신화
- 		            lists.setInven_amount(updatedAmount);
+    @ResponseBody
+    @PostMapping("postFactoryDetail")
+    public int postFactoryDetail(@RequestParam("pd_num")int pd_num,HttpSession session)throws Exception  {
+       log.info("pd_num: {}", pd_num);
+       MemberVO member = (MemberVO)session.getAttribute("user");//session
+       
+       QcVO qc = new QcVO();
+       ProductVO productVO = new ProductVO();
+       ProductionVO productionVO = new ProductionVO(); 
+       
+       
+       List<InventoryVO> FinalInven = new ArrayList<>();
+       //마지막에 빼야할 아이템 이름과 수량 list
+       
+       
+       List<ProductionDetailVO> ProductionList = projectService.getProductionListByFactoryDetail(pd_num);
+       //productiondetail 제품명 , 수량 갖고 오기
+       int ProductionListSize = ProductionList.size();
+       //productiondetail list  사이즈
+       log.info("ProductionList : {}",ProductionList);
+       System.out.println("ProductionListSize"+ProductionListSize);
+       
+       for(int i = 0; i< ProductionListSize;i++) {
+          
+          log.info("ProductionList : {}",ProductionList);
+          log.info("ProductionListSize : {}",ProductionListSize);
+          
+          
+          String product_name = ProductionList.get(i).getProduct_name(); 
+          int productiondetail_amount = ProductionList.get(i).getProductiondetail_amount();
+          int recipe_num = projectService.getFindRecipeNum(product_name);
+          
+          List<InventoryVO> RecipeTotalList = new ArrayList<>();
+          System.out.println("recipe_num"+recipe_num);
+          
+          List<RecipeDetailVO> RecipeList = projectService.getRecipeDetailListByRecipeNum(recipe_num);
+          int RecipeListSize = RecipeList.size();
+          log.info("RecipeList size for product {}: {}", product_name, RecipeListSize);
+          
+          
+          for(int l =0; l < RecipeListSize;l++) {
+             int Material_amount = RecipeList.get(l).getMaterial_amount();
+             String Material_name = RecipeList.get(l).getMaterial_name();
+             log.info(Material_name);
+             
+             int TotalAmount = Material_amount * productiondetail_amount;
+             InventoryVO inven = new InventoryVO();
+             
+             inven.setInven_amount(TotalAmount);
+             inven.setInven_name(Material_name);
+             RecipeTotalList.add(inven);
+          }   
+             List<InventoryVO> list = projectService.getFindInvenList();
+             log.info(product_name);
+             int listSize = list.size();
+             for(int k =0; k < listSize; k++) {
+                InventoryVO inven = new InventoryVO();
+                
+                int Inven_amount =list.get(k).getInven_amount();
+                //inven 재고수량
+                String Inven_name = list.get(k).getInven_name();
+                //inven 소모될 재고 이름
+                
+                   for(int j = 0; j<RecipeListSize; j++ ) {
+                      String Mname = RecipeTotalList.get(j).getInven_name();
+                      int totalamount = RecipeTotalList.get(j).getInven_amount();
+                      System.out.println("3");
+                      if(Mname.equals(Inven_name)) {
+                         
+                         int Total = Inven_amount - totalamount;
+                         
+                         System.out.println("4");
+                         if( Total < 0) {
+                            return 1; //재고 부족
+                         }else {
+                            
+                            inven.setInven_amount(totalamount);
+                            inven.setInven_name(Inven_name);
+                            System.out.println("5");
+                            FinalInven.add(inven);
+                         }
+                   }
+             }
+          }// for 끝나는 부분 원자재 수 기준
+       }//for 끝나는부분 제품 수 기준
+       Map<String, Integer> finalInventoryMap = new HashMap<>();
 
- 		            // 최종 결과 확인 (디버깅용 로그)
- 		            System.out.println("Updated " + lists.getInven_name() + " Amount: " + updatedAmount);
- 		        }
- 		    }
- 		} 
- 		for (InventoryVO lists : exam) { 
- 			int r = projectService.reduceInventoryAmount(lists);
- 			if (r != 1) {
- 		        System.out.println("실패 " );
- 		        return 1; // 실패 시 반환
- 		        
- 		    }
- 		}
- 		//qc set 을 해주기 위한 리스트
- 		List<ProductionDetailVO> ProductbyQcSet = projectService.getProductionListByFactoryDetail(pd_num);
- 		int ProductbyQcSetSize = ProductbyQcSet.size();
- 		for(int c =0; c < ProductbyQcSetSize;c++) {
- 			String product_name = ProductbyQcSet.get(c).getProduct_name(); 
- 			int product_amount = ProductbyQcSet.get(c).getProductiondetail_amount();
- 			
- 			  productVO.setProduct_name(product_name);
- 			  projectService.getfindProductNum(productVO);
- 			
- 			  ProductVO product_num = projectService.getfindProductNum(productVO);
- 			  qc.setQc_item_num(product_num.getProduct_num()); 
- 			  qc.setQc_quan(product_amount);
- 			  qc.setQc_type("plan"); 
- 			  qc.setPaper_num(pd_num);
- 			  int result2 = projectService.insertqc(qc);
- 		}
- 		
- 		productionVO.setPd_num(pd_num);
- 		
- 		 
- 		int pd_check = projectService.setPdCheckUpdate(productionVO);
- 		System.out.println("생산 성공");
- 		return 2;
- 	}
+       for (InventoryVO item : FinalInven) {
+           System.out.println("Item Name: " + item.getInven_name() + ", Amount: " + item.getInven_amount());
+           
+           finalInventoryMap.put(item.getInven_name(), 
+               finalInventoryMap.getOrDefault(item.getInven_name(), 0) + item.getInven_amount());
+       }
+       
+       List<InventoryVO> exam = projectService.getFindInvenList();
+       for (InventoryVO lists : exam) {
+           if (finalInventoryMap.containsKey(lists.getInven_name())) {
+              
+               int totalRequired = finalInventoryMap.get(lists.getInven_name());
+               System.out.println(totalRequired);
+               int updatedAmount = lists.getInven_amount() - totalRequired;
+               String productName = lists.getInven_name();
+               System.out.println(updatedAmount+"수량은"+lists.getInven_name());
+               System.out.println(productName);
+              
+               if (updatedAmount < 0) {
+                   System.out.println("Error: Insufficient inventory for " + lists.getInven_name());
+                   return 1;
+               }
+
+               // 업데이트된 수량 반영
+               lists.setInven_amount(updatedAmount);
+               lists.setInven_name(productName);
+               // 디버깅 로그
+               System.out.println("Updated " + lists.getInven_name() + " Amount: " + updatedAmount);
+           }
+       }
+       
+      
+       for (InventoryVO lists : exam) { 
+          int r = projectService.reduceInventoryAmount(lists);
+          if (r != 1) {
+               System.out.println("실패 " );
+               return 1; // 실패 시 반환
+               
+           }
+       }
+       //qc set 을 해주기 위한 리스트
+       List<ProductionDetailVO> ProductbyQcSet = projectService.getProductionListByFactoryDetail(pd_num);
+       int ProductbyQcSetSize = ProductbyQcSet.size();
+       for(int c =0; c < ProductbyQcSetSize;c++) {
+          String product_name = ProductbyQcSet.get(c).getProduct_name(); 
+          int product_amount = ProductbyQcSet.get(c).getProductiondetail_amount();
+          
+            productVO.setProduct_name(product_name);
+            projectService.getfindProductNum(productVO);
+          
+            ProductVO product_num = projectService.getfindProductNum(productVO);
+            qc.setQc_item_num(product_num.getProduct_num()); 
+            qc.setQc_quan(product_amount);
+            qc.setQc_type("plan"); 
+            qc.setPaper_num(pd_num);
+            int result2 = projectService.insertqc(qc);
+       }
+       
+       productionVO.setPd_num(pd_num);
+       
+        
+       int pd_check = projectService.setPdCheckUpdate(productionVO);
+       System.out.println("생산 성공");
+       return 2;
+    }
  	
  	//0204 김민성
  	@ResponseBody

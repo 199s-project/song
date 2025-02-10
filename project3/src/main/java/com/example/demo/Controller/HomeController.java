@@ -187,20 +187,20 @@ public class HomeController {
     		count++;
     	}
     	
-    	map.put("dayname",dayname);
-    	map.put("recentTotalAmount",recentTotalAmount);
-    	map.put("recentTotalSales",recentTotalSales);
+//    	map.put("dayname",dayname);
+//    	map.put("recentTotalAmount",recentTotalAmount);
+//    	map.put("recentTotalSales",recentTotalSales);
     	
     	
     	// 판매 데이터 없을 때 연습용, 위에 map.put 2줄 주석처리하고 아래 내용 주석 해제해서 적용하기
     	
-//    	String[] daynameTest = {"월","화","수","목","금","토","일"};
-//    	int[] recentTotalAmountTest = {105, 34, 58, 95, 132, 116, 125};
-//    	int[] recentTotalSalesTest = {2130000, 4350000, 3740000, 6730000, 5840000, 7040000, 6843520};
-//    	
-//    	map.put("dayname",daynameTest);
-//    	map.put("recentTotalAmount",recentTotalAmountTest);    	
-//    	map.put("recentTotalSales",recentTotalSalesTest);
+    	String[] daynameTest = {"월","화","수","목","금","토","일"};
+    	int[] recentTotalAmountTest = {105, 34, 58, 95, 132, 116, 125};
+    	int[] recentTotalSalesTest = {2130000, 4350000, 3740000, 6730000, 5840000, 7040000, 6843520};
+    	
+    	map.put("dayname",daynameTest);
+    	map.put("recentTotalAmount",recentTotalAmountTest);    	
+    	map.put("recentTotalSales",recentTotalSalesTest);
     	
     	
     	return map;
@@ -243,17 +243,17 @@ public class HomeController {
     		count++;
     	}
     	
-    	map.put("dayname",dayname);
-    	map.put("recentTotalProduce",recentTotalProduce);
+//    	map.put("dayname",dayname);
+//    	map.put("recentTotalProduce",recentTotalProduce);
     	
     	
     	// 판매 데이터 없을 때 연습용, 위에 map.put 2줄 주석처리하고 아래 내용 주석 해제해서 적용하기
     	
-//    	String[] daynameTest = {"월","화","수","목","금","토","일"};
-//    	int[] recentTotalProduceTest = {105, 34, 58, 95, 132, 102, 146};
-//    	
-//    	map.put("dayname",daynameTest);
-//    	map.put("recentTotalProduce",recentTotalProduceTest);    	
+    	String[] daynameTest = {"월","화","수","목","금","토","일"};
+    	int[] recentTotalProduceTest = {105, 34, 58, 95, 132, 102, 146};
+    	
+    	map.put("dayname",daynameTest);
+    	map.put("recentTotalProduce",recentTotalProduceTest);    	
     	
     	
     	return map;

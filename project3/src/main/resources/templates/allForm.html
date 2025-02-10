@@ -112,8 +112,8 @@ div.dataTables_filter {
 									    <td><th:block th:text="${stat.size-stat.index}"></th:block></td> 
 									    <td><th:block th:text="${a.this_num.startsWith('quot') ? '물품 판매 계약서' : (a.this_num.startsWith('order') ? '물품 구매 계약서' : '')}"></th:block></td>
 										<td><a th:href="@{getAllFormDetail(this_num=${a.this_num})}"><th:block th:text="${a.quot_name}" ></th:block></a></td>
-										<td><th:block th:text="${a.company_num}"></th:block></td>
-										<td><th:block th:text="${a.company_num2}"></th:block></td>
+										<td><th:block th:text="${a.company_name1}"></th:block></td>
+										<td><th:block th:text="${a.company_name2}"></th:block></td>
 										<td><th:block th:text="${a.quot_startdate}"></th:block></td>
 										<td><th:block th:text="${a.quot_enddate}"></th:block></td>
 										<td><th:block th:text="${a.quot_stat}"></th:block></td>

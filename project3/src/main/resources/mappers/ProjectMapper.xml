@@ -655,7 +655,6 @@
    update inventory 
    set inven_amount = #{inven_amount} 
    where inven_name = #{inven_name} 
-   and inven_amount >= #{inven_amount}
    </update> 
  	
   <update id="setPdCheckUpdate" parameterType="ProductionVO"> 
